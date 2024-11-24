@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "zombie_tactics.refmap.json",
   "mixins": [
+    "EntityMixin",
+    "ZombieMixin"
   ],
   "client": [
   ],
