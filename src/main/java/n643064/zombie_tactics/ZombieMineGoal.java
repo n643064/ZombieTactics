@@ -75,6 +75,8 @@ public class ZombieMineGoal extends Goal
     @Override
     public void tick()
     {
+        if (zombie.getTarget() == null)
+            target = null;
         if (target == null) return;
         if (progress >= hardness)
         {
@@ -85,6 +87,7 @@ public class ZombieMineGoal extends Goal
         {
             level.destroyBlockProgress(zombie.getId(), target, (int) ((progress / hardness) * 10));
             zombie.stopInPlace();
+            zombie.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
             progress += Config.increment;
             zombie.swing(InteractionHand.MAIN_HAND);
         }
