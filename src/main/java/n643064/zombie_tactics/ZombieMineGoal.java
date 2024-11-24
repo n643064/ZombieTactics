@@ -55,7 +55,7 @@ public class ZombieMineGoal extends Goal
     {
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
-        System.out.println("check " + pos);
+        //System.out.println("check " + pos);
         return !b.isPossibleToRespawnInThis(state) && b.defaultDestroyTime() <= Config.hardnessMult;
     }
 
@@ -109,7 +109,7 @@ public class ZombieMineGoal extends Goal
             final double dsqr = zombie.distanceToSqr(zombie.getTarget());
             if (checkBlock(bp))
                 target = bp;
-            else if (dsqr < 2 || dsqr > 5 || !scanColumn(bp))
+            else if (dsqr < 2 || dsqr > 4 || !scanColumn(bp))
                 target = null;
         }
         return target != null;
