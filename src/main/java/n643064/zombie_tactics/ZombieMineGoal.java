@@ -56,7 +56,7 @@ public class ZombieMineGoal extends Goal
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
         //System.out.println("check " + pos);
-        return !b.isPossibleToRespawnInThis(state) && b.defaultDestroyTime() <= Config.hardnessMult;
+        return !b.isPossibleToRespawnInThis(state) && b.defaultDestroyTime() <= Config.maxHardness;
     }
 
     @Override
