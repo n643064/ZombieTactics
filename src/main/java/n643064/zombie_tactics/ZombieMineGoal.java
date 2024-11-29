@@ -51,7 +51,7 @@ public class ZombieMineGoal extends Goal
 
     boolean scanColumn(BlockPos bp)
     {
-        System.out.println("scan " + bp);
+        //System.out.println("scan " + bp);
         int diff = Integer.compare(zombie.getBlockY() - bp.getY(), 0);
 
         if (!checkBlock(bp.offset(0, diff, 0)))
@@ -64,7 +64,7 @@ public class ZombieMineGoal extends Goal
     {
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
-        System.out.println("check " + pos);
+        //System.out.println("check " + pos);
         if (!b.isPossibleToRespawnInThis(state) && b.defaultDestroyTime() <= Config.maxHardness)
         {
             target = pos;
