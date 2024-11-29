@@ -2,15 +2,16 @@ package n643064.zombie_tactics;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ZombieMineGoal extends Goal
+public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
 {
-    final Zombie zombie;
+    final T zombie;
     final Level level;
     BlockPos target;
     double progress, hardness = Double.MAX_VALUE;
@@ -30,7 +31,7 @@ public class ZombieMineGoal extends Goal
                     {-1, 0, -1}
             };
 
-    public ZombieMineGoal(Zombie zombie)
+    public ZombieMineGoal(T zombie)
     {
         this.zombie = zombie;
         level = zombie.level();
@@ -89,10 +90,19 @@ public class ZombieMineGoal extends Goal
     @Override
     public void tick()
     {
-        if (zombie.getTarget() == null)
-            target = null;
         if (target == null) return;
-        final double d = zombie.distanceToSqr(zombie.getTarget());
+        final double d;
+        final MarkerEntity m = zombie.zombieTactics$getTargetMarker();
+        final LivingEntity t = zombie.getTarget();
+        if (t != null)
+             d = zombie.distanceToSqr(t);
+        else if (m != null)
+             d = zombie.distanceToSqr(m);
+        else
+        {
+            target = null;
+            return;
+        }
 
         if (level.getBlockState(target).isAir() || d <= Config.minDist || d > Config.maxDist)
         {
@@ -123,11 +133,24 @@ public class ZombieMineGoal extends Goal
     @Override
     public boolean canUse()
     {
-        if(zombie.isAlive() && !zombie.isNoAi() && (zombie.getNavigation().isStuck() || zombie.getNavigation().isDone()) && zombie.getTarget() != null)
+        if(zombie.isAlive() && !zombie.isNoAi() && (zombie.getNavigation().isStuck() || zombie.getNavigation().isDone()))
         {
-            //zombie.getNavigation().recomputePath();
-            BlockPos bp = Util.off(zombie.blockPosition(), zombie.getTarget().blockPosition());
-            final double dttsqr = zombie.distanceToSqr(zombie.getTarget());
+            BlockPos bp;
+            final double dttsqr;
+            final MarkerEntity m = zombie.zombieTactics$getTargetMarker();
+            final LivingEntity t = zombie.getTarget();
+
+            if (t != null)
+            {
+                bp = Util.off(zombie.blockPosition(), t.blockPosition());
+                dttsqr = zombie.distanceToSqr(t);
+            }
+            else if (m != null)
+            {
+                bp = Util.off(zombie.blockPosition(), m.blockPosition());
+                dttsqr = zombie.distanceToSqr(m);
+            }
+            else return false;
             if (dttsqr * 1.2 >= zombie.distanceToSqr(bp.getCenter()) && !scanColumn(bp.above()))
                 if(zombie.getNavigation().isStuck() && !scanColumn(bp))
                     for (byte[] o : offsets)

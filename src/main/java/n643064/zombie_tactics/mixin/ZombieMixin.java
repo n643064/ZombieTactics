@@ -1,7 +1,6 @@
 package n643064.zombie_tactics.mixin;
 
-import n643064.zombie_tactics.Config;
-import n643064.zombie_tactics.ZombieMineGoal;
+import n643064.zombie_tactics.*;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
@@ -15,14 +14,31 @@ import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(Zombie.class)
-public abstract class ZombieMixin extends Monster
+public abstract class ZombieMixin extends Monster implements IMarkerFollower
 {
     @Shadow public abstract boolean canBreakDoors();
+
+    @Unique private MarkerEntity zombieTactics$marker = null;
+
+
+    @Override @Nullable
+    public MarkerEntity zombieTactics$getTargetMarker()
+    {
+        return zombieTactics$marker;
+    }
+
+    @Override
+    public void zombieTactics$setTargetMarker(@Nullable MarkerEntity marker)
+    {
+        zombieTactics$marker = marker;
+    }
 
     protected ZombieMixin(EntityType<? extends Monster> entityType, Level level)
     {
@@ -37,15 +53,17 @@ public abstract class ZombieMixin extends Monster
     @Overwrite
     protected void addBehaviourGoals()
     {
-        if (Config.affectPiglins || getType() != EntityType.ZOMBIFIED_PIGLIN)
+
+        this.goalSelector.addGoal(1, new ZombieAttackGoal((Zombie) (Object) this, 1.0, true));
+        if (Config.targetAnimals)
+            this.targetSelector.addGoal(Config.targetAnimalsPriority, new NearestAttackableTargetGoal<>(this, Animal.class, Config.targetAnimalsVisibility));
+        if (Config.mineBlocks)
+            this.goalSelector.addGoal(Config.miningPriority, new ZombieMineGoal((Zombie & IMarkerFollower) (Object) this));
+        if (Config.enableMarkers)
         {
-            this.goalSelector.addGoal(2, new ZombieAttackGoal((Zombie) (Object) this, 1.0, true));
-            if (Config.targetAnimals)
-                this.targetSelector.addGoal(Config.targetAnimalsPriority, new NearestAttackableTargetGoal<>(this, Animal.class, Config.targetAnimalsVisibility));
-            if (Config.mineBlocks)
-                this.goalSelector.addGoal(Config.miningPriority, new ZombieMineGoal((Zombie) (Object) this));
-        } else
-            this.goalSelector.addGoal(2, new ZombieAttackGoal((Zombie) (Object) this, 1.0, false));
+            this.goalSelector.addGoal(2, new RemoveMarkerGoal<>((Zombie & IMarkerFollower) (Object) this));
+            this.goalSelector.addGoal(Config.markerPathingPriority, new MoveTowardsMarkerGoal<>((Zombie & IMarkerFollower) (Object) this));
+        }
 
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0, true, 4, this::canBreakDoors));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
