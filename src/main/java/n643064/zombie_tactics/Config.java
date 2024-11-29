@@ -14,6 +14,8 @@ public class Config
     private static final ModConfigSpec.IntValue TARGET_ANIMALS_PRIORITY = BUILDER.comment("Animal targeting priority (lower values mean higher priority)").defineInRange("targetAnimalsPriority", 3, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.BooleanValue TARGET_ANIMALS_VISIBILITY = BUILDER.comment("Does animal targeting require line of sight").define("targetAnimalsVisibilityCheck", false);
     private static final ModConfigSpec.BooleanValue MINE_BLOCKS = BUILDER.comment("Should zombies attempt to break blocks in their way").define("zombiesMineBlocks", true);
+    private static final ModConfigSpec.DoubleValue MIN_DISTANCE = BUILDER.comment("Min distance to target entity for mining").defineInRange("minDistForMining", 0.2, 0, Double.MAX_VALUE);
+    private static final ModConfigSpec.DoubleValue MAX_DISTANCE = BUILDER.comment("Max distance to target entity for mining").defineInRange("maxDistForMining", 32, 0, Double.MAX_VALUE);
     private static final ModConfigSpec.BooleanValue DROP_BROKEN_BLOCKS = BUILDER.comment("Should broken blocks be dropped").define("dropBrokenBlocks", true);
     private static final ModConfigSpec.IntValue MINING_PRIORITY = BUILDER.comment("Block breaking goal priority").defineInRange("minePriority", 1, 0, Integer.MAX_VALUE);
     private static final ModConfigSpec.BooleanValue ZOMBIE_CLIMBING = BUILDER.comment("Should zombies climb each other on collision").define("zombiesClimb", true);
@@ -26,7 +28,7 @@ public class Config
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static boolean affectPiglins, mineBlocks, targetAnimals, targetAnimalsVisibility, zombiesClimbing, dropBlocks;
-    public static double increment, maxHardness, hardnessMult, climbingSpeed;
+    public static double increment, maxHardness, hardnessMult, climbingSpeed, minDist, maxDist;
     public static int targetAnimalsPriority, miningPriority;
 
 
@@ -35,6 +37,8 @@ public class Config
     {
         affectPiglins = AFFECT_PIGLINS.get();
         mineBlocks = MINE_BLOCKS.get();
+        minDist = MIN_DISTANCE.get();
+        maxDist = MAX_DISTANCE.get();
         dropBlocks = DROP_BROKEN_BLOCKS.get();
         miningPriority = MINING_PRIORITY.get();
         targetAnimals = TARGET_ANIMALS.get();

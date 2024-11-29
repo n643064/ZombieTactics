@@ -15,6 +15,21 @@ public class ZombieMineGoal extends Goal
     BlockPos target;
     double progress, hardness = Double.MAX_VALUE;
 
+    final byte[][] offsets = new byte[][]
+            {
+                    {0, 0, 1},
+                    {0, 0, -1},
+                    {1, 0, 0},
+                    {-1, 0, 0},
+                    {0, -1, 0},
+                    {0, 2, 0},
+
+                    {1, 0, 1},
+                    {1, 0, -1},
+                    {-1, 0, 1},
+                    {-1, 0, -1}
+            };
+
     public ZombieMineGoal(Zombie zombie)
     {
         this.zombie = zombie;
@@ -36,18 +51,12 @@ public class ZombieMineGoal extends Goal
 
     boolean scanColumn(BlockPos bp)
     {
-        bp = bp.above();
-        int diff = zombie.getBlockY() - bp.getY();
-        final BlockPos bp2 = bp.offset(0, diff, 0);
+        System.out.println("scan " + bp);
+        int diff = Integer.compare(zombie.getBlockY() - bp.getY(), 0);
 
-        if (checkBlock(bp2))
-            target = bp2;
-        else if (checkBlock(bp))
-            target = bp;
-        else if (checkBlock(bp.below()))
-            target = bp.below();
-        else
-            return false;
+        if (!checkBlock(bp.offset(0, diff, 0)))
+            if (!checkBlock(bp))
+                return checkBlock(bp.offset(0, -diff, 0));
         return true;
     }
 
@@ -55,8 +64,13 @@ public class ZombieMineGoal extends Goal
     {
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
-        //System.out.println("check " + pos);
-        return !b.isPossibleToRespawnInThis(state) && b.defaultDestroyTime() <= Config.maxHardness;
+        System.out.println("check " + pos);
+        if (!b.isPossibleToRespawnInThis(state) && b.defaultDestroyTime() <= Config.maxHardness)
+        {
+            target = pos;
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -78,6 +92,13 @@ public class ZombieMineGoal extends Goal
         if (zombie.getTarget() == null)
             target = null;
         if (target == null) return;
+        final double d = zombie.distanceToSqr(zombie.getTarget());
+
+        if (level.getBlockState(target).isAir() || d <= Config.minDist || d > Config.maxDist)
+        {
+            target = null;
+            return;
+        }
         if (progress >= hardness)
         {
             level.destroyBlock(target, Config.dropBlocks, zombie);
@@ -96,7 +117,7 @@ public class ZombieMineGoal extends Goal
     @Override
     public boolean canContinueToUse()
     {
-        return target != null && zombie.getEyePosition().distanceToSqr(target.getCenter()) <= 9;
+        return target != null && zombie.distanceToSqr(target.getCenter()) <= 9;
     }
 
     @Override
@@ -104,17 +125,25 @@ public class ZombieMineGoal extends Goal
     {
         if(zombie.isAlive() && !zombie.isNoAi() && (zombie.getNavigation().isStuck() || zombie.getNavigation().isDone()) && zombie.getTarget() != null)
         {
-            //System.out.println("can use check passed");
-            final BlockPos bp = Util.off(zombie.blockPosition(), zombie.getTarget().blockPosition());
-            final double dsqr = zombie.distanceToSqr(zombie.getTarget());
-            if (checkBlock(bp))
-                target = bp;
-            else if (dsqr < 2 || dsqr > 4 || !scanColumn(bp))
-                target = null;
+            //zombie.getNavigation().recomputePath();
+            BlockPos bp = Util.off(zombie.blockPosition(), zombie.getTarget().blockPosition());
+            final double dttsqr = zombie.distanceToSqr(zombie.getTarget());
+            if (dttsqr * 1.2 >= zombie.distanceToSqr(bp.getCenter()) && !scanColumn(bp.above()))
+                if(zombie.getNavigation().isStuck() && !scanColumn(bp))
+                    for (byte[] o : offsets)
+                        scanColumn(zombie.blockPosition().offset(o[0], o[1], o[2]));
+            /*
+            else if (!scanColumn(bp))
+                if (zombie.getNavigation().isStuck())
+                    bp = zombie.blockPosition();
+                    for (byte[] o : offsets)
+                        if (scanColumn(bp.offset(o[0], o[1], o[2])))
+                            break;
+                else
+                    target = null;
+
+             */
         }
         return target != null;
     }
-
-
-
 }
