@@ -55,9 +55,33 @@ public class Config
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
-    public static boolean affectPiglins, mineBlocks, targetAnimals, targetAnimalsVisibility, zombiesClimbing, dropBlocks, enableMarkers, markersFromDamage, markersFromItemUse, markersFromProjectiles;
-    public static double increment, maxHardness, hardnessMult, climbingSpeed, minDist, maxDist, markerSpawnChance, markerRange;
-    public static int targetAnimalsPriority, miningPriority, markerLifeTime, markerPathingPriority;
+    public static boolean
+            affectPiglins,
+            mineBlocks,
+            targetAnimals,
+            targetAnimalsVisibility,
+            zombiesClimbing,
+            dropBlocks,
+            enableMarkers,
+            markersFromDamage,
+            markersFromItemUse,
+            markersFromProjectiles;
+
+    public static double
+            increment,
+            maxHardness,
+            hardnessMult,
+            climbingSpeed,
+            minDist,
+            maxDist,
+            markerSpawnChance,
+            markerRange;
+
+    public static int
+            targetAnimalsPriority,
+            miningPriority,
+            markerLifeTime,
+            markerPathingPriority;
 
     public static final HashSet<EntityType<? extends Entity>> markerSpawningEntities = new HashSet<>();
 

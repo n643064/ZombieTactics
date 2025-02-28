@@ -16,14 +16,17 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class Main
 {
     public static final String MODID = "zombie_tactics";
-    public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, "zombie_tactics");
-    public static DeferredHolder<EntityType<? extends Entity>, EntityType<Entity>> MARKER = ENTITIES.register("marker", () -> EntityType.Builder.of(MarkerEntity::new, MobCategory.MISC)
+    public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE,
+            "zombie_tactics");
+
+    public static DeferredHolder<EntityType<? extends Entity>, EntityType<Entity>>
+            MARKER = ENTITIES.register("marker", () ->
+                EntityType.Builder.of(MarkerEntity::new, MobCategory.MISC)
             .noSave()
             .updateInterval(100)
             .sized(0.1f, 0.1f)
             .canSpawnFarFromPlayer()
             .build("zombie_tactics:marker"));
-
 
     public Main(IEventBus modEventBus, ModContainer modContainer)
     {
@@ -31,7 +34,6 @@ public class Main
         ENTITIES.register(modEventBus);
         modEventBus.addListener(Main::registerRenderers);
     }
-
 
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event)
     {

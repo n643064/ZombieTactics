@@ -15,20 +15,35 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     final Level level;
     BlockPos target;
     double progress, hardness = Double.MAX_VALUE;
+    boolean doMining = false;
 
+    // ??
     final byte[][] offsets = new byte[][]
             {
-                    {0, 0, 1},
-                    {0, 0, -1},
-                    {1, 0, 0},
-                    {-1, 0, 0},
                     {0, -1, 0},
+
+                    {-1, 0, -1},
+                    {-1, 0, 0},
+                    {-1, 0, 1},
+                    {0, 0, -1},
+                    {0, 0, 1},
+                    {1, 0, -1},
+                    {1, 0, 0},
+                    {1, 0, 1},
+
+                    /* ???
+                    {-1, 1, -1},
+                    {-1, 1, 0},
+                    {-1, 1, 1},
+                    {0, 1, -1},
+                    {0, 1, 1},
+                    {1, 1, -1},
+                    {1, 1, 0},
+                    {1, 1, 1},
+                    */
+
                     {0, 2, 0},
 
-                    {1, 0, 1},
-                    {1, 0, -1},
-                    {-1, 0, 1},
-                    {-1, 0, -1}
             };
 
     public ZombieMineGoal(T zombie)
@@ -46,6 +61,7 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     @Override
     public void start()
     {
+        doMining = true;
         progress = 0;
         hardness = level.getBlockState(target).getBlock().defaultDestroyTime() * Config.hardnessMult;
     }
@@ -66,7 +82,9 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
         //System.out.println("check " + pos);
-        if (!b.isPossibleToRespawnInThis(state) && b.defaultDestroyTime() <= Config.maxHardness)
+        if (!b.isPossibleToRespawnInThis(state) &&
+                b.defaultDestroyTime() <= Config.maxHardness &&
+                b.defaultDestroyTime() != -1) // exclude unbreakable blocks
         {
             target = pos;
             return true;
@@ -77,11 +95,12 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     @Override
     public void stop()
     {
-        if (target != null)
+        if (doMining)
         {
             zombie.level().destroyBlockProgress(zombie.getId(), target, -1);
             target = null;
         }
+        doMining = false;
         zombie.getNavigation().recomputePath();
         progress = 0;
         hardness = Double.MAX_VALUE;
@@ -90,7 +109,7 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     @Override
     public void tick()
     {
-        if (target == null) return;
+        if (!doMining) return;
         final double d;
         final MarkerEntity m = zombie.zombieTactics$getTargetMarker();
         final LivingEntity t = zombie.getTarget();
@@ -100,20 +119,27 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
              d = zombie.distanceToSqr(m);
         else
         {
-            target = null;
+            doMining = false;
             return;
         }
-
-        if (level.getBlockState(target).isAir() || d <= Config.minDist || d > Config.maxDist)
+        if (d <= Config.minDist || d > Config.maxDist)
         {
-            target = null;
+            doMining = false;
+            return;
+        }
+        if(level.getBlockState(target).isAir())
+        {
+            // if the target has been broken by others, but not work
+            level.destroyBlockProgress(zombie.getId(), target, -1);
+            progress = 0;
+            doMining = false;
             return;
         }
         if (progress >= hardness)
         {
             level.destroyBlock(target, Config.dropBlocks, zombie);
             zombie.level().destroyBlockProgress(zombie.getId(), target, -1);
-            target = null;
+            doMining = false;
         } else
         {
             level.destroyBlockProgress(zombie.getId(), target, (int) ((progress / hardness) * 10));
@@ -127,13 +153,14 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     @Override
     public boolean canContinueToUse()
     {
-        return target != null && zombie.distanceToSqr(target.getCenter()) <= 9;
+        return doMining && zombie.distanceToSqr(target.getCenter()) <= 9;
     }
 
     @Override
     public boolean canUse()
     {
-        if(zombie.isAlive() && !zombie.isNoAi() && (zombie.getNavigation().isStuck() || zombie.getNavigation().isDone()))
+        if(zombie.isAlive() && !zombie.isNoAi() &&
+                (zombie.getNavigation().isStuck() || zombie.getNavigation().isDone()))
         {
             BlockPos bp;
             final double dttsqr;
@@ -167,6 +194,6 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
 
              */
         }
-        return target != null;
+        return doMining;
     }
 }

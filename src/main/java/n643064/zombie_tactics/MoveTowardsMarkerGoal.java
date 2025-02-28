@@ -5,7 +5,8 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-public class MoveTowardsMarkerGoal<T extends Zombie & IMarkerFollower> extends WaterAvoidingRandomStrollGoal
+public class MoveTowardsMarkerGoal<T extends Zombie & IMarkerFollower>
+        extends WaterAvoidingRandomStrollGoal
 {
     private final T zombie;
     public MoveTowardsMarkerGoal(T zombie)

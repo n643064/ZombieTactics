@@ -10,5 +10,4 @@ public class Util
         final Vec3 s = b.getCenter().subtract(a.getCenter());
         return a.offset(Double.compare(s.x, 0), Double.compare(s.y, 0), Double.compare(s.z, 0));
     }
-
 }

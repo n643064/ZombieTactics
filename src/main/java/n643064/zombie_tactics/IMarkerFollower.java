@@ -6,6 +6,4 @@ public interface IMarkerFollower
 {
     @Nullable MarkerEntity zombieTactics$getTargetMarker();
     void zombieTactics$setTargetMarker(@Nullable MarkerEntity marker);
-
-
 }

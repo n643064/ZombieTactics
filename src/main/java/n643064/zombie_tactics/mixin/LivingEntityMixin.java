@@ -24,7 +24,11 @@ public abstract class LivingEntityMixin extends Entity
     @Inject(method = "hurt", at = @At("TAIL"))
     private void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
     {
-        if (Config.enableMarkers && Config.markersFromDamage && Config.markerSpawningEntities.contains(getType()) && amount > 0.5f  && random.nextDouble() <= Config.markerSpawnChance)
+        if (Config.enableMarkers &&
+                Config.markersFromDamage &&
+                Config.markerSpawningEntities.contains(getType()) &&
+                amount > 0.5f  &&
+                random.nextDouble() <= Config.markerSpawnChance)
         {
             final MarkerEntity m = new MarkerEntity(level());
             m.setPos(this.getPosition(0));
@@ -35,7 +39,10 @@ public abstract class LivingEntityMixin extends Entity
     @Inject(method = "completeUsingItem", at = @At("TAIL"))
     private void onUseItem(CallbackInfo ci)
     {
-        if (Config.enableMarkers && Config.markersFromItemUse && Config.markerSpawningEntities.contains(getType()) && random.nextDouble() <= Config.markerSpawnChance)
+        if (Config.enableMarkers &&
+                Config.markersFromItemUse &&
+                Config.markerSpawningEntities.contains(getType()) &&
+                random.nextDouble() <= Config.markerSpawnChance)
         {
             final MarkerEntity m = new MarkerEntity(level());
             m.setPos(this.getPosition(0));

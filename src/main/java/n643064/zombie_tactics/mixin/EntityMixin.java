@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Entity.class)
 public abstract class EntityMixin
 {
-
     @Shadow public boolean horizontalCollision;
     @Shadow public abstract Vec3 getDeltaMovement();
     @Shadow public abstract void setDeltaMovement(double x, double y, double z);
@@ -21,7 +20,11 @@ public abstract class EntityMixin
     @Inject(method = "push(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
     private void pushAwayFrom(Entity entity, CallbackInfo ci)
     {
-        if (Config.zombiesClimbing && entity instanceof Zombie && getClass().isAssignableFrom(Zombie.class) && entity.onGround() && horizontalCollision)
+        if (Config.zombiesClimbing &&
+                entity instanceof Zombie &&
+                getClass().isAssignableFrom(Zombie.class) &&
+                entity.onGround() &&
+                horizontalCollision)
         {
             final Vec3 v = getDeltaMovement();
             setDeltaMovement(v.x, Config.climbingSpeed, v.z);

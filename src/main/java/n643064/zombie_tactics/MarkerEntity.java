@@ -16,7 +16,9 @@ public class MarkerEntity extends Entity
         super(entityType, level);
         timeToLive = Config.markerLifeTime * 20;
 
-        for (Entity e : level.getEntities(this, this.getBoundingBox().inflate(10 * Config.markerRange), e -> (e instanceof IMarkerFollower)))
+        for (Entity e : level.getEntities(this,
+                this.getBoundingBox().inflate(10 * Config.markerRange),
+                e -> (e instanceof IMarkerFollower)))
         {
             //System.out.println(e);
             ((IMarkerFollower) (e)).zombieTactics$setTargetMarker(this);
@@ -28,13 +30,14 @@ public class MarkerEntity extends Entity
         this(Main.MARKER.get(), level);
     }
 
-
     @Override
     public void baseTick()
     {
-        timeToLive--;
+        -- timeToLive;
         if (timeToLive <= 0)
+        {
             this.remove(RemovalReason.DISCARDED);
+        }
     }
 
     @Override @ParametersAreNonnullByDefault
