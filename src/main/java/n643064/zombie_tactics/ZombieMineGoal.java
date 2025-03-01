@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -15,39 +16,40 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     final Level level;
     BlockPos target;
     double progress, hardness = Double.MAX_VALUE;
-    boolean doMining = false;
+    boolean doMining;
 
-    // ??
-    final byte[][] offsets = new byte[][]
-            {
-                    {0, -1, 0},
+    /* Z
+        /\   Y
+        |   /
+        |  /
+        | /
+        |/________ X
+        O
+     */
+    final byte[][] offsets = new byte[][] {
+            // Y = 1
+            // The blocks in front, behind, to the left and the right of eye level
+            {0, 1, 1},
+            {-1, 1, 0},
+            {1, 1, 0},
+            {0, 1, -1},
 
-                    {-1, 0, -1},
-                    {-1, 0, 0},
-                    {-1, 0, 1},
-                    {0, 0, -1},
-                    {0, 0, 1},
-                    {1, 0, -1},
-                    {1, 0, 0},
-                    {1, 0, 1},
+            // Y = 0
+            {0, 0, 1},
+            {-1, 0, 0},
+            {1, 0, 0},
+            {0, 0, -1},
 
-                    /* ???
-                    {-1, 1, -1},
-                    {-1, 1, 0},
-                    {-1, 1, 1},
-                    {0, 1, -1},
-                    {0, 1, 1},
-                    {1, 1, -1},
-                    {1, 1, 0},
-                    {1, 1, 1},
-                    */
+            // Y = 2
+            {0, 2, 0},
 
-                    {0, 2, 0},
-
-            };
+            // Y = -1
+            {0, -1, 0},
+    };
 
     public ZombieMineGoal(T zombie)
     {
+        doMining = true;
         this.zombie = zombie;
         level = zombie.level();
     }
@@ -59,22 +61,10 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     }
 
     @Override
-    public void start()
-    {
+    public void start() {
         doMining = true;
         progress = 0;
         hardness = level.getBlockState(target).getBlock().defaultDestroyTime() * Config.hardnessMult;
-    }
-
-    boolean scanColumn(BlockPos bp)
-    {
-        //System.out.println("scan " + bp);
-        int diff = Integer.compare(zombie.getBlockY() - bp.getY(), 0);
-
-        if (!checkBlock(bp.offset(0, diff, 0)))
-            if (!checkBlock(bp))
-                return checkBlock(bp.offset(0, -diff, 0));
-        return true;
     }
 
     boolean checkBlock(BlockPos pos)
@@ -86,6 +76,7 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
                 b.defaultDestroyTime() <= Config.maxHardness &&
                 b.defaultDestroyTime() != -1) // exclude unbreakable blocks
         {
+            doMining = true;
             target = pos;
             return true;
         }
@@ -95,11 +86,8 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     @Override
     public void stop()
     {
-        if (doMining)
-        {
-            zombie.level().destroyBlockProgress(zombie.getId(), target, -1);
-            target = null;
-        }
+        zombie.level().destroyBlockProgress(zombie.getId(), target, -1);
+        target = null;
         doMining = false;
         zombie.getNavigation().recomputePath();
         progress = 0;
@@ -110,18 +98,34 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     public void tick()
     {
         if (!doMining) return;
-        final double d;
+        double d = 0, d2 = 0;
+        int check = 0;
         final MarkerEntity m = zombie.zombieTactics$getTargetMarker();
         final LivingEntity t = zombie.getTarget();
-        if (t != null)
-             d = zombie.distanceToSqr(t);
-        else if (m != null)
-             d = zombie.distanceToSqr(m);
-        else
+
+        if(t != null)
         {
-            doMining = false;
-            return;
+            d = zombie.distanceToSqr(t);
+            check += 1;
         }
+        if(m != null)
+        {
+            d2 = zombie.distanceToSqr(m);
+            check += 2;
+        }
+        switch(check)
+        {
+            case 0:
+                doMining = false;
+                return;
+
+            case 1: break; // pass
+            case 2: d = d2; break;
+            case 3:
+                if(d > d2) d = d2;
+                break;
+        }
+
         if (d <= Config.minDist || d > Config.maxDist)
         {
             doMining = false;
@@ -129,7 +133,7 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
         }
         if(level.getBlockState(target).isAir())
         {
-            // if the target has been broken by others, but not work
+            // if the target has been broken by others
             level.destroyBlockProgress(zombie.getId(), target, -1);
             progress = 0;
             doMining = false;
@@ -159,41 +163,53 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     @Override
     public boolean canUse()
     {
+        // check availability of the mining
+        // found path but a zombie stuck
+        PathNavigation nav = zombie.getNavigation();
         if(zombie.isAlive() && !zombie.isNoAi() &&
-                (zombie.getNavigation().isStuck() || zombie.getNavigation().isDone()))
+                (nav.isStuck() || nav.isDone()))
         {
-            BlockPos bp;
-            final double dttsqr;
-            final MarkerEntity m = zombie.zombieTactics$getTargetMarker();
-            final LivingEntity t = zombie.getTarget();
-
-            if (t != null)
-            {
-                bp = Util.off(zombie.blockPosition(), t.blockPosition());
-                dttsqr = zombie.distanceToSqr(t);
-            }
-            else if (m != null)
-            {
-                bp = Util.off(zombie.blockPosition(), m.blockPosition());
-                dttsqr = zombie.distanceToSqr(m);
-            }
-            else return false;
-            if (dttsqr * 1.2 >= zombie.distanceToSqr(bp.getCenter()) && !scanColumn(bp.above()))
-                if(zombie.getNavigation().isStuck() && !scanColumn(bp))
-                    for (byte[] o : offsets)
-                        scanColumn(zombie.blockPosition().offset(o[0], o[1], o[2]));
             /*
-            else if (!scanColumn(bp))
-                if (zombie.getNavigation().isStuck())
-                    bp = zombie.blockPosition();
-                    for (byte[] o : offsets)
-                        if (scanColumn(bp.offset(o[0], o[1], o[2])))
-                            break;
-                else
-                    target = null;
+            final MarkerEntity mark = zombie.zombieTactics$getTargetMarker();
+            final LivingEntity living = zombie.getTarget();
+            double d = 0, d2 = 0;
+            int check = 0;
+
+            if(mark != null)
+            {
+                d = zombie.distanceToSqr(mark);
+                check += 1;
+            }
+            if(living != null)
+            {
+                d2 = zombie.distanceToSqr(living);
+                check += 2;
+            }
+
+            switch(check)
+            {
+                case 0: return false;
+                case 1: break; // pass
+                case 2: d = d2; break;
+                case 3:
+                    if(d > d2) d = d2;
+                    break;
+            }
 
              */
+
+            for(byte[] options: offsets)
+            {
+                // checkBlock method is able to change 'zombie' variable
+                // So 'temp' cannot be determined as valid object
+                BlockPos temp = zombie.blockPosition().offset(options[0], options[1], options[2]);
+                if(checkBlock(temp))
+                {
+                    return true;
+                }
+            }
         }
-        return doMining;
+        // zombie cannot escape
+        return false;
     }
 }

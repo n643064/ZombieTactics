@@ -33,6 +33,7 @@ public class MarkerEntity extends Entity
     @Override
     public void baseTick()
     {
+
         -- timeToLive;
         if (timeToLive <= 0)
         {
