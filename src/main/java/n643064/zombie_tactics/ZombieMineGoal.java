@@ -66,7 +66,8 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
         //System.out.println("check " + pos);
-        if (!b.isPossibleToRespawnInThis(state) && b.defaultDestroyTime() <= Config.maxHardness)
+        final float dt = b.defaultDestroyTime();
+        if (!b.isPossibleToRespawnInThis(state) && dt >= 0 && dt <= Config.maxHardness)
         {
             target = pos;
             return true;
