@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+// Climbing
 @Mixin(Entity.class)
 public abstract class EntityMixin
 {
@@ -20,7 +21,7 @@ public abstract class EntityMixin
     @Shadow public abstract void setDeltaMovement(double x, double y, double z);
 
     @Inject(method = "push(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
-    private void pushAwayFrom(Entity entity, CallbackInfo ci)
+    private void pushAwayFrom(Entity entity, CallbackInfo ignoredCI)
     {
         if (Config.zombiesClimbing &&
                 entity instanceof Zombie &&

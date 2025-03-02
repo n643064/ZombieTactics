@@ -1,14 +1,17 @@
 # Zombie Tactics Mod for Minecraft
 ## Information
-- Version: 1.2.2
+- Version: 1.3.0
 ## Requirements
 - Minecraft 1.21.*
+- Neoforge
 
-## Fixes
-- Zombie breaks bedrock
-- Block position that zombie has to mine is still cracked 
+## Changes
+### 1.3.0
+- Removed Marker (origin owner maybe hate)
+- Mining AI improved
+### 1.2.1
+- Zombie doesn't break bedrock anymore
+- Fixed block position that zombie has to mine is still cracked 
 
 ## Issues
-- Mining progress is often interrupted before it's completed
-- A zombie doesn't attack new hittable entity when a marker entity exists until the marked is killed
-- If a zombie reaches to target entity, zombie will try to mine a block around itself then resume chasing
+- A zombie doesn't attack new hittable entity when a marker entity exists until the marked is killed or far away
