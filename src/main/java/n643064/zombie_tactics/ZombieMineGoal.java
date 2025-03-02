@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
+public class ZombieMineGoal<T extends Zombie> extends Goal
 {
     final T zombie;
     final Level level;
@@ -18,15 +18,18 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     double progress, hardness = Double.MAX_VALUE;
     boolean doMining;
 
-    /* Z
-        /\   Y
+    // These are constant unless a target is changed
+    double X, Y, Z;
+
+    /*  Y
+        /\   Z
         |   /
         |  /
         | /
         |/________ X
         O
      */
-    final byte[][] offsets = new byte[][] {
+    final byte[][] candidates_pos = new byte[][] {
             // Y = 1
             // The blocks in front, behind, to the left and the right of eye level
             {0, 1, 1},
@@ -67,17 +70,20 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
         hardness = level.getBlockState(target).getBlock().defaultDestroyTime() * Config.hardnessMult;
     }
 
-    boolean checkBlock(BlockPos pos)
-    {
+    boolean checkBlock(BlockPos pos) {
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
+        float destroying = b.defaultDestroyTime();
         //System.out.println("check " + pos);
-        if (!b.isPossibleToRespawnInThis(state) &&
-                b.defaultDestroyTime() <= Config.maxHardness &&
-                b.defaultDestroyTime() != -1) // exclude unbreakable blocks
+        if(!b.isPossibleToRespawnInThis(state) &&
+                destroying >= 0 &&
+                destroying <= Config.maxHardness) // exclude unbreakable blocks
         {
             doMining = true;
             target = pos;
+            X = pos.getX();
+            Y = pos.getY();
+            Z = pos.getZ();
             return true;
         }
         return false;
@@ -98,35 +104,8 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     public void tick()
     {
         if (!doMining) return;
-        double d = 0, d2 = 0;
-        int check = 0;
-        final MarkerEntity m = zombie.zombieTactics$getTargetMarker();
-        final LivingEntity t = zombie.getTarget();
-
-        if(t != null)
-        {
-            d = zombie.distanceToSqr(t);
-            check += 1;
-        }
-        if(m != null)
-        {
-            d2 = zombie.distanceToSqr(m);
-            check += 2;
-        }
-        switch(check)
-        {
-            case 0:
-                doMining = false;
-                return;
-
-            case 1: break; // pass
-            case 2: d = d2; break;
-            case 3:
-                if(d > d2) d = d2;
-                break;
-        }
-
-        if (d <= Config.minDist || d > Config.maxDist)
+        if (zombie.distanceToSqr(X, Y, Z) <= Config.minDist ||
+            zombie.distanceToSqr(X, Y, Z) > Config.maxDist)
         {
             doMining = false;
             return;
@@ -148,7 +127,7 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
         {
             level.destroyBlockProgress(zombie.getId(), target, (int) ((progress / hardness) * 10));
             zombie.stopInPlace();
-            zombie.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
+            zombie.getLookControl().setLookAt(X, Y, Z);
             progress += Config.increment;
             zombie.swing(InteractionHand.MAIN_HAND);
         }
@@ -157,52 +136,45 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     @Override
     public boolean canContinueToUse()
     {
-        return doMining && zombie.distanceToSqr(target.getCenter()) <= 9;
+        return doMining && zombie.distanceToSqr(target.getCenter()) <= Config.maxDist;
     }
 
     @Override
     public boolean canUse()
     {
+        // validate zombie position
+        double x, y, z;
+        x = zombie.getX();
+        y = zombie.getY();
+        z = zombie.getZ();
+        if(X != x || Y != y || Z != z)
+        {
+            X = x; Y = y; Z = z;
+            return false;
+        }
         // check availability of the mining
         // found path but a zombie stuck
+        LivingEntity liv = zombie.getTarget();
         PathNavigation nav = zombie.getNavigation();
+
+        // I think that isStuck always return false
         if(zombie.isAlive() && !zombie.isNoAi() &&
-                (nav.isStuck() || nav.isDone()))
+                nav.isDone() && liv != null)
         {
-            /*
-            final MarkerEntity mark = zombie.zombieTactics$getTargetMarker();
-            final LivingEntity living = zombie.getTarget();
-            double d = 0, d2 = 0;
-            int check = 0;
-
-            if(mark != null)
+            // once more
+            boolean eval = nav.moveTo(liv, zombie.getSpeed());
+            if(eval)
             {
-                d = zombie.distanceToSqr(mark);
-                check += 1;
+                zombie.setTarget(liv);
+                return false;
             }
-            if(living != null)
-            {
-                d2 = zombie.distanceToSqr(living);
-                check += 2;
-            }
-
-            switch(check)
-            {
-                case 0: return false;
-                case 1: break; // pass
-                case 2: d = d2; break;
-                case 3:
-                    if(d > d2) d = d2;
-                    break;
-            }
-
-             */
-
-            for(byte[] options: offsets)
+            // ???
+            if(zombie.distanceToSqr(liv) < 1.2) return false;
+            for(byte[] pos: candidates_pos)
             {
                 // checkBlock method is able to change 'zombie' variable
                 // So 'temp' cannot be determined as valid object
-                BlockPos temp = zombie.blockPosition().offset(options[0], options[1], options[2]);
+                BlockPos temp = zombie.blockPosition().offset(pos[0], pos[1], pos[2]);
                 if(checkBlock(temp))
                 {
                     return true;
