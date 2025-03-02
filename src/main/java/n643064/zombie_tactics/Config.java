@@ -42,8 +42,8 @@ public class Config
     private static final ModConfigSpec.IntValue MARKER_PATH_PRIORITY = BUILDER.comment("The priority for moving towards markers").defineInRange("markerPathingPriority", 2, 0, Integer.MAX_VALUE / 20);
 
 
-
-    private static final ModConfigSpec.ConfigValue<List<String>> MARKER_SPAWNING_ENTITIES = BUILDER.comment("Entities which should spawn markers").define("markerSpawningEntities",
+    @SuppressWarnings("deprecation")
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> MARKER_SPAWNING_ENTITIES = BUILDER.comment("Entities which should spawn markers").defineListAllowEmpty("markerSpawningEntities",
             List.of(
                     "minecraft:player",
                     "minecraft:sheep",
@@ -51,7 +51,7 @@ public class Config
                     "minecraft:cow",
                     "minecraft:pig",
                     "minecraft:villager"
-            ));
+            ), string -> string instanceof String);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
