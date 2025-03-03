@@ -9,9 +9,11 @@
 ### 1.3.0
 - Removed Marker (origin owner maybe hate)
 - Mining AI improved
+- Add dependency SmartBrainLib
+- Zombie gains health when attack
 ### 1.2.1
 - Zombie doesn't break bedrock anymore
-- Fixed block position that zombie has to mine is still cracked 
+- If a zombie stopped mining, target block destroy progress is reset 
 
 ## Issues
-- A zombie doesn't attack new hittable entity when a marker entity exists until the marked is killed or far away
+- A zombie doesn't attack new hittable entity when a marker entity exists until the target is killed or far away

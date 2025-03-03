@@ -23,6 +23,7 @@ public class Config
     private static final ModConfigSpec.DoubleValue MINING_INCREMENT = BUILDER.comment("The amount of mining progress made per tick").defineInRange("miningIncrement", 0.1, 0, Double.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue MAX_HARDNESS = BUILDER.comment("The maximal hardness of targeted blocks").defineInRange("maxHardness", 12, 0, Double.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue HARDNESS_MULTIPLIER = BUILDER.comment("Target block hardness multiplier, doesn't affect block selection").defineInRange("hardnessMultiplier", 5, 0, Double.MAX_VALUE);
+    private static final ModConfigSpec.DoubleValue HEAL_AMOUNT = BUILDER.comment("The amount of heal when a zombie attacks somewhat").defineInRange("healAmount", 1.0, 0, 1024);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -39,7 +40,8 @@ public class Config
             hardnessMult,
             climbingSpeed,
             minDist,
-            maxDist;
+            maxDist,
+            healAmount;
 
     public static int
             targetAnimalsPriority,
@@ -61,5 +63,6 @@ public class Config
         hardnessMult = HARDNESS_MULTIPLIER.get();
         zombiesClimbing = ZOMBIE_CLIMBING.get();
         climbingSpeed = CLIMBING_SPEED.get();
+        healAmount = HEAL_AMOUNT.get();
     }
 }
