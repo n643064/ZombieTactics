@@ -17,3 +17,5 @@
 
 ## Issues
 - A zombie doesn't attack new hittable entity when a marker entity exists until the target is killed or far away
+- If a zombie died when mining, block crack is remained
+- IF a zombie climbs for a long time and lands, it will fall with high damage

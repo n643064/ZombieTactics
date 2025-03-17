@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.47-beta'
+    id 'net.neoforged.moddev' version '2.0.72'
 }
 
 version = mod_version
@@ -12,6 +12,9 @@ repositories {
     maven {
         name = "SmartBrainLib (SBL) Maven Repo"
         url = "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
+    }
+    flatDir {
+        dirs 'lib'
     }
 }
 
@@ -99,7 +102,6 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${project.minecraft_version}:1.16.7"
-
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

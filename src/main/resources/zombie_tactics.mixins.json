@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "n643064.zombie_tactics.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "zombie_tactics.refmap.json",
   "mixins": [
     "EntityMixin",

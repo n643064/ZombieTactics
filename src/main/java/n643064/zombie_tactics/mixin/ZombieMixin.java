@@ -2,10 +2,9 @@ package n643064.zombie_tactics.mixin;
 
 import n643064.zombie_tactics.*;
 
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -18,30 +17,27 @@ import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Arrow;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 
-import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
-import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
-import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.BreakBlock;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.function.Predicate;
 
 @Mixin(Zombie.class)
 public abstract class ZombieMixin extends Monster implements SmartBrainOwner<ZombieMixin>
 {
+    @Final
+    @Shadow
+    private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
+
     protected ZombieMixin(EntityType<? extends Zombie> entityType, Level level)
     {
         super(entityType, level);
@@ -51,10 +47,10 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     public abstract boolean canBreakDoors();
 
     // Healing zombie
-    @Inject(method = "doHurtTarget", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "doHurtTarget", at = @At("TAIL"))
     public void doHurtTarget(Entity ent, CallbackInfoReturnable<Boolean> ci)
     {
-        if(ent instanceof Villager && this.getHealth() < this.getMaxHealth())
+        if(this.getHealth() < this.getMaxHealth())
         {
             this.heal((float)Config.healAmount);
         }
@@ -102,5 +98,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this,
                 Turtle.class, 10, true, false,
                 Turtle.BABY_ON_LAND_SELECTOR));
+
+        this.goalSelector.addGoal(1, new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
     }
 }
