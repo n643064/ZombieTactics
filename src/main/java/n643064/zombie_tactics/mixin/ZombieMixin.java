@@ -5,6 +5,7 @@ import n643064.zombie_tactics.*;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.npc.AbstractVillager;
-import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -34,9 +34,7 @@ import java.util.function.Predicate;
 @Mixin(Zombie.class)
 public abstract class ZombieMixin extends Monster implements SmartBrainOwner<ZombieMixin>
 {
-    @Final
-    @Shadow
-    private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
+    @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
 
     protected ZombieMixin(EntityType<? extends Zombie> entityType, Level level)
     {
@@ -47,10 +45,10 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     public abstract boolean canBreakDoors();
 
     // Healing zombie
-    @Inject(method = "doHurtTarget", at = @At("TAIL"))
+    @Inject(method = "doHurtTarget", at = @At("HEAD"))
     public void doHurtTarget(Entity ent, CallbackInfoReturnable<Boolean> ci)
     {
-        if(this.getHealth() < this.getMaxHealth())
+        if(ent instanceof LivingEntity && this.getHealth() < this.getMaxHealth())
         {
             this.heal((float)Config.healAmount);
         }
@@ -66,13 +64,15 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     protected void addBehaviourGoals()
     {
         this.goalSelector.addGoal(1, new ZombieAttackGoal((Zombie)(Object)this,
-                1.5, true));
+                Config.aggressiveSpeed, true));
 
         if (Config.targetAnimals)
+        {
             this.targetSelector.addGoal(Config.targetAnimalsPriority,
                     new NearestAttackableTargetGoal<>(this, Animal.class,
                             Config.targetAnimalsVisibility));
-
+            Config.AttackableTypes.add(Animal.class);
+        }
         if (Config.mineBlocks)
             this.goalSelector.addGoal(Config.miningPriority,
                     new ZombieMineGoal<>((Zombie) (Object)this));
@@ -100,5 +100,10 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
                 Turtle.BABY_ON_LAND_SELECTOR));
 
         this.goalSelector.addGoal(1, new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
+
+        Config.AttackableTypes.add(AbstractVillager.class);
+        Config.AttackableTypes.add(IronGolem.class);
+        Config.AttackableTypes.add(Turtle.class);
+        Config.AttackableTypes.add(Player.class);
     }
 }

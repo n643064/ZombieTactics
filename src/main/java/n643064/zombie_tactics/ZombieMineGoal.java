@@ -5,7 +5,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -30,6 +29,13 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
         |/________ X
         O
      */
+    // The sequence of this array is important because
+    //      it determines how a zombie reaches its target.
+    // For example, the target could be placed above, below,
+    //      in front of, or behind the zombie.
+    // The order in which blocks are mined
+    //      affects the zombie's movement path.
+    // However, this array is constant.
     final byte[][] candidates_pos = new byte[][] {
             // Y = 1
             // The blocks in front, behind, to the left and the right of eye level
@@ -71,6 +77,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
         hardness = level.getBlockState(target).getBlock().defaultDestroyTime() * Config.hardnessMult;
     }
 
+    // is valid to mine?
     boolean checkBlock(BlockPos pos) {
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
@@ -93,6 +100,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     @Override
     public void stop()
     {
+        // reset all progress and find path again
         zombie.level().destroyBlockProgress(zombie.getId(), target, -1);
         target = null;
         doMining = false;
@@ -111,9 +119,10 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
             doMining = false;
             return;
         }
+
+        // if the target block has been broken by others
         if(level.getBlockState(target).isAir())
         {
-            // if the target has been broken by others
             level.destroyBlockProgress(zombie.getId(), target, -1);
             progress = 0;
             doMining = false;
@@ -143,7 +152,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     @Override
     public boolean canUse()
     {
-        // validate zombie position
+        // a zombie should be stuck
         double x, y, z;
         x = zombie.getX();
         y = zombie.getY();

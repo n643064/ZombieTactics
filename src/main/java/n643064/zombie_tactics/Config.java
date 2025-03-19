@@ -1,9 +1,13 @@
 package n643064.zombie_tactics;
 
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EventBusSubscriber(modid = Main.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class Config
@@ -24,6 +28,8 @@ public class Config
     private static final ModConfigSpec.DoubleValue MAX_HARDNESS = BUILDER.comment("The maximal hardness of targeted blocks").defineInRange("maxHardness", 12, 0, Double.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue HARDNESS_MULTIPLIER = BUILDER.comment("Target block hardness multiplier, doesn't affect block selection").defineInRange("hardnessMultiplier", 5, 0, Double.MAX_VALUE);
     private static final ModConfigSpec.DoubleValue HEAL_AMOUNT = BUILDER.comment("The amount of heal when a zombie attacks somewhat").defineInRange("healAmount", 1.0, 0, 1024);
+    private static final ModConfigSpec.IntValue ATTACK_COOLDOWN = BUILDER.comment("Interval ticks to attack").defineInRange("attackCooldown", 10, 1, 1000);
+    private static final ModConfigSpec.DoubleValue AGGRESSIVE_SPEED = BUILDER.comment("Walk speed when a zombie is mad").defineInRange("aggressiveSpeed", 1.5, 0.01, 128);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -41,11 +47,15 @@ public class Config
             climbingSpeed,
             minDist,
             maxDist,
-            healAmount;
+            healAmount,
+            aggressiveSpeed;
 
     public static int
             targetAnimalsPriority,
-            miningPriority;
+            miningPriority,
+            attackCooldown;
+
+    public static List<Class<? extends LivingEntity>> AttackableTypes;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent ignored)
@@ -64,5 +74,9 @@ public class Config
         zombiesClimbing = ZOMBIE_CLIMBING.get();
         climbingSpeed = CLIMBING_SPEED.get();
         healAmount = HEAL_AMOUNT.get();
+        attackCooldown = ATTACK_COOLDOWN.get();
+        aggressiveSpeed = AGGRESSIVE_SPEED.get();
+
+        AttackableTypes = new ArrayList<>();
     }
 }
