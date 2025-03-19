@@ -6,7 +6,7 @@
   "refmap": "zombie_tactics.refmap.json",
   "mixins": [
     "EntityMixin",
-    "ZombieMixin",,
+    "ZombieMixin",
     "ZombieAttackGoalMixin",
     "MeleeAttackGoalMixin"
   ],
