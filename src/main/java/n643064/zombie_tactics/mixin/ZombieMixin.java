@@ -2,7 +2,9 @@ package n643064.zombie_tactics.mixin;
 
 import n643064.zombie_tactics.*;
 
+import n643064.zombie_tactics.attachments.MiningData;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,10 +23,8 @@ import net.minecraft.world.level.Level;
 
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -46,12 +46,19 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
 
     // Healing zombie
     @Inject(method = "doHurtTarget", at = @At("HEAD"))
-    public void doHurtTarget(Entity ent, CallbackInfoReturnable<Boolean> ci)
-    {
-        if(ent instanceof LivingEntity && this.getHealth() < this.getMaxHealth())
-        {
+    public void doHurtTarget(Entity ent, CallbackInfoReturnable<Boolean> ci) {
+        if(ent instanceof LivingEntity && this.getHealth() < this.getMaxHealth()) {
             this.heal((float)Config.healAmount);
         }
+    }
+
+    @Override
+    public void die(@NotNull DamageSource source)
+    {
+        super.die(source);
+        MiningData md = this.getData(Main.ZOMBIE_MINING);
+        if(md.doMining)
+            this.level().destroyBlockProgress(this.getId(), md.bp, - 1);
     }
 
     /**

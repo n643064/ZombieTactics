@@ -9,7 +9,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(modid = Main.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class Config
 {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
@@ -43,7 +43,7 @@ public class Config
     public static double
             increment,
             maxHardness,
-            hardnessMult,
+            hardnessMultiplier,
             climbingSpeed,
             minDist,
             maxDist,
@@ -70,7 +70,7 @@ public class Config
         targetAnimalsVisibility = TARGET_ANIMALS_VISIBILITY.get();
         increment = MINING_INCREMENT.get();
         maxHardness = MAX_HARDNESS.get();
-        hardnessMult = HARDNESS_MULTIPLIER.get();
+        hardnessMultiplier = HARDNESS_MULTIPLIER.get();
         zombiesClimbing = ZOMBIE_CLIMBING.get();
         climbingSpeed = CLIMBING_SPEED.get();
         healAmount = HEAL_AMOUNT.get();

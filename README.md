@@ -3,21 +3,20 @@
 - Version: 1.3.0
 ## Requirements
 - Minecraft 1.21.1
-- Neoforge
+- NeoForge
 
 ## Changes
 ### 1.3.0
-- Removed Marker (origin owner maybe hate)
-- Mining AI improved
-- Add dependency SmartBrainLib
-- Zombie gains health when attack
-- Attack speed increased
-- Fixed fall when climbing
-- 
+- Removed Marker (original owner may dislike it)
+- Improved mining AI
+- Added dependency: SmartBrainLib
+- Zombies gain health when attacking
+- Increased attack speed
+- Zombies no longer take fall damage while climbing
+- A crack that a dead zombie tried to mine now disappears 
 ### 1.2.1
-- Zombie doesn't break bedrock anymore
-- If a zombie stopped mining, target block destroy progress is reset 
+- Zombies no longer break bedrock
+- If a zombie stops mining, target block's destruction progress is reset 
 
 ## Issues
-- A zombie doesn't attack new hittable entity when a marker entity exists until the target is killed or far away
-- If a zombie died when mining, block crack is remained
+- A zombie does not attack a new hittable entity when a target entity exists unless the target is killed or moves far away

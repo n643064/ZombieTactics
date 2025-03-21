@@ -1,5 +1,6 @@
 package n643064.zombie_tactics;
 
+import n643064.zombie_tactics.attachments.MiningData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,14 +13,14 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class ZombieMineGoal<T extends Zombie> extends Goal
 {
-    final T zombie;
-    final Level level;
-    BlockPos target;
-    double progress, hardness = Double.MAX_VALUE;
-    boolean doMining;
+    private final T zombie;
+    private final Level level;
+    private double progress, hardness = Double.MAX_VALUE;
+
+    private final MiningData mine;
 
     // These are constant unless a target is changed
-    double X, Y, Z;
+    private double X, Y, Z;
 
     /*  Y
         /\   Z
@@ -36,7 +37,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     // The order in which blocks are mined
     //      affects the zombie's movement path.
     // However, this array is constant.
-    final byte[][] candidates_pos = new byte[][] {
+    private final byte[][] candidates_pos = new byte[][] {
             // Y = 1
             // The blocks in front, behind, to the left and the right of eye level
             {0, 1, 1},
@@ -44,14 +45,18 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
             {1, 1, 0},
             {0, 1, -1},
 
+            // Y = 2
+            {0, 2, 0},
+            {0, 2, 1},
+            {0, 2, -1},
+            {1, 2, 0},
+            {-1, 2, 0},
+
             // Y = 0
             {0, 0, 1},
             {-1, 0, 0},
             {1, 0, 0},
             {0, 0, -1},
-
-            // Y = 2
-            {0, 2, 0},
 
             // Y = -1
             {0, -1, 0},
@@ -59,7 +64,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
 
     public ZombieMineGoal(T zombie)
     {
-        doMining = true;
+        mine = new MiningData();
         this.zombie = zombie;
         level = zombie.level();
     }
@@ -72,13 +77,14 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
 
     @Override
     public void start() {
-        doMining = true;
         progress = 0;
-        hardness = level.getBlockState(target).getBlock().defaultDestroyTime() * Config.hardnessMult;
+        hardness = level.getBlockState(mine.bp).getBlock().defaultDestroyTime() * Config.hardnessMultiplier;
+        mine.doMining = true;
+        zombie.setData(Main.ZOMBIE_MINING, mine);
     }
 
     // is valid to mine?
-    boolean checkBlock(BlockPos pos) {
+    protected boolean checkBlock(BlockPos pos) {
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
         float destroying = b.defaultDestroyTime();
@@ -87,8 +93,8 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
                 destroying >= 0 &&
                 destroying <= Config.maxHardness) // exclude unbreakable blocks
         {
-            doMining = true;
-            target = pos;
+            mine.doMining = true;
+            mine.bp = pos;
             X = pos.getX();
             Y = pos.getY();
             Z = pos.getZ();
@@ -101,9 +107,9 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     public void stop()
     {
         // reset all progress and find path again
-        zombie.level().destroyBlockProgress(zombie.getId(), target, -1);
-        target = null;
-        doMining = false;
+        level.destroyBlockProgress(zombie.getId(), mine.bp, -1);
+        mine.doMining = false;
+        mine.bp = null;
         zombie.getNavigation().recomputePath();
         progress = 0;
         hardness = Double.MAX_VALUE;
@@ -112,30 +118,30 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     @Override
     public void tick()
     {
-        if (!doMining) return;
+        if (!mine.doMining) return;
         if (zombie.distanceToSqr(X, Y, Z) <= Config.minDist ||
             zombie.distanceToSqr(X, Y, Z) > Config.maxDist)
         {
-            doMining = false;
+            mine.doMining = false;
             return;
         }
 
         // if the target block has been broken by others
-        if(level.getBlockState(target).isAir())
+        if(level.getBlockState(mine.bp).isAir())
         {
-            level.destroyBlockProgress(zombie.getId(), target, -1);
+            level.destroyBlockProgress(zombie.getId(), mine.bp, -1);
             progress = 0;
-            doMining = false;
+            mine.doMining = false;
             return;
         }
         if (progress >= hardness)
         {
-            level.destroyBlock(target, Config.dropBlocks, zombie);
-            zombie.level().destroyBlockProgress(zombie.getId(), target, -1);
-            doMining = false;
+            level.destroyBlock(mine.bp, Config.dropBlocks, zombie);
+            level.destroyBlockProgress(zombie.getId(), mine.bp, -1);
+            mine.doMining = false;
         } else
         {
-            level.destroyBlockProgress(zombie.getId(), target, (int) ((progress / hardness) * 10));
+            level.destroyBlockProgress(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
             zombie.stopInPlace();
             zombie.getLookControl().setLookAt(X, Y, Z);
             progress += Config.increment;
@@ -146,7 +152,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     @Override
     public boolean canContinueToUse()
     {
-        return doMining && zombie.distanceToSqr(target.getCenter()) <= Config.maxDist;
+        return mine.doMining && zombie.distanceToSqr(mine.bp.getCenter()) <= Config.maxDist;
     }
 
     @Override
