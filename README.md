@@ -14,6 +14,9 @@
 - Increased attack speed
 - Zombies no longer take fall damage while climbing
 - A crack that a dead zombie tried to mine now disappears 
+- Solved that Zombie-derived mobs does not push other zombies
+- Added an option that zombie are sensitive to sun or not
+- Added in-game mod configuration screen with translation 
 ### 1.2.1
 - Zombies no longer break bedrock
 - If a zombie stops mining, target block's destruction progress is reset 

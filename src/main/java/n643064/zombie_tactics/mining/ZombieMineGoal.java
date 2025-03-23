@@ -1,5 +1,7 @@
-package n643064.zombie_tactics;
+package n643064.zombie_tactics.mining;
 
+import n643064.zombie_tactics.Config;
+import n643064.zombie_tactics.Main;
 import n643064.zombie_tactics.attachments.MiningData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -10,9 +12,11 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
-public class ZombieMineGoal<T extends Zombie> extends Goal
-{
+import static n643064.zombie_tactics.mining.MiningRoutines.*;
+
+public class ZombieMineGoal<T extends Zombie> extends Goal {
     private final T zombie;
     private final Level level;
     private double progress, hardness = Double.MAX_VALUE;
@@ -22,56 +26,14 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     // These are constant unless a target is changed
     private double X, Y, Z;
 
-    /*  Y
-        /\   Z
-        |   /
-        |  /
-        | /
-        |/________ X
-        O
-     */
-    // The sequence of this array is important because
-    //      it determines how a zombie reaches its target.
-    // For example, the target could be placed above, below,
-    //      in front of, or behind the zombie.
-    // The order in which blocks are mined
-    //      affects the zombie's movement path.
-    // However, this array is constant.
-    private final byte[][] candidates_pos = new byte[][] {
-            // Y = 1
-            // The blocks in front, behind, to the left and the right of eye level
-            {0, 1, 1},
-            {-1, 1, 0},
-            {1, 1, 0},
-            {0, 1, -1},
-
-            // Y = 2
-            {0, 2, 0},
-            {0, 2, 1},
-            {0, 2, -1},
-            {1, 2, 0},
-            {-1, 2, 0},
-
-            // Y = 0
-            {0, 0, 1},
-            {-1, 0, 0},
-            {1, 0, 0},
-            {0, 0, -1},
-
-            // Y = -1
-            {0, -1, 0},
-    };
-
-    public ZombieMineGoal(T zombie)
-    {
+    public ZombieMineGoal(T zombie) {
         mine = new MiningData();
         this.zombie = zombie;
         level = zombie.level();
     }
 
     @Override
-    public boolean requiresUpdateEveryTick()
-    {
+    public boolean requiresUpdateEveryTick() {
         return true;
     }
 
@@ -83,16 +45,27 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
         zombie.setData(Main.ZOMBIE_MINING, mine);
     }
 
+    // get deltaY between me and target
+    // then return a proper set of positions
+    public byte[][] getCandidate(@NotNull LivingEntity liv) {
+        double deltaY = liv.getY() - zombie.getY();
+        if(deltaY > -2 && deltaY < 2)
+            return routineFlat;
+        else if(deltaY <= -2)
+            return routineDown;
+        else // deltaY >= 2
+            return routineUp;
+    }
+
     // is valid to mine?
     protected boolean checkBlock(BlockPos pos) {
         final BlockState state = level.getBlockState(pos);
         final Block b = state.getBlock();
         float destroying = b.defaultDestroyTime();
-        //System.out.println("check " + pos);
+
+        // exclude unbreakable blocks
         if(!b.isPossibleToRespawnInThis(state) &&
-                destroying >= 0 &&
-                destroying <= Config.maxHardness) // exclude unbreakable blocks
-        {
+                destroying >= 0 && destroying <= Config.maxHardness) {
             mine.doMining = true;
             mine.bp = pos;
             X = pos.getX();
@@ -104,8 +77,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     }
 
     @Override
-    public void stop()
-    {
+    public void stop() {
         // reset all progress and find path again
         level.destroyBlockProgress(zombie.getId(), mine.bp, -1);
         mine.doMining = false;
@@ -116,31 +88,26 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     }
 
     @Override
-    public void tick()
-    {
+    public void tick() {
         if (!mine.doMining) return;
         if (zombie.distanceToSqr(X, Y, Z) <= Config.minDist ||
-            zombie.distanceToSqr(X, Y, Z) > Config.maxDist)
-        {
+            zombie.distanceToSqr(X, Y, Z) > Config.maxDist) {
             mine.doMining = false;
             return;
         }
 
         // if the target block has been broken by others
-        if(level.getBlockState(mine.bp).isAir())
-        {
+        if(level.getBlockState(mine.bp).isAir()) {
             level.destroyBlockProgress(zombie.getId(), mine.bp, -1);
             progress = 0;
             mine.doMining = false;
             return;
         }
-        if (progress >= hardness)
-        {
+        if (progress >= hardness) {
             level.destroyBlock(mine.bp, Config.dropBlocks, zombie);
             level.destroyBlockProgress(zombie.getId(), mine.bp, -1);
             mine.doMining = false;
-        } else
-        {
+        } else {
             level.destroyBlockProgress(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
             zombie.stopInPlace();
             zombie.getLookControl().setLookAt(X, Y, Z);
@@ -150,21 +117,18 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
     }
 
     @Override
-    public boolean canContinueToUse()
-    {
+    public boolean canContinueToUse() {
         return mine.doMining && zombie.distanceToSqr(mine.bp.getCenter()) <= Config.maxDist;
     }
 
     @Override
-    public boolean canUse()
-    {
+    public boolean canUse() {
         // a zombie should be stuck
         double x, y, z;
         x = zombie.getX();
         y = zombie.getY();
         z = zombie.getZ();
-        if(X != x || Y != y || Z != z)
-        {
+        if(X != x || Y != y || Z != z) {
             X = x; Y = y; Z = z;
             return false;
         }
@@ -175,26 +139,21 @@ public class ZombieMineGoal<T extends Zombie> extends Goal
 
         // I think that isStuck always return false
         if(zombie.isAlive() && !zombie.isNoAi() &&
-                nav.isDone() && liv != null)
-        {
-            // once more
+                nav.isDone() && liv != null /*&& nav.isStuck()*/) {
+            if(zombie.isWithinMeleeAttackRange(liv)) return false;
+
+            // go once more
             boolean eval = nav.moveTo(liv, zombie.getSpeed());
-            if(eval)
-            {
-                zombie.setTarget(liv);
+            byte[][] set = getCandidate(liv);
+            if(eval) {
                 return false;
             }
-            // ???
-            if(zombie.isWithinMeleeAttackRange(liv)) return false;
-            for(byte[] pos: candidates_pos)
-            {
+            for(byte[] pos: set) {
                 // checkBlock method is able to change 'zombie' variable
                 // So 'temp' cannot be determined as valid object
                 BlockPos temp = zombie.blockPosition().offset(pos[0], pos[1], pos[2]);
                 if(checkBlock(temp))
-                {
                     return true;
-                }
             }
         }
         // zombie cannot escape

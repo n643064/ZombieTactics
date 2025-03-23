@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "zombie_tactics.refmap.json",
   "mixins": [
-    "EntityMixin",
     "MeleeAttackGoalMixin",
     "ZombieAttackGoalMixin",
     "ZombieMixin"

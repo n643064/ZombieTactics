@@ -11,17 +11,14 @@ import org.spongepowered.asm.mixin.Unique;
 // Refactoring ZombieAttackGoal
 // I just want to make attack speed faster
 @Mixin(ZombieAttackGoal.class)
-public class ZombieAttackGoalMixin extends MeleeAttackGoal
-{
-    public ZombieAttackGoalMixin(PathfinderMob mob, double speedModifier, boolean followingTargetEvenIfNotSeen)
-    {
+public class ZombieAttackGoalMixin extends MeleeAttackGoal {
+    public ZombieAttackGoalMixin(PathfinderMob mob, double speedModifier, boolean followingTargetEvenIfNotSeen) {
         super(mob, speedModifier, followingTargetEvenIfNotSeen);
     }
 
     @Override
     @Unique
-    protected int getAttackInterval()
-    {
+    protected int getAttackInterval() {
         return this.adjustedTickDelay(Config.attackCooldown);
     }
 }
