@@ -7,9 +7,7 @@ import n643064.zombie_tactics.mining.ZombieMineGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -59,12 +57,14 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     }
 
     // Healing zombie
-    @Inject(method = "doHurtTarget", at = @At("HEAD"))
+    @Inject(method = "doHurtTarget", at = @At("TAIL"))
     public void doHurtTarget(Entity ent, CallbackInfoReturnable<Boolean> ci) {
-        if(ent instanceof LivingEntity &&
-                this.getHealth() + Config.healAmount <= this.getMaxHealth()) {
-            this.heal((float)Config.healAmount);
+        if(ent instanceof LivingEntity) {
+            if(this.getHealth()<= this.getMaxHealth())
+                this.heal((float)Config.healAmount);
         }
+        // reset invulnerable time
+        if(Config.noMercy) ent.invulnerableTime = 0;
     }
 
     // For climbing
@@ -99,7 +99,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
         super.die(source);
         MiningData md = this.getData(Main.ZOMBIE_MINING);
         if(md.doMining)
-            this.level().destroyBlockProgress(this.getId(), md.bp, - 1);
+            this.level().destroyBlockProgress(this.getId(), md.bp, -1);
     }
 
     /**
@@ -112,7 +112,6 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     protected void addBehaviourGoals() {
         this.goalSelector.addGoal(1, new ZombieAttackGoal((Zombie)(Object)this,
                 Config.aggressiveSpeed, true));
-
         if (Config.targetAnimals) {
             this.targetSelector.addGoal(Config.targetAnimalsPriority,
                     new NearestAttackableTargetGoal<>(this, Animal.class,
@@ -120,7 +119,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
         }
         if (Config.mineBlocks)
             this.goalSelector.addGoal(Config.miningPriority,
-                    new ZombieMineGoal<>((Zombie) (Object)this));
+                    new ZombieMineGoal<>((Zombie)(Object)this));
 
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this,
                 1.0, true, 4, this::canBreakDoors));

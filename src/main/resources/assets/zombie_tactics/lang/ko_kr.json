@@ -39,5 +39,7 @@
   "zombie_tactics.configuration.General.aggressive_speed": "달리기 속도",
   "zombie_tactics.configuration.General.aggressive_speed.tooltip": "목표에 달려갈 속도를 설정합니다",
   "zombie_tactics.configuration.General.sun_sensitive": "태양에 불타는지의 여부",
-  "zombie_tactics.configuration.General.sun_sensitive.tooltip": "태양이 좀비를 불태웁니다"
+  "zombie_tactics.configuration.General.sun_sensitive.tooltip": "태양이 좀비를 불태웁니다",
+  "zombie_tactics.configuration.General.no_mercy": "목표의 무적 시간 초기화",
+  "zombie_tactics.configuration.General.no_mercy.tooltip": "매 공격마다 목표물의 무적을 해제합니다"
 }

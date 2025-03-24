@@ -27,14 +27,30 @@ public class Config {
     private static ModConfigSpec.IntValue ATTACK_COOLDOWN;
     private static ModConfigSpec.DoubleValue AGGRESSIVE_SPEED;
     private static ModConfigSpec.BooleanValue SUN_SENSITIVE;
+    private static ModConfigSpec.BooleanValue NO_MERCY;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
-    public static boolean mineBlocks, targetAnimals, targetAnimalsVisibility, zombiesClimbing, dropBlocks, sunSensitive;
+    public static boolean mineBlocks,
+            targetAnimals,
+            targetAnimalsVisibility,
+            zombiesClimbing,
+            dropBlocks,
+            sunSensitive,
+            noMercy;
 
-    public static double increment, maxHardness, hardnessMultiplier, climbingSpeed, minDist, maxDist, healAmount, aggressiveSpeed;
+    public static double increment,
+            maxHardness,
+            hardnessMultiplier,
+            climbingSpeed,
+            minDist,
+            maxDist,
+            healAmount,
+            aggressiveSpeed;
 
-    public static int targetAnimalsPriority, miningPriority, attackCooldown;
+    public static int targetAnimalsPriority,
+            miningPriority,
+            attackCooldown;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent ignored) {
@@ -55,6 +71,7 @@ public class Config {
         attackCooldown = ATTACK_COOLDOWN.get();
         aggressiveSpeed = AGGRESSIVE_SPEED.get();
         sunSensitive = SUN_SENSITIVE.get();
+        noMercy = NO_MERCY.get();
     }
 
     /*
@@ -76,7 +93,7 @@ public class Config {
             DROP_BROKEN_BLOCKS = b.comment("Should broken blocks be dropped").translation(MOD_CFG + "Mining.drop_blocks").define("dropBrokenBlocks", true);
             MINING_PRIORITY = b.comment("Block breaking goal priority. Do not change if you don't know what it is").translation(MOD_CFG + "Mining.mine_priority").defineInRange("minePriority", 1, 0, Integer.MAX_VALUE);
             MINING_SPEED = b.comment("The amount of mining progress made per tick").translation(MOD_CFG + "Mining.mining_speed").defineInRange("miningSpeed", 0.2, 0, Double.MAX_VALUE);
-            MAX_HARDNESS = b.comment("The maximum hardness of targeted blocks. For example, Iron block is 5").translation(MOD_CFG + "Mining.max_hardness").defineInRange("maxHardness", 5, 0, Double.MAX_VALUE);
+            MAX_HARDNESS = b.comment("The maximum hardness of targeted blocks. For example, Iron block is 5").translation(MOD_CFG + "Mining.max_hardness").defineInRange("maxHardness", 4.5, 0, Double.MAX_VALUE);
             HARDNESS_MULTIPLIER = b.comment("Target block hardness multiplier, and doesn't affect block selection. Mining progress = hardnessMultiplier * block hardness").translation(MOD_CFG + "Mining.hardness_multiplier").defineInRange("hardnessMultiplier", 5, 0, Double.MAX_VALUE);
             b.pop();
             b.push("Climbing");
@@ -88,6 +105,7 @@ public class Config {
             ATTACK_COOLDOWN = b.comment("Interval ticks to attack").translation(MOD_CFG + "General.attack_cooldown").defineInRange("attackCooldown", 10, 1, 1000);
             AGGRESSIVE_SPEED = b.comment("Walk speed when a zombie is mad").translation(MOD_CFG + "General.aggressive_speed").defineInRange("aggressiveSpeed", 1.5, 0.01, 128);
             SUN_SENSITIVE = b.comment("Zombie is sensitive to the sun").translation(MOD_CFG + "General.sun_sensitive").define("sunSensitive", false);
+            NO_MERCY = b.comment("Target entity").translation(MOD_CFG + "General.no_mercy").define("noMercy", false);
             b.pop();
         }
     }

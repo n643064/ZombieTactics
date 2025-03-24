@@ -39,5 +39,7 @@
   "zombie_tactics.configuration.General.aggressive_speed": "Running speed",
   "zombie_tactics.configuration.General.aggressive_speed.tooltip": "Walk speed when a zombie is mad",
   "zombie_tactics.configuration.General.sun_sensitive": "Sun sensitive",
-  "zombie_tactics.configuration.General.sun_sensitive.tooltip": "Zombie is sensitive to the sun"
+  "zombie_tactics.configuration.General.sun_sensitive.tooltip": "Zombie is sensitive to the sun",
+  "zombie_tactics.configuration.General.no_mercy": "Reset the target's invulnerable time",
+  "zombie_tactics.configuration.General.no_mercy.tooltip": "Make target vulnerable every attack"
 }

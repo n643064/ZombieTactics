@@ -11,18 +11,24 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+
+import java.util.function.Supplier;
 
 @Mod(Main.MOD_ID)
 public class Main {
     public static final String MOD_ID = "zombie_tactics";
-    public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister
             .create(BuiltInRegistries.ENTITY_TYPE, MOD_ID);
-    public static AttachmentType<MiningData> ZOMBIE_MINING = AttachmentType
-            .builder(MiningData::new).build();
+    public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS = DeferredRegister
+            .create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
+    public static final Supplier<AttachmentType<MiningData>> ZOMBIE_MINING = ATTACHMENTS
+            .register("zombie_mining", () -> AttachmentType.builder(MiningData::new).build());
 
     public Main(IEventBus modEventBus, ModContainer modContainer) {
         ENTITIES.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        ATTACHMENTS.register(modEventBus);
     }
 }
