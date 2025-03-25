@@ -41,5 +41,7 @@
   "zombie_tactics.configuration.General.sun_sensitive": "Sun sensitive",
   "zombie_tactics.configuration.General.sun_sensitive.tooltip": "Zombie is sensitive to the sun",
   "zombie_tactics.configuration.General.no_mercy": "Reset the target's invulnerable time",
-  "zombie_tactics.configuration.General.no_mercy.tooltip": "Make target vulnerable every attack"
+  "zombie_tactics.configuration.General.no_mercy.tooltip": "Make target vulnerable every attack",
+  "zombie_tactics.configuration.General.attack_range": "Attack range",
+  "zombie_tactics.configuration.General.attack_range.tooltip": "The range of attack"
 }

@@ -41,5 +41,7 @@
   "zombie_tactics.configuration.General.sun_sensitive": "태양에 불타는지의 여부",
   "zombie_tactics.configuration.General.sun_sensitive.tooltip": "태양이 좀비를 불태웁니다",
   "zombie_tactics.configuration.General.no_mercy": "목표의 무적 시간 초기화",
-  "zombie_tactics.configuration.General.no_mercy.tooltip": "매 공격마다 목표물의 무적을 해제합니다"
+  "zombie_tactics.configuration.General.no_mercy.tooltip": "매 공격마다 목표물의 무적을 해제합니다",
+  "zombie_tactics.configuration.General.attack_range": "공격 거리",
+  "zombie_tactics.configuration.General.attack_range.tooltip": "좀비가 공격 가능한 범위"
 }

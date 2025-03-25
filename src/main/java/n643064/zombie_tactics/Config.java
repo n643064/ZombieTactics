@@ -28,6 +28,7 @@ public class Config {
     private static ModConfigSpec.DoubleValue AGGRESSIVE_SPEED;
     private static ModConfigSpec.BooleanValue SUN_SENSITIVE;
     private static ModConfigSpec.BooleanValue NO_MERCY;
+    private static ModConfigSpec.DoubleValue ATTACK_RANGE;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -46,7 +47,8 @@ public class Config {
             minDist,
             maxDist,
             healAmount,
-            aggressiveSpeed;
+            aggressiveSpeed,
+            attackRange;
 
     public static int targetAnimalsPriority,
             miningPriority,
@@ -72,6 +74,7 @@ public class Config {
         aggressiveSpeed = AGGRESSIVE_SPEED.get();
         sunSensitive = SUN_SENSITIVE.get();
         noMercy = NO_MERCY.get();
+        attackRange = ATTACK_RANGE.get();
     }
 
     /*
@@ -106,6 +109,7 @@ public class Config {
             AGGRESSIVE_SPEED = b.comment("Walk speed when a zombie is mad").translation(MOD_CFG + "General.aggressive_speed").defineInRange("aggressiveSpeed", 1.5, 0.01, 128);
             SUN_SENSITIVE = b.comment("Zombie is sensitive to the sun").translation(MOD_CFG + "General.sun_sensitive").define("sunSensitive", false);
             NO_MERCY = b.comment("Target entity").translation(MOD_CFG + "General.no_mercy").define("noMercy", false);
+            ATTACK_RANGE = b.comment("Zombie attack range").translation(MOD_CFG + "General.attack_range").defineInRange("", Math.sqrt(2.04) - 0.6, 0.25, 127.);
             b.pop();
         }
     }

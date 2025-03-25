@@ -21,6 +21,7 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
@@ -50,6 +51,22 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     @Overwrite
     protected boolean isSunSensitive() {
         return Config.sunSensitive;
+    }
+
+    // Modifying Attack range
+    @Override
+    protected @NotNull AABB getAttackBoundingBox() {
+        Entity entity = this.getVehicle();
+        AABB aabb;
+        if (entity != null) {
+            AABB aabb1 = entity.getBoundingBox();
+            AABB aabb2 = this.getBoundingBox();
+            aabb = new AABB(Math.min(aabb2.minX, aabb1.minX), aabb2.minY, Math.min(aabb2.minZ, aabb1.minZ),
+                    Math.max(aabb2.maxX, aabb1.maxX), aabb2.maxY, Math.max(aabb2.maxZ, aabb1.maxZ));
+        } else {
+            aabb = this.getBoundingBox();
+        }
+        return aabb.inflate(Config.attackRange, 0., Config.attackRange);
     }
 
     protected ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
@@ -122,7 +139,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
                     new ZombieMineGoal<>((Zombie)(Object)this));
 
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this,
-                1.0, true, 4, this::canBreakDoors));
+                1.0, false, 4, this::canBreakDoors));
 
         this.goalSelector.addGoal(7,
                 new WaterAvoidingRandomStrollGoal(this, 1.0));

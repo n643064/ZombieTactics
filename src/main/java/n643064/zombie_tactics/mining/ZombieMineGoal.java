@@ -1,8 +1,10 @@
 package n643064.zombie_tactics.mining;
 
+import static n643064.zombie_tactics.mining.MiningRoutines.*;
 import n643064.zombie_tactics.Config;
 import n643064.zombie_tactics.Main;
 import n643064.zombie_tactics.attachments.MiningData;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,9 +14,8 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
-import static n643064.zombie_tactics.mining.MiningRoutines.*;
+import org.jetbrains.annotations.NotNull;
 
 public class ZombieMineGoal<T extends Zombie> extends Goal {
     private final T zombie;
