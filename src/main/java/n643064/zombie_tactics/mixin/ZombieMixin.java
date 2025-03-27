@@ -73,9 +73,19 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
         super(entityType, level);
     }
 
+    // fixes that doing both mining and attacking
+    @Inject(method = "doHurtTarget", at = @At("HEAD"))
+    public void doHurtTargetHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        MiningData dat = this.getData(Main.ZOMBIE_MINING);
+        if(dat.doMining) {
+            dat.doMining = false;
+            System.out.println("I caught you!!");
+        }
+    }
+
     // Healing zombie
     @Inject(method = "doHurtTarget", at = @At("TAIL"))
-    public void doHurtTarget(Entity ent, CallbackInfoReturnable<Boolean> ci) {
+    public void doHurtTargetTail(Entity ent, CallbackInfoReturnable<Boolean> ci) {
         if(ent instanceof LivingEntity) {
             if(this.getHealth()<= this.getMaxHealth())
                 this.heal((float)Config.healAmount);
@@ -83,6 +93,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
         // reset invulnerable time
         if(Config.noMercy) ent.invulnerableTime = 0;
     }
+
 
     // For climbing
     @Override

@@ -125,6 +125,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
     @Override
     public boolean canUse() {
         // a zombie should be stuck
+        // check availability of the mining
         double x, y, z;
         x = zombie.getX();
         y = zombie.getY();
@@ -133,7 +134,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
             X = x; Y = y; Z = z;
             return false;
         }
-        // check availability of the mining
+
         // found path but a zombie stuck
         LivingEntity liv = zombie.getTarget();
         PathNavigation nav = zombie.getNavigation();
@@ -144,17 +145,21 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
             if(zombie.isWithinMeleeAttackRange(liv)) return false;
 
             // go once more
+            // Issue: moveTo sometimes return false while a zombie can go to the target.
+            // It can solve by using the method `hasLineOfSight` but this causes a problem
+            //   about fences that have 1.5 meters tall.
+            // TODO: fix this
             boolean eval = nav.moveTo(liv, zombie.getSpeed());
             byte[][] set = getCandidate(liv);
-            if(eval) {
-                return false;
-            }
+
+            if(eval) return false;
+            else System.out.println(zombie);
+
             for(byte[] pos: set) {
                 // checkBlock method is able to change 'zombie' variable
                 // So 'temp' cannot be determined as valid object
                 BlockPos temp = zombie.blockPosition().offset(pos[0], pos[1], pos[2]);
-                if(checkBlock(temp))
-                    return true;
+                if(checkBlock(temp)) return true;
             }
         }
         // zombie cannot escape
