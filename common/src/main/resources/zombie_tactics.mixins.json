@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "n643064.zombie_tactics.common.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "zombie_tactics.refmap.json",
+  "mixins": [
+    "MeleeAttackGoalMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

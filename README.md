@@ -7,6 +7,7 @@
 
 ## Changes
 ### 1.3.0
+- Reformed project structure, using `Architectury` API
 - Removed Marker (original owner may dislike it)
 - Improved mining AI
 - Added dependency: SmartBrainLib
@@ -20,6 +21,7 @@
   - Attack range
 - Added in-game mod configuration screen with translation
 - Supports new command `sumz`
+- Now supports Fabric
 - And miscellaneous bugs fixed 
 ### 1.2.1
 - Zombies no longer break bedrock
