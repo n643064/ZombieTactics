@@ -1,16 +1,14 @@
 modLoader = "javafml"
-loaderVersion = "[2,)"
+loaderVersion = "[4,)"
 #issueTrackerURL = ""
 license = "GNU GPL 3.0"
 
 [[mods]]
 modId = "zombie_tactics"
-version = "${version}"
+version = "1.3.0"
 displayName = "ZombieTactics"
 authors = "n643064"
-description = '''
-Improves zombie mechanism
-'''
+description = "Improves zombie mechanism"
 #logoFile = ""
 
 [[dependencies.zombie_tactics]]
@@ -32,6 +30,11 @@ modId = "architectury"
 type = "required"
 versionRange = "[13.0.8,)"
 ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.zombie_tactics]]
+modId = "smartbrainlib"
+type = "required"
 side = "BOTH"
 
 [[mixins]]

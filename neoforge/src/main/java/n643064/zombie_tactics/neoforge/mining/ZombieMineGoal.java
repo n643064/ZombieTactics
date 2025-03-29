@@ -3,7 +3,7 @@ package n643064.zombie_tactics.neoforge.mining;
 import static n643064.zombie_tactics.common.mining.MiningRoutines.*;
 import n643064.zombie_tactics.neoforge.Config;
 import n643064.zombie_tactics.neoforge.Main;
-import n643064.zombie_tactics.common.attachments.MiningData;
+import n643064.zombie_tactics.neoforge.attachments.MiningData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;

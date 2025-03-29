@@ -2,7 +2,7 @@ package n643064.zombie_tactics.neoforge.mixin;
 
 import n643064.zombie_tactics.neoforge.Config;
 import n643064.zombie_tactics.neoforge.Main;
-import n643064.zombie_tactics.common.attachments.MiningData;
+import n643064.zombie_tactics.neoforge.attachments.MiningData;
 import n643064.zombie_tactics.neoforge.mining.ZombieMineGoal;
 
 import net.minecraft.core.BlockPos;

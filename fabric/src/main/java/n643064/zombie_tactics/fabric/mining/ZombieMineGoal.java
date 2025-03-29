@@ -3,23 +3,24 @@ package n643064.zombie_tactics.fabric.mining;
 import static n643064.zombie_tactics.common.mining.MiningRoutines.*;
 import n643064.zombie_tactics.fabric.Config;
 import n643064.zombie_tactics.fabric.Main;
-import n643064.zombie_tactics.common.attachments.MiningData;
+import n643064.zombie_tactics.fabric.attachments.MiningData;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.pathing.EntityNavigation;
+import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ZombieMineGoal<T extends Zombie> extends Goal {
+
+public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
     private final T zombie;
-    private final Level level;
+    private final World world;
     private double progress, hardness = Double.MAX_VALUE;
 
     private final MiningData mine;
@@ -30,20 +31,20 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
     public ZombieMineGoal(T zombie) {
         mine = new MiningData();
         this.zombie = zombie;
-        level = zombie.level();
+        world = zombie.getWorld();
     }
 
     @Override
-    public boolean requiresUpdateEveryTick() {
+    public boolean shouldRunEveryTick() {
         return true;
     }
 
     @Override
     public void start() {
         progress = 0;
-        hardness = level.getBlockState(mine.bp).getBlock().defaultDestroyTime() * Config.hardnessMultiplier;
+        hardness = world.getBlockState(mine.bp).getBlock().getHardness() * Config.hardnessMultiplier;
         mine.doMining = true;
-        zombie.setData(Main.ZOMBIE_MINING, mine);
+        zombie.setAttached(Main.ZOMBIE_MINING, mine);
     }
 
     // get deltaY between me and target
@@ -60,12 +61,12 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
 
     // is valid to mine?
     protected boolean checkBlock(BlockPos pos) {
-        final BlockState state = level.getBlockState(pos);
+        final BlockState state = world.getBlockState(pos);
         final Block b = state.getBlock();
-        float destroying = b.defaultDestroyTime();
+        float destroying = b.getHardness();
 
         // exclude unbreakable blocks
-        if(!b.isPossibleToRespawnInThis(state) &&
+        if(!b.canMobSpawnInside(state) &&
                 destroying >= 0 && destroying <= Config.maxHardness) {
             mine.doMining = true;
             mine.bp = pos;
@@ -80,10 +81,10 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
     @Override
     public void stop() {
         // reset all progress and find path again
-        level.destroyBlockProgress(zombie.getId(), mine.bp, -1);
+        world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
         mine.doMining = false;
         mine.bp = null;
-        zombie.getNavigation().recomputePath();
+        zombie.getNavigation().recalculatePath();
         progress = 0;
         hardness = Double.MAX_VALUE;
     }
@@ -91,39 +92,39 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
     @Override
     public void tick() {
         if (!mine.doMining) return;
-        if (zombie.distanceToSqr(X, Y, Z) <= Config.minDist ||
-            zombie.distanceToSqr(X, Y, Z) > Config.maxDist) {
+        if (zombie.squaredDistanceTo(X, Y, Z) <= Config.minDist ||
+            zombie.squaredDistanceTo(X, Y, Z) > Config.maxDist) {
             mine.doMining = false;
             return;
         }
 
         // if the target block has been broken by others
-        if(level.getBlockState(mine.bp).isAir()) {
-            level.destroyBlockProgress(zombie.getId(), mine.bp, -1);
+        if(world.getBlockState(mine.bp).isAir()) {
+            world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
             progress = 0;
             mine.doMining = false;
             return;
         }
         if (progress >= hardness) {
-            level.destroyBlock(mine.bp, Config.dropBlocks, zombie);
-            level.destroyBlockProgress(zombie.getId(), mine.bp, -1);
+            world.breakBlock(mine.bp, Config.dropBlocks, zombie);
+            world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
             mine.doMining = false;
         } else {
-            level.destroyBlockProgress(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
-            zombie.stopInPlace();
-            zombie.getLookControl().setLookAt(X, Y, Z);
+            world.setBlockBreakingInfo(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
+            zombie.stopMovement();
+            zombie.getLookControl().lookAt(X, Y, Z);
             progress += Config.increment;
-            zombie.swing(InteractionHand.MAIN_HAND);
+            zombie.swingHand(Hand.MAIN_HAND);
         }
     }
 
     @Override
-    public boolean canContinueToUse() {
-        return mine.doMining && zombie.distanceToSqr(mine.bp.getCenter()) <= Config.maxDist;
+    public boolean shouldContinue() {
+        return mine.doMining && zombie.squaredDistanceTo(mine.bp.toCenterPos()) <= Config.maxDist;
     }
 
     @Override
-    public boolean canUse() {
+    public boolean canStart() {
         // a zombie should be stuck
         // check availability of the mining
         double x, y, z;
@@ -137,19 +138,19 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
 
         // found path but a zombie stuck
         LivingEntity liv = zombie.getTarget();
-        PathNavigation nav = zombie.getNavigation();
+        EntityNavigation nav = zombie.getNavigation();
 
         // I think that isStuck always return false
-        if(zombie.isAlive() && !zombie.isNoAi() &&
-                nav.isDone() && liv != null /*&& nav.isStuck()*/) {
-            if(zombie.isWithinMeleeAttackRange(liv)) return false;
+        if(zombie.isAlive() && !zombie.isAiDisabled() &&
+                nav.isIdle() && liv != null /*&& nav.isStuck()*/) {
+            if(zombie.isInAttackRange(liv)) return false;
 
             // go once more
             // Issue: moveTo sometimes return false while a zombie can go to the target.
             // It can solve by using the method `hasLineOfSight` but this causes a problem
             //   about fences that have 1.5 meters tall.
             // TODO: fix this
-            boolean eval = nav.moveTo(liv, zombie.getSpeed());
+            boolean eval = nav.startMovingTo(liv, zombie.speed);
             byte[][] set = getCandidate(liv);
 
             if(eval) return false;
@@ -158,7 +159,7 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
             for(byte[] pos: set) {
                 // checkBlock method is able to change 'zombie' variable
                 // So 'temp' cannot be determined as valid object
-                BlockPos temp = zombie.blockPosition().offset(pos[0], pos[1], pos[2]);
+                BlockPos temp = zombie.getBlockPos().add(pos[0], pos[1], pos[2]);
                 if(checkBlock(temp)) return true;
             }
         }

@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
     id 'fabric-loom' version '1.10-SNAPSHOT'
 }
 
@@ -26,11 +26,10 @@ configurations {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
-
-    modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
-
-    modImplementation "dev.architectury:architectury-fabric:$rootProject.architectury_api_version"
+    modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_api_version"
+    modImplementation "dev.architectury:architectury-fabric:$architectury_api_version"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')

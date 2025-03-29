@@ -1,10 +1,11 @@
 package n643064.zombie_tactics.neoforge;
 
-import n643064.zombie_tactics.common.attachments.MiningData;
 import n643064.zombie_tactics.common.commands.CommandSumZ;
+import n643064.zombie_tactics.neoforge.attachments.MiningData;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
+
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
