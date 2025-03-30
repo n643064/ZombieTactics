@@ -1,14 +1,11 @@
 package n643064.zombie_tactics.fabric;
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.config.ModConfigEvent;
-import net.neoforged.neoforge.common.ModConfigSpec;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-@EventBusSubscriber(modid = Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+// Fabric doesn't support config for now
+// TODO
+//@EventBusSubscriber(modid = Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class Config {
+    /*
     private static final Pair<build, ModConfigSpec> BUILDER = new ModConfigSpec.Builder().configure(build::new);
     private static ModConfigSpec.BooleanValue TARGET_ANIMALS;
     private static ModConfigSpec.IntValue TARGET_ANIMALS_PRIORITY;
@@ -31,29 +28,30 @@ public class Config {
     private static ModConfigSpec.DoubleValue ATTACK_RANGE;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
+     */
 
-    public static boolean mineBlocks,
-            targetAnimals,
-            targetAnimalsVisibility,
-            zombiesClimbing,
-            dropBlocks,
-            sunSensitive,
-            noMercy;
+    public static boolean mineBlocks = true,
+            targetAnimals = true,
+            targetAnimalsVisibility = false,
+            zombiesClimbing = true,
+            dropBlocks = false,
+            sunSensitive = false,
+            noMercy = true;
 
-    public static double increment,
-            maxHardness,
-            hardnessMultiplier,
-            climbingSpeed,
-            minDist,
-            maxDist,
-            healAmount,
-            aggressiveSpeed,
-            attackRange;
+    public static double increment = 0.2,
+            maxHardness = 4.5,
+            hardnessMultiplier = 5,
+            climbingSpeed = 0.2,
+            minDist = 0.2,
+            maxDist = 32,
+            healAmount = 1,
+            aggressiveSpeed = 1.5,
+            attackRange = 1;
 
-    public static int targetAnimalsPriority,
-            miningPriority,
-            attackCooldown;
-
+    public static int targetAnimalsPriority = 3,
+            miningPriority = 1,
+            attackCooldown = 10;
+    /*
     @SubscribeEvent
     static void onLoad(final ModConfigEvent ignored) {
         mineBlocks = MINE_BLOCKS.get();
@@ -77,10 +75,6 @@ public class Config {
         attackRange = ATTACK_RANGE.get();
     }
 
-    /*
-        I super hard coded.
-        Translation!!
-     */
     public static class build {
         static final String MOD_CFG = Main.MOD_ID + ".configuration.";
         public build(ModConfigSpec.Builder b) {
@@ -113,4 +107,5 @@ public class Config {
             b.pop();
         }
     }
+    */
 }

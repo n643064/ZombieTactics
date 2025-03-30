@@ -1,14 +1,12 @@
-package n643064.zombie_tactics.fabric.attachments;
-
-import net.minecraft.util.math.BlockPos;
+package n643064.zombie_tactics.common.attachments;
 
 /*
     This class contains a mining block's position
     and a condition of mine for each of zombie
  */
-public class MiningData {
+public class MiningData<T> {
     public boolean doMining;
-    public BlockPos bp;
+    public T bp;
 
     public MiningData() {
         doMining = false;

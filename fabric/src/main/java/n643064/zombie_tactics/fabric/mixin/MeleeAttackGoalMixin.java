@@ -31,7 +31,7 @@ public abstract class MeleeAttackGoalMixin extends Goal {
      * @reason Using unused private variable
      */
     @Overwrite
-    protected void resetCooldown() {
+    public void resetCooldown() {
         this.cooldown = this.getTickCount(getCooldown());
     }
 

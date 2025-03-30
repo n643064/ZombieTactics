@@ -2,7 +2,7 @@ package n643064.zombie_tactics.fabric.mixin;
 
 import n643064.zombie_tactics.fabric.Config;
 import n643064.zombie_tactics.fabric.Main;
-import n643064.zombie_tactics.fabric.attachments.MiningData;
+import n643064.zombie_tactics.common.attachments.MiningData;
 import n643064.zombie_tactics.fabric.mining.ZombieMineGoal;
 
 import net.minecraft.entity.LivingEntity;
@@ -24,8 +24,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import net.minecraft.block.BlockState;
-
-import net.tslat.smartbrainlib.api.SmartBrainOwner;
 
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -51,7 +49,7 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
      * @reason overwrite this function
      */
     @Overwrite
-    protected boolean burnsInDaylight() {
+    public boolean burnsInDaylight() {
         return Config.sunSensitive;
     }
 
@@ -63,12 +61,16 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
         if (entity != null) {
             Box aabb1 = entity.getBoundingBox();
             Box aabb2 = this.getBoundingBox();
-            aabb = new Box(Math.min(aabb2.minX, aabb1.minX), aabb2.minY, Math.min(aabb2.minZ, aabb1.minZ),
-                    Math.max(aabb2.maxX, aabb1.maxX), aabb2.maxY, Math.max(aabb2.maxZ, aabb1.maxZ));
+            aabb = new Box(Math.min(aabb2.minX, aabb1.minX),
+                    Math.min(aabb2.minY, aabb1.minY),
+                    Math.min(aabb2.minZ, aabb1.minZ),
+                    Math.max(aabb2.maxX, aabb1.maxX),
+                    Math.max(aabb2.maxY, aabb1.maxY),
+                    Math.max(aabb2.maxZ, aabb1.maxZ));
         } else {
             aabb = this.getBoundingBox();
         }
-        return aabb.expand(Config.attackRange, 0., Config.attackRange);
+        return aabb.expand(Config.attackRange, Config.attackRange, Config.attackRange);
     }
 
     protected ZombieEntityMixin(EntityType<? extends ZombieEntity> entityType, World world) {
@@ -78,7 +80,7 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
     // fixes that doing both mining and attacking
     @Inject(method = "tryAttack", at = @At("HEAD"))
     public void tryAttackHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        MiningData dat = this.getAttached(Main.ZOMBIE_MINING);
+        MiningData<BlockPos> dat = this.getAttached(Main.ZOMBIE_MINING);
         if(dat.doMining) {
             dat.doMining = false;
             System.out.println("I caught you!!");
@@ -127,7 +129,7 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
     @Override
     public void remove(@NotNull RemovalReason source) {
         super.remove(source);
-        MiningData md = this.getAttached(Main.ZOMBIE_MINING);
+        MiningData<BlockPos> md = this.getAttached(Main.ZOMBIE_MINING);
         if(md.doMining)
             this.getWorld().setBlockBreakingInfo(this.getId(), md.bp, -1);
     }
@@ -135,11 +137,12 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
     /**
      * Force Object casting is required to load Mixin correctly, but linter warns those.
      * By using SuppressWarnings, highlights can be disabled.
-     *
+     * @reason no..?
+     * @author PICOPRESS
      */
-    @SuppressWarnings("all")
     @Overwrite
-    protected void addBehaviourGoals() {
+    @SuppressWarnings("all")
+    public void initGoals() {
         this.goalSelector.add(1, new ZombieAttackGoal((ZombieEntity)(Object)this,
                 Config.aggressiveSpeed, true));
         if (Config.targetAnimals) {

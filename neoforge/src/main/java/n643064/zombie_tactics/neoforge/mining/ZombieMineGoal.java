@@ -3,7 +3,7 @@ package n643064.zombie_tactics.neoforge.mining;
 import static n643064.zombie_tactics.common.mining.MiningRoutines.*;
 import n643064.zombie_tactics.neoforge.Config;
 import n643064.zombie_tactics.neoforge.Main;
-import n643064.zombie_tactics.neoforge.attachments.MiningData;
+import n643064.zombie_tactics.common.attachments.MiningData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -22,13 +22,13 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
     private final Level level;
     private double progress, hardness = Double.MAX_VALUE;
 
-    private final MiningData mine;
+    private final MiningData<BlockPos> mine;
 
     // These are constant unless a target is changed
     private double X, Y, Z;
 
     public ZombieMineGoal(T zombie) {
-        mine = new MiningData();
+        mine = new MiningData<>();
         this.zombie = zombie;
         level = zombie.level();
     }

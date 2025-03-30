@@ -1,6 +1,5 @@
 plugins {
     id 'com.gradleup.shadow'
-    id 'net.neoforged.moddev' version "$moddev_version"
 }
 
 architectury {
@@ -26,6 +25,7 @@ configurations {
 }
 
 repositories {
+    maven { url = 'https://maven.neoforged.net/releases' }
 }
 
 dependencies {
@@ -53,5 +53,6 @@ shadowJar {
 }
 
 remapJar {
+    // What is alternative of this deprecation?
     input.set shadowJar.archiveFile
 }

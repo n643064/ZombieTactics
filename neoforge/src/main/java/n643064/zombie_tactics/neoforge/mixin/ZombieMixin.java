@@ -2,7 +2,7 @@ package n643064.zombie_tactics.neoforge.mixin;
 
 import n643064.zombie_tactics.neoforge.Config;
 import n643064.zombie_tactics.neoforge.Main;
-import n643064.zombie_tactics.neoforge.attachments.MiningData;
+import n643064.zombie_tactics.common.attachments.MiningData;
 import n643064.zombie_tactics.neoforge.mining.ZombieMineGoal;
 
 import net.minecraft.core.BlockPos;
@@ -62,12 +62,16 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
         if (entity != null) {
             AABB aabb1 = entity.getBoundingBox();
             AABB aabb2 = this.getBoundingBox();
-            aabb = new AABB(Math.min(aabb2.minX, aabb1.minX), aabb2.minY, Math.min(aabb2.minZ, aabb1.minZ),
-                    Math.max(aabb2.maxX, aabb1.maxX), aabb2.maxY, Math.max(aabb2.maxZ, aabb1.maxZ));
+            aabb = new AABB(Math.min(aabb2.minX, aabb1.minX),
+                    Math.min(aabb2.minY, aabb1.minY),
+                    Math.min(aabb2.minZ, aabb1.minZ),
+                    Math.max(aabb2.maxX, aabb1.maxX),
+                    Math.max(aabb2.maxY, aabb1.maxY),
+                    Math.max(aabb2.maxZ, aabb1.maxZ));
         } else {
             aabb = this.getBoundingBox();
         }
-        return aabb.inflate(Config.attackRange, 0., Config.attackRange);
+        return aabb.inflate(Config.attackRange, Config.attackRange, Config.attackRange);
     }
 
     protected ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
@@ -77,7 +81,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     // fixes that doing both mining and attacking
     @Inject(method = "doHurtTarget", at = @At("HEAD"))
     public void doHurtTargetHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        MiningData dat = this.getData(Main.ZOMBIE_MINING);
+        MiningData<BlockPos> dat = this.getData(Main.ZOMBIE_MINING);
         if(dat.doMining) {
             dat.doMining = false;
             System.out.println("I caught you!!");
@@ -126,7 +130,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     @Override
     public void die(@NotNull DamageSource source) {
         super.die(source);
-        MiningData md = this.getData(Main.ZOMBIE_MINING);
+        MiningData<BlockPos> md = this.getData(Main.ZOMBIE_MINING);
         if(md.doMining)
             this.level().destroyBlockProgress(this.getId(), md.bp, -1);
     }

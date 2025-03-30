@@ -3,7 +3,7 @@ package n643064.zombie_tactics.fabric.mining;
 import static n643064.zombie_tactics.common.mining.MiningRoutines.*;
 import n643064.zombie_tactics.fabric.Config;
 import n643064.zombie_tactics.fabric.Main;
-import n643064.zombie_tactics.fabric.attachments.MiningData;
+import n643064.zombie_tactics.common.attachments.MiningData;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -23,13 +23,13 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
     private final World world;
     private double progress, hardness = Double.MAX_VALUE;
 
-    private final MiningData mine;
+    private final MiningData<BlockPos> mine;
 
     // These are constant unless a target is changed
     private double X, Y, Z;
 
     public ZombieMineGoal(T zombie) {
-        mine = new MiningData();
+        mine = new MiningData<>();
         this.zombie = zombie;
         world = zombie.getWorld();
     }
