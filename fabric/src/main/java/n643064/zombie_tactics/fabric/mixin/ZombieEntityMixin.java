@@ -1,7 +1,6 @@
 package n643064.zombie_tactics.fabric.mixin;
 
 import n643064.zombie_tactics.fabric.Config;
-import n643064.zombie_tactics.fabric.Main;
 import n643064.zombie_tactics.common.attachments.MiningData;
 import n643064.zombie_tactics.fabric.mining.ZombieMineGoal;
 
@@ -33,6 +32,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
+
+import static n643064.zombie_tactics.fabric.Main.ZOMBIE_MINING;
 
 @Mixin(ZombieEntity.class)
 // SBL isn't work
@@ -80,7 +81,7 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
     // fixes that doing both mining and attacking
     @Inject(method = "tryAttack", at = @At("HEAD"))
     public void tryAttackHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        MiningData<BlockPos> dat = this.getAttached(Main.ZOMBIE_MINING);
+        MiningData<BlockPos> dat = ZOMBIE_MINING.get(this.getId());
         if(dat.doMining) {
             dat.doMining = false;
             System.out.println("I caught you!!");
@@ -95,9 +96,8 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
                 this.heal((float)Config.healAmount);
         }
         // reset invulnerable time
-        if(Config.noMercy) ent.setInvulnerable(true);
+        if(Config.noMercy) ent.setInvulnerable(false);
     }
-
 
     // For climbing
     @Override
@@ -129,9 +129,12 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
     @Override
     public void remove(@NotNull RemovalReason source) {
         super.remove(source);
-        MiningData<BlockPos> md = this.getAttached(Main.ZOMBIE_MINING);
-        if(md.doMining)
+        System.out.println("remove");
+        MiningData<BlockPos> md = ZOMBIE_MINING.get(this.getId());
+        if(md != null && md.doMining)
             this.getWorld().setBlockBreakingInfo(this.getId(), md.bp, -1);
+
+        ZOMBIE_MINING.remove(this.getId());
     }
 
     /**

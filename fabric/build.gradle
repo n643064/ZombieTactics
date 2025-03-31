@@ -1,6 +1,6 @@
 plugins {
     id 'com.gradleup.shadow'
-    id 'fabric-loom' version '1.10-SNAPSHOT'
+    id 'dev.architectury.loom' version "$fabric_loom_version"
 }
 
 architectury {

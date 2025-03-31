@@ -1,8 +1,9 @@
 package n643064.zombie_tactics.fabric.mining;
 
 import static n643064.zombie_tactics.common.mining.MiningRoutines.*;
+import static n643064.zombie_tactics.fabric.Main.ZOMBIE_MINING;
+
 import n643064.zombie_tactics.fabric.Config;
-import n643064.zombie_tactics.fabric.Main;
 import n643064.zombie_tactics.common.attachments.MiningData;
 
 import net.minecraft.block.BlockState;
@@ -29,14 +30,9 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
     private double X, Y, Z;
 
     public ZombieMineGoal(T zombie) {
-        mine = new MiningData<>();
         this.zombie = zombie;
+        mine = new MiningData<>();
         world = zombie.getWorld();
-    }
-
-    @Override
-    public boolean shouldRunEveryTick() {
-        return true;
     }
 
     @Override
@@ -44,7 +40,12 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
         progress = 0;
         hardness = world.getBlockState(mine.bp).getBlock().getHardness() * Config.hardnessMultiplier;
         mine.doMining = true;
-        zombie.setAttached(Main.ZOMBIE_MINING, mine);
+        ZOMBIE_MINING.put(zombie.getId(), mine);
+    }
+
+    @Override
+    public boolean shouldRunEveryTick() {
+        return true;
     }
 
     // get deltaY between me and target
@@ -87,6 +88,7 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
         zombie.getNavigation().recalculatePath();
         progress = 0;
         hardness = Double.MAX_VALUE;
+        ZOMBIE_MINING.remove(zombie.getId());
     }
 
     @Override
@@ -144,7 +146,6 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
         if(zombie.isAlive() && !zombie.isAiDisabled() &&
                 nav.isIdle() && liv != null /*&& nav.isStuck()*/) {
             if(zombie.isInAttackRange(liv)) return false;
-
             // go once more
             // Issue: moveTo sometimes return false while a zombie can go to the target.
             // It can solve by using the method `hasLineOfSight` but this causes a problem
@@ -154,7 +155,6 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
             byte[][] set = getCandidate(liv);
 
             if(eval) return false;
-            else System.out.println(zombie);
 
             for(byte[] pos: set) {
                 // checkBlock method is able to change 'zombie' variable
