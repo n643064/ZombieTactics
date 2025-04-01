@@ -1,10 +1,7 @@
 package n643064.zombie_tactics.fabric.mining;
 
 import static n643064.zombie_tactics.common.mining.MiningRoutines.*;
-import static n643064.zombie_tactics.fabric.Main.ZOMBIE_MINING;
-
 import n643064.zombie_tactics.fabric.Config;
-import n643064.zombie_tactics.common.attachments.MiningData;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -18,29 +15,26 @@ import net.minecraft.block.Block;
 
 import org.jetbrains.annotations.NotNull;
 
-
 public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
     private final T zombie;
     private final World world;
     private double progress, hardness = Double.MAX_VALUE;
-
-    private final MiningData<BlockPos> mine;
+    private boolean doMining;
+    private BlockPos bp;
 
     // These are constant unless a target is changed
     private double X, Y, Z;
 
     public ZombieMineGoal(T zombie) {
         this.zombie = zombie;
-        mine = new MiningData<>();
         world = zombie.getWorld();
     }
 
     @Override
     public void start() {
         progress = 0;
-        hardness = world.getBlockState(mine.bp).getBlock().getHardness() * Config.hardnessMultiplier;
-        mine.doMining = true;
-        ZOMBIE_MINING.put(zombie.getId(), mine);
+        hardness = world.getBlockState(bp).getBlock().getHardness() * Config.hardnessMultiplier;
+        doMining = true;
     }
 
     @Override
@@ -69,11 +63,10 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
         // exclude unbreakable blocks
         if(!b.canMobSpawnInside(state) &&
                 destroying >= 0 && destroying <= Config.maxHardness) {
-            mine.doMining = true;
-            mine.bp = pos;
             X = pos.getX();
             Y = pos.getY();
             Z = pos.getZ();
+            bp = pos;
             return true;
         }
         return false;
@@ -82,37 +75,36 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
     @Override
     public void stop() {
         // reset all progress and find path again
-        world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
-        mine.doMining = false;
-        mine.bp = null;
+        world.setBlockBreakingInfo(zombie.getId(), bp, -1);
         zombie.getNavigation().recalculatePath();
-        progress = 0;
         hardness = Double.MAX_VALUE;
-        ZOMBIE_MINING.remove(zombie.getId());
+        doMining = false;
+        progress = 0;
+        bp = null;
     }
 
     @Override
     public void tick() {
-        if (!mine.doMining) return;
+        if (!doMining) return;
         if (zombie.squaredDistanceTo(X, Y, Z) <= Config.minDist ||
             zombie.squaredDistanceTo(X, Y, Z) > Config.maxDist) {
-            mine.doMining = false;
+            doMining = false;
             return;
         }
 
         // if the target block has been broken by others
-        if(world.getBlockState(mine.bp).isAir()) {
-            world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
+        if(world.getBlockState(bp).isAir()) {
+            world.setBlockBreakingInfo(zombie.getId(), bp, -1);
             progress = 0;
-            mine.doMining = false;
+            doMining = false;
             return;
         }
         if (progress >= hardness) {
-            world.breakBlock(mine.bp, Config.dropBlocks, zombie);
-            world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
-            mine.doMining = false;
+            world.breakBlock(bp, Config.dropBlocks, zombie);
+            world.setBlockBreakingInfo(zombie.getId(), bp, -1);
+            doMining = false;
         } else {
-            world.setBlockBreakingInfo(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
+            world.setBlockBreakingInfo(zombie.getId(), bp, (int) ((progress / hardness) * 10));
             zombie.stopMovement();
             zombie.getLookControl().lookAt(X, Y, Z);
             progress += Config.increment;
@@ -122,7 +114,7 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
 
     @Override
     public boolean shouldContinue() {
-        return mine.doMining && zombie.squaredDistanceTo(mine.bp.toCenterPos()) <= Config.maxDist;
+        return doMining && zombie.squaredDistanceTo(bp.toCenterPos()) <= Config.maxDist;
     }
 
     @Override

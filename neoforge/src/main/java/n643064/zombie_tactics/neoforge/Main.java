@@ -1,10 +1,8 @@
 package n643064.zombie_tactics.neoforge;
 
 import n643064.zombie_tactics.common.IMain;
-import n643064.zombie_tactics.common.attachments.MiningData;
+import n643064.zombie_tactics.neoforge.attachments.MiningData;
 import n643064.zombie_tactics.neoforge.commands.CommandSumZ;
-
-import net.minecraft.core.BlockPos;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,8 +25,8 @@ public class Main implements IMain {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS = DeferredRegister
             .create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
 
-    public static final Supplier<AttachmentType<MiningData<BlockPos>>> ZOMBIE_MINING = ATTACHMENTS
-            .register("zombie_mining", () -> AttachmentType.builder(MiningData<BlockPos>::new).build());
+    public static final Supplier<AttachmentType<MiningData>> ZOMBIE_MINING = ATTACHMENTS
+            .register("zombie_mining", () -> AttachmentType.builder(MiningData::new).build());
 
     public Main(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

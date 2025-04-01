@@ -1,7 +1,6 @@
 package n643064.zombie_tactics.fabric.mixin;
 
 import n643064.zombie_tactics.fabric.Config;
-import n643064.zombie_tactics.common.attachments.MiningData;
 import n643064.zombie_tactics.fabric.mining.ZombieMineGoal;
 
 import net.minecraft.entity.LivingEntity;
@@ -32,8 +31,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
-
-import static n643064.zombie_tactics.fabric.Main.ZOMBIE_MINING;
 
 @Mixin(ZombieEntity.class)
 // SBL isn't work
@@ -74,18 +71,13 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
         return aabb.expand(Config.attackRange, Config.attackRange, Config.attackRange);
     }
 
-    protected ZombieEntityMixin(EntityType<? extends ZombieEntity> entityType, World world) {
+    protected ZombieEntityMixin(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
     }
 
     // fixes that doing both mining and attacking
     @Inject(method = "tryAttack", at = @At("HEAD"))
     public void tryAttackHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        MiningData<BlockPos> dat = ZOMBIE_MINING.get(this.getId());
-        if(dat.doMining) {
-            dat.doMining = false;
-            System.out.println("I caught you!!");
-        }
     }
 
     // Healing zombie
@@ -129,12 +121,6 @@ public abstract class ZombieEntityMixin extends HostileEntity /*implements Smart
     @Override
     public void remove(@NotNull RemovalReason source) {
         super.remove(source);
-        System.out.println("remove");
-        MiningData<BlockPos> md = ZOMBIE_MINING.get(this.getId());
-        if(md != null && md.doMining)
-            this.getWorld().setBlockBreakingInfo(this.getId(), md.bp, -1);
-
-        ZOMBIE_MINING.remove(this.getId());
     }
 
     /**

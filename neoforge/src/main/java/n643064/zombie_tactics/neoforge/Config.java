@@ -105,9 +105,9 @@ public class Config {
             b.pop();
             b.push("General");
             HEAL_AMOUNT = b.comment("The amount of heal when a zombie attacks somewhat").translation(MOD_CFG + "General.heal_amount").defineInRange("healAmount", 1.0, 0, 1024);
-            ATTACK_COOLDOWN = b.comment("Interval ticks to attack").translation(MOD_CFG + "General.attack_cooldown").defineInRange("attackCooldown", 10, 1, 1000);
+            ATTACK_COOLDOWN = b.comment("Interval ticks to attack").translation(MOD_CFG + "General.attack_cooldown").defineInRange("attackCooldown", 20, 1, 1000);
             AGGRESSIVE_SPEED = b.comment("Walk speed when a zombie is mad").translation(MOD_CFG + "General.aggressive_speed").defineInRange("aggressiveSpeed", 1.5, 0.01, 128);
-            SUN_SENSITIVE = b.comment("Zombie is sensitive to the sun").translation(MOD_CFG + "General.sun_sensitive").define("sunSensitive", false);
+            SUN_SENSITIVE = b.comment("Zombie is sensitive to the sun").translation(MOD_CFG + "General.sun_sensitive").define("sunSensitive", true);
             NO_MERCY = b.comment("Target entity").translation(MOD_CFG + "General.no_mercy").define("noMercy", false);
             ATTACK_RANGE = b.comment("Zombie attack range").translation(MOD_CFG + "General.attack_range").defineInRange("", Math.sqrt(2.04) - 0.6, 0.25, 127.);
             b.pop();

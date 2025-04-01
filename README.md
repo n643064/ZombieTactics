@@ -3,7 +3,8 @@
 - Version: 1.3.0
 ## Requirements
 - Minecraft 1.21.1
-- NeoForge
+- SmartBrainLib
+- Architectury API
 
 ## Changes
 ### 1.3.0

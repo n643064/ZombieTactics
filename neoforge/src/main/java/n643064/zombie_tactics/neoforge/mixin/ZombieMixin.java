@@ -2,7 +2,7 @@ package n643064.zombie_tactics.neoforge.mixin;
 
 import n643064.zombie_tactics.neoforge.Config;
 import n643064.zombie_tactics.neoforge.Main;
-import n643064.zombie_tactics.common.attachments.MiningData;
+import n643064.zombie_tactics.neoforge.attachments.MiningData;
 import n643064.zombie_tactics.neoforge.mining.ZombieMineGoal;
 
 import net.minecraft.core.BlockPos;
@@ -81,11 +81,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     // fixes that doing both mining and attacking
     @Inject(method = "doHurtTarget", at = @At("HEAD"))
     public void doHurtTargetHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        MiningData<BlockPos> dat = this.getData(Main.ZOMBIE_MINING);
-        if(dat.doMining) {
-            dat.doMining = false;
-            System.out.println("I caught you!!");
-        }
+        this.getData(Main.ZOMBIE_MINING).doMining = false;
     }
 
     // Healing zombie
@@ -130,7 +126,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     @Override
     public void die(@NotNull DamageSource source) {
         super.die(source);
-        MiningData<BlockPos> md = this.getData(Main.ZOMBIE_MINING);
+        MiningData md = this.getData(Main.ZOMBIE_MINING);
         if(md.doMining)
             this.level().destroyBlockProgress(this.getId(), md.bp, -1);
     }
