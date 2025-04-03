@@ -88,13 +88,12 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     @Inject(method = "doHurtTarget", at = @At("TAIL"))
     public void doHurtTargetTail(Entity ent, CallbackInfoReturnable<Boolean> ci) {
         if(ent instanceof LivingEntity) {
-            if(this.getHealth()<= this.getMaxHealth())
+            if(this.getHealth() <= this.getMaxHealth())
                 this.heal((float)Config.healAmount);
         }
         // reset invulnerable time
         if(Config.noMercy) ent.invulnerableTime = 0;
     }
-
 
     // For climbing
     @Override

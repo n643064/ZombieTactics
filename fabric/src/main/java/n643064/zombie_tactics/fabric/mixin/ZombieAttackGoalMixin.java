@@ -7,7 +7,6 @@ import net.minecraft.entity.ai.goal.ZombieAttackGoal;
 
 import net.minecraft.entity.mob.ZombieEntity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 
 // Refactoring ZombieAttackGoal
 // I just want to make attack speed faster
@@ -18,8 +17,7 @@ public class ZombieAttackGoalMixin extends MeleeAttackGoal {
     }
 
     @Override
-    @Unique
-    protected int getCooldown() {
+    protected int getMaxCooldown() {
         return this.getTickCount(Config.attackCooldown);
     }
 }

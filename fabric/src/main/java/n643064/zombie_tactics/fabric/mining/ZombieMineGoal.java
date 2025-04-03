@@ -3,6 +3,8 @@ package n643064.zombie_tactics.fabric.mining;
 import static n643064.zombie_tactics.common.mining.MiningRoutines.*;
 import n643064.zombie_tactics.fabric.Config;
 
+import n643064.zombie_tactics.fabric.Main;
+import n643064.zombie_tactics.fabric.attachments.MiningData;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
@@ -19,8 +21,7 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
     private final T zombie;
     private final World world;
     private double progress, hardness = Double.MAX_VALUE;
-    private boolean doMining;
-    private BlockPos bp;
+    private final MiningData mine;
 
     // These are constant unless a target is changed
     private double X, Y, Z;
@@ -28,13 +29,15 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
     public ZombieMineGoal(T zombie) {
         this.zombie = zombie;
         world = zombie.getWorld();
+        mine = new MiningData();
     }
 
     @Override
     public void start() {
+        hardness = world.getBlockState(mine.bp).getBlock().getHardness() * Config.hardnessMultiplier;
+        mine.doMining = true;
         progress = 0;
-        hardness = world.getBlockState(bp).getBlock().getHardness() * Config.hardnessMultiplier;
-        doMining = true;
+        zombie.setAttached(Main.ZOMBIE_MINING, mine);
     }
 
     @Override
@@ -66,7 +69,7 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
             X = pos.getX();
             Y = pos.getY();
             Z = pos.getZ();
-            bp = pos;
+            mine.bp = pos;
             return true;
         }
         return false;
@@ -75,36 +78,36 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
     @Override
     public void stop() {
         // reset all progress and find path again
-        world.setBlockBreakingInfo(zombie.getId(), bp, -1);
+        world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
         zombie.getNavigation().recalculatePath();
         hardness = Double.MAX_VALUE;
-        doMining = false;
+        mine.doMining = false;
         progress = 0;
-        bp = null;
+        mine.bp = null;
     }
 
     @Override
     public void tick() {
-        if (!doMining) return;
+        if (!mine.doMining) return;
         if (zombie.squaredDistanceTo(X, Y, Z) <= Config.minDist ||
             zombie.squaredDistanceTo(X, Y, Z) > Config.maxDist) {
-            doMining = false;
+            mine.doMining = false;
             return;
         }
 
         // if the target block has been broken by others
-        if(world.getBlockState(bp).isAir()) {
-            world.setBlockBreakingInfo(zombie.getId(), bp, -1);
+        if(world.getBlockState(mine.bp).isAir()) {
+            world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
             progress = 0;
-            doMining = false;
+            mine.doMining = false;
             return;
         }
         if (progress >= hardness) {
-            world.breakBlock(bp, Config.dropBlocks, zombie);
-            world.setBlockBreakingInfo(zombie.getId(), bp, -1);
-            doMining = false;
+            world.breakBlock(mine.bp, Config.dropBlocks, zombie);
+            world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
+            mine.doMining = false;
         } else {
-            world.setBlockBreakingInfo(zombie.getId(), bp, (int) ((progress / hardness) * 10));
+            world.setBlockBreakingInfo(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
             zombie.stopMovement();
             zombie.getLookControl().lookAt(X, Y, Z);
             progress += Config.increment;
@@ -114,7 +117,7 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
 
     @Override
     public boolean shouldContinue() {
-        return doMining && zombie.squaredDistanceTo(bp.toCenterPos()) <= Config.maxDist;
+        return mine.doMining && zombie.squaredDistanceTo(mine.bp.toCenterPos()) <= Config.maxDist;
     }
 
     @Override
@@ -143,7 +146,7 @@ public class ZombieMineGoal<T extends ZombieEntity> extends Goal {
             // It can solve by using the method `hasLineOfSight` but this causes a problem
             //   about fences that have 1.5 meters tall.
             // TODO: fix this
-            boolean eval = nav.startMovingTo(liv, zombie.speed);
+            boolean eval = nav.startMovingTo(liv, zombie.getMovementSpeed());
             byte[][] set = getCandidate(liv);
 
             if(eval) return false;

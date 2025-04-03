@@ -45,7 +45,7 @@ public class Config {
             minDist = 0.2,
             maxDist = 32,
             healAmount = 1,
-            aggressiveSpeed = 1.5,
+            aggressiveSpeed = 1.8,
             attackRange = 1;
 
     public static int targetAnimalsPriority = 3,

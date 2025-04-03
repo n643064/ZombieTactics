@@ -32,7 +32,7 @@ public abstract class MeleeAttackGoalMixin extends Goal {
      */
     @Overwrite
     public void resetCooldown() {
-        this.cooldown = this.getTickCount(getCooldown());
+        this.cooldown = this.getTickCount(getMaxCooldown());
     }
 
     /**
@@ -40,7 +40,7 @@ public abstract class MeleeAttackGoalMixin extends Goal {
      * @reason same above
      */
     @Overwrite
-    public int getCooldown() {
+    public int getMaxCooldown() {
         return this.getTickCount(attackIntervalTicks);
     }
 }
