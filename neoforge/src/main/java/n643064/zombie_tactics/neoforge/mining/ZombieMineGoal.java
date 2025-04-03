@@ -91,8 +91,9 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
     @Override
     public void tick() {
         if (!mine.doMining) return;
-        if (zombie.distanceToSqr(X, Y, Z) <= Config.minDist ||
-            zombie.distanceToSqr(X, Y, Z) > Config.maxDist) {
+        double dist = zombie.distanceToSqr(X, Y, Z);
+        if (dist <= Config.minDist ||
+            dist > Config.maxDist) {
             mine.doMining = false;
             return;
         }
