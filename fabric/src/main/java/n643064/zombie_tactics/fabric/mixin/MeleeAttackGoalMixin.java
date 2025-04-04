@@ -11,7 +11,7 @@ import java.util.EnumSet;
 public abstract class MeleeAttackGoalMixin extends Goal {
     // Why are there too many unused private fields?
     // So, just expose them
-    @Mutable @Final @Shadow private int attackIntervalTicks = 20;
+    @Shadow private int attackIntervalTicks = 20;
     @Shadow private int cooldown = attackIntervalTicks;
     @Mutable @Final @Shadow private double speed;
     @Mutable @Final @Shadow private boolean pauseWhenMobIdle;
@@ -24,15 +24,13 @@ public abstract class MeleeAttackGoalMixin extends Goal {
         this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
     }
 
-    @Shadow public abstract boolean canStart();
-
     /**
      * @author PICOPress
      * @reason Using unused private variable
      */
     @Overwrite
     public void resetCooldown() {
-        this.cooldown = this.getTickCount(getMaxCooldown());
+        this.cooldown = getMaxCooldown();
     }
 
     /**

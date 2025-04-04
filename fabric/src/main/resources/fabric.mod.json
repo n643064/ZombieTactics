@@ -14,6 +14,9 @@
   "entrypoints": {
     "main": [
       "n643064.zombie_tactics.fabric.Main"
+    ],
+    "modmenu": [
+      "n643064.zombie_tactics.fabric.ModMenuImpl"
     ]
   },
   "mixins": [
@@ -23,8 +26,10 @@
     "fabricloader": ">=0.16.10",
     "minecraft": "~1.21.1",
     "java": ">=21"
-    ,"architectury": ">=13.0.8"
-    ,"fabric-api": "*"
+    ,"architectury": ">=13.0.8",
+    "cloth-config": ">=15",
+    "modmenu": ">=11",
+    "fabric-api": "*"
   },
   "suggests": {
     "another-mod": "*"

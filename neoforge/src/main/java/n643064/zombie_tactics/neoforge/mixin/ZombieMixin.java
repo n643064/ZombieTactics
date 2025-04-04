@@ -25,8 +25,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import net.tslat.smartbrainlib.api.SmartBrainOwner;
-
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Predicate;
 
 @Mixin(Zombie.class)
-public abstract class ZombieMixin extends Monster implements SmartBrainOwner<ZombieMixin> {
+public abstract class ZombieMixin extends Monster {
     @Unique private boolean zombieTactics$isClimbing = false;
     @Unique private int zombieTactics$climbedCount = 0;
     @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
@@ -50,7 +48,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
      * @reason overwrite this function
      */
     @Overwrite
-    protected boolean isSunSensitive() {
+    public boolean isSunSensitive() {
         return Config.sunSensitive;
     }
 
@@ -131,13 +129,12 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
     }
 
     /**
-     * Force Object casting is required to load Mixin correctly, but linter warns those.
-     * By using SuppressWarnings, highlights can be disabled.
-     *
+     * ZombieMineGoal doesn't use zombie-exclusive things
+     * @author PICOPress
+     * @reason to overwrite
      */
-    @SuppressWarnings("all")
     @Overwrite
-    protected void addBehaviourGoals() {
+    public void addBehaviourGoals() {
         this.goalSelector.addGoal(1, new ZombieAttackGoal((Zombie)(Object)this,
                 Config.aggressiveSpeed, true));
         if (Config.targetAnimals) {
@@ -147,7 +144,7 @@ public abstract class ZombieMixin extends Monster implements SmartBrainOwner<Zom
         }
         if (Config.mineBlocks)
             this.goalSelector.addGoal(Config.miningPriority,
-                    new ZombieMineGoal<>((Zombie)(Object)this));
+                    new ZombieMineGoal<>(this));
 
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this,
                 1.0, false, 4, this::canBreakDoors));

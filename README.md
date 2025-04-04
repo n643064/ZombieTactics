@@ -3,15 +3,16 @@
 - Version: 1.3.0
 ## Requirements
 - Minecraft 1.21.1
-- SmartBrainLib
 - Architectury API
+### Fabric also needs
+- Cloth Config API
+- ModMenu
 
 ## Changes
 ### 1.3.0
 - Reformed project structure, using `Architectury` API
 - Removed Marker (original owner may dislike it)
 - Improved mining AI
-- Added dependency: SmartBrainLib
 - Zombies gain health when attacking
 - Increased attack speed
 - Zombies no longer take fall damage while climbing
@@ -29,4 +30,4 @@
 - If a zombie stops mining, target block's destruction progress is reset 
 
 ## Issues
-- A zombie does not attack a new hittable entity when a target entity exists unless the target is killed or moves far away
+- On Fabric, attack cooldown doesn't apply

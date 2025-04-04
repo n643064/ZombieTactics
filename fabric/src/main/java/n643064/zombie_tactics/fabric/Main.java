@@ -16,6 +16,7 @@ import net.minecraft.util.Identifier;
 public class Main implements ModInitializer, IMain {
     public static AttachmentType<MiningData> ZOMBIE_MINING = AttachmentRegistry
             .create(Identifier.of(MOD_ID, "zombie_mining"));
+    public static ModConfig config;
 
     @Override
     public void onInitialize() {

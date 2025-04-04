@@ -32,10 +32,10 @@ versionRange = "[13.0.8,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.zombie_tactics]]
-modId = "smartbrainlib"
-type = "required"
-side = "BOTH"
+#[[dependencies.zombie_tactics]]
+#modId = "smartbrainlib"
+#type = "required"
+#side = "BOTH"
 
 [[mixins]]
 config = "zombie_tactics.mixins.json"

@@ -10,14 +10,14 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ZombieMineGoal<T extends Zombie> extends Goal {
+public class ZombieMineGoal<T extends Monster> extends Goal {
     private final T zombie;
     private final Level level;
     private double progress, hardness = Double.MAX_VALUE;
@@ -151,11 +151,9 @@ public class ZombieMineGoal<T extends Zombie> extends Goal {
             //   about fences that have 1.5 meters tall.
             // TODO: fix this
             boolean eval = nav.moveTo(liv, zombie.getSpeed());
-            byte[][] set = getCandidate(liv);
-
             if(eval) return false;
-            else System.out.println(zombie);
 
+            byte[][] set = getCandidate(liv);
             for(byte[] pos: set) {
                 // checkBlock method is able to change 'zombie' variable
                 // So 'temp' cannot be determined as valid object
