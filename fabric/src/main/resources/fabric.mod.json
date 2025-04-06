@@ -9,7 +9,7 @@
     "homepage": ""
   },
   "license": "GPL-3.0",
-  "icon": "assets/zombie_tactics/icon.png",
+  "icon": "assets/zombie_tactics/img.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -27,7 +27,7 @@
     "minecraft": "~1.21.1",
     "java": ">=21"
     ,"architectury": ">=13.0.8",
-    "cloth-config": ">=15",
+    "midnightlib": ">=1.6.9",
     "modmenu": ">=11",
     "fabric-api": "*"
   },

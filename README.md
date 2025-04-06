@@ -5,7 +5,7 @@
 - Minecraft 1.21.1
 - Architectury API
 ### Fabric also needs
-- Cloth Config API
+- MidnightLib
 - ModMenu
 
 ## Changes

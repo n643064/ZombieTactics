@@ -1,10 +1,12 @@
 package n643064.zombie_tactics.fabric.mining;
 
 import static n643064.zombie_tactics.common.mining.MiningRoutines.*;
-
 import n643064.zombie_tactics.fabric.Main;
+import n643064.zombie_tactics.fabric.ModConfig;
 import n643064.zombie_tactics.fabric.attachments.MiningData;
+
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Block;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
@@ -12,7 +14,6 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.block.Block;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +34,7 @@ public class ZombieMineGoal<T extends HostileEntity> extends Goal {
 
     @Override
     public void start() {
-        hardness = world.getBlockState(mine.bp).getBlock().getHardness() * Main.config.hardnessMultiplier;
+        hardness = world.getBlockState(mine.bp).getBlock().getHardness() * ModConfig.hardnessMultiplier;
         mine.doMining = true;
         progress = 0;
         zombie.setAttached(Main.ZOMBIE_MINING, mine);
@@ -64,7 +65,7 @@ public class ZombieMineGoal<T extends HostileEntity> extends Goal {
 
         // exclude unbreakable blocks
         if(!b.canMobSpawnInside(state) &&
-                destroying >= 0 && destroying <= Main.config.maxHardness) {
+                destroying >= 0 && destroying <= ModConfig.maxHardness) {
             X = pos.getX();
             Y = pos.getY();
             Z = pos.getZ();
@@ -89,8 +90,8 @@ public class ZombieMineGoal<T extends HostileEntity> extends Goal {
     public void tick() {
         if (!mine.doMining) return;
         double dist = zombie.squaredDistanceTo(X, Y, Z);
-        if (dist <= Main.config.minDist ||
-            dist > Main.config.maxDist) {
+        if (dist <= ModConfig.minDist ||
+            dist > ModConfig.maxDist) {
             mine.doMining = false;
             return;
         }
@@ -103,21 +104,21 @@ public class ZombieMineGoal<T extends HostileEntity> extends Goal {
             return;
         }
         if (progress >= hardness) {
-            world.breakBlock(mine.bp, Main.config.dropBlocks, zombie);
+            world.breakBlock(mine.bp, ModConfig.dropBlocks, zombie);
             world.setBlockBreakingInfo(zombie.getId(), mine.bp, -1);
             mine.doMining = false;
         } else {
             world.setBlockBreakingInfo(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
             zombie.stopMovement();
             zombie.getLookControl().lookAt(X, Y, Z);
-            progress += Main.config.increment;
+            progress += ModConfig.increment;
             zombie.swingHand(Hand.MAIN_HAND);
         }
     }
 
     @Override
     public boolean shouldContinue() {
-        return mine.doMining && zombie.squaredDistanceTo(mine.bp.toCenterPos()) <= Main.config.maxDist;
+        return mine.doMining && zombie.squaredDistanceTo(mine.bp.toCenterPos()) <= ModConfig.maxDist;
     }
 
     @Override

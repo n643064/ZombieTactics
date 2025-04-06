@@ -3,6 +3,7 @@ package n643064.zombie_tactics.fabric.mixin;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.mob.PathAwareEntity;
+
 import org.spongepowered.asm.mixin.*;
 
 import java.util.EnumSet;

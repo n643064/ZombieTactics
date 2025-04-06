@@ -1,6 +1,7 @@
 package n643064.zombie_tactics.fabric.mixin;
 
 import n643064.zombie_tactics.fabric.Main;
+import n643064.zombie_tactics.fabric.ModConfig;
 import n643064.zombie_tactics.fabric.attachments.MiningData;
 import n643064.zombie_tactics.fabric.mining.ZombieMineGoal;
 
@@ -9,11 +10,11 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.mob.ZombifiedPiglinEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
@@ -45,7 +46,7 @@ public abstract class ZombieEntityMixin extends HostileEntity {
      */
     @Overwrite
     public boolean burnsInDaylight() {
-        return Main.config.sunSensitive;
+        return ModConfig.sunSensitive;
     }
 
     // Modifying Attack range
@@ -65,14 +66,14 @@ public abstract class ZombieEntityMixin extends HostileEntity {
         } else {
             aabb = this.getBoundingBox();
         }
-        return aabb.expand(Main.config.attackRange, Main.config.attackRange, Main.config.attackRange);
+        return aabb.expand(ModConfig.attackRange, ModConfig.attackRange, ModConfig.attackRange);
     }
 
     public ZombieEntityMixin(EntityType<? extends ZombieEntity> entityType, World world) {
         super(entityType, world);
     }
 
-    // fixes that doing both mining and attacking
+    // fix that doing both mining and attacking
     @Inject(method = "tryAttack", at = @At("HEAD"))
     public void tryAttackHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         this.getAttachedOrSet(Main.ZOMBIE_MINING, new MiningData()).doMining = false;
@@ -82,20 +83,21 @@ public abstract class ZombieEntityMixin extends HostileEntity {
     @Inject(method = "tryAttack", at = @At("TAIL"))
     public void tryAttackTail(Entity ent, CallbackInfoReturnable<Boolean> ci) {
         if(ent instanceof LivingEntity) {
-            if(this.getHealth() <= this.getMaxHealth()) this.heal((float)Main.config.healAmount);
+            if(this.getHealth() <= this.getMaxHealth()) this.heal((float)ModConfig.healAmount);
         }
         // reset invulnerable time
-        if(Main.config.noMercy) ent.timeUntilRegen = 0;
+        if(ModConfig.noMercy) ent.timeUntilRegen = 0;
     }
 
     // For climbing
+    // push = pushAwayFrom
     @Override
     public void pushAwayFrom(@NotNull Entity entity) {
-        if(Main.config.zombiesClimbing && entity instanceof ZombieEntity &&
+        if(ModConfig.zombiesClimbing && entity instanceof ZombieEntity &&
                 horizontalCollision) {
             if(zombieTactics$climbedCount < 120) {
                 final Vec3d v = getVelocity();
-                setVelocity(v.x, Main.config.climbingSpeed, v.z);
+                setVelocity(v.x, ModConfig.climbingSpeed, v.z);
                 zombieTactics$isClimbing = true;
                 ++ zombieTactics$climbedCount;
             }
@@ -125,20 +127,19 @@ public abstract class ZombieEntityMixin extends HostileEntity {
 
     /**
      * @author PICOPress
-     * @reason to overwrite
+     * @reason to overwrite zombie goals
      */
     @Overwrite
     public void initCustomGoals() {
         this.goalSelector.add(1, new ZombieAttackGoal((ZombieEntity)(Object)this,
-                Main.config.aggressiveSpeed, false));
+                ModConfig.aggressiveSpeed, false));
 
-        if(Main.config.targetAnimals)
-            this.targetSelector.add(Main.config.targetAnimalsPriority,
-                    new ActiveTargetGoal<>(this, AnimalEntity.class,
-                            Main.config.targetAnimalsVisibility));
+        if(ModConfig.targetAnimals)
+            this.targetSelector.add(ModConfig.targetAnimalsPriority,
+                    new ActiveTargetGoal<>(this, AnimalEntity.class, ModConfig.targetAnimalsVisibility));
 
-        if(Main.config.mineBlocks)
-            this.goalSelector.add(Main.config.miningPriority,
+        if(ModConfig.mineBlocks)
+            this.goalSelector.add(ModConfig.miningPriority,
                     new ZombieMineGoal<>(this));
 
         this.goalSelector.add(6, new MoveThroughVillageGoal(this,
