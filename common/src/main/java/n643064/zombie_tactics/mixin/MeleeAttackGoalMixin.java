@@ -1,4 +1,4 @@
-package n643064.zombie_tactics.neoforge.mixin;
+package n643064.zombie_tactics.mixin;
 
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;

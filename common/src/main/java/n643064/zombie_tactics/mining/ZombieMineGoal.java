@@ -1,9 +1,8 @@
-package n643064.zombie_tactics.neoforge.mining;
+package n643064.zombie_tactics.mining;
 
-import static n643064.zombie_tactics.common.mining.MiningRoutines.*;
-import n643064.zombie_tactics.neoforge.Config;
-import n643064.zombie_tactics.neoforge.Main;
-import n643064.zombie_tactics.neoforge.attachments.MiningData;
+import n643064.zombie_tactics.Config;
+import n643064.zombie_tactics.attachments.MiningData;
+import static n643064.zombie_tactics.mining.MiningRoutines.*;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -22,10 +21,10 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
     private final Level level;
     private double progress, hardness = Double.MAX_VALUE;
 
-    private final MiningData mine;
-
     // These are constant unless a target is changed
     private double X, Y, Z;
+
+    public final MiningData mine;
 
     public ZombieMineGoal(T zombie) {
         mine = new MiningData();
@@ -43,7 +42,6 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         progress = 0;
         hardness = level.getBlockState(mine.bp).getBlock().defaultDestroyTime() * Config.hardnessMultiplier;
         mine.doMining = true;
-        zombie.setData(Main.ZOMBIE_MINING, mine);
     }
 
     // get deltaY between me and target

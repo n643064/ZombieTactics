@@ -19,15 +19,13 @@
 - A crack that a dead zombie tried to mine now disappears
 - Solved that Zombie-derived mobs does not push other zombies
 - New options
-  - Sensitivity of sun
+  - Sun Sensitivity
   - Attack range
+  - etc...
 - Added in-game mod configuration screen with translation
-- Supports new command `sumz`
+- The new command `sumz`
 - Now supports Fabric
 - And miscellaneous bugs fixed 
 ### 1.2.1
 - Zombies no longer break bedrock
 - If a zombie stops mining, target block's destruction progress is reset 
-
-## Issues
-- On Fabric, attack cooldown doesn't apply

@@ -1,10 +1,12 @@
 package n643064.zombie_tactics.fabric;
 
+import n643064.zombie_tactics.Config;
+
 import eu.midnightdust.lib.config.MidnightConfig;
 
 // I think MidnightConfig is even better than cloth-config :(
 // Anyway, it causes the duplication of language assets
-public class ModConfig extends MidnightConfig {
+public class FabricConfig extends MidnightConfig {
     public static final String ANIMALS = "Animals";
     public static final String MINING = "Mining";
     public static final String CLIMBING = "Climbing";
@@ -18,7 +20,7 @@ public class ModConfig extends MidnightConfig {
     @Entry(category = CLIMBING) public static boolean zombiesClimbing = true;
     @Entry(category = MINING) public static boolean dropBlocks = false;
     @Entry(category = GENERAL) public static boolean sunSensitive = false;
-    @Entry(category = GENERAL) public static boolean noMercy = true;
+    @Entry(category = GENERAL) public static boolean noMercy = Config.noMercy;
 
     @Entry(category = MINING, min = 0) public static double increment = 0.2;
     @Entry(category = MINING, min = 0) public static double maxHardness = 4.5;
@@ -33,4 +35,35 @@ public class ModConfig extends MidnightConfig {
     @Entry(category = ANIMALS, min = 0) public static int targetAnimalsPriority = 3;
     @Entry(category = MINING, min = 0) public static int miningPriority = 1;
     @Entry(category = GENERAL, min = 1, max = 1000) public static int attackCooldown = 10;
+
+    // fabric fields do nothing without the update of config
+    public static void updateConfig() {
+        Config.mineBlocks = mineBlocks;
+        Config.targetAnimals = targetAnimals;
+        Config.targetAnimalsVisibility = targetAnimalsVisibility;
+        Config.zombiesClimbing = zombiesClimbing;
+        Config.dropBlocks = dropBlocks;
+        Config.sunSensitive = sunSensitive;
+        Config.noMercy = noMercy;
+
+        Config.increment = increment;
+        Config.maxHardness = maxHardness;
+        Config.hardnessMultiplier = hardnessMultiplier;
+        Config.climbingSpeed = climbingSpeed;
+        Config.minDist = minDist;
+        Config.maxDist = maxDist;
+        Config.healAmount = healAmount;
+        Config.aggressiveSpeed = aggressiveSpeed;
+        Config.attackRange = attackRange;
+
+        Config.targetAnimalsPriority = targetAnimalsPriority;
+        Config.miningPriority = miningPriority;
+        Config.attackCooldown = attackCooldown;
+    }
+
+    @Override
+    public void writeChanges(String modid) {
+        super.writeChanges(modid);
+        updateConfig();
+    }
 }

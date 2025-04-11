@@ -31,7 +31,10 @@ configurations {
 }
 
 dependencies {
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_version}")
+    }
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 
@@ -57,6 +60,6 @@ shadowJar {
 }
 
 remapJar {
-    // What is alternative of this deprecation?
-    input.set shadowJar.archiveFile
+    inputFile = shadowJar.archiveFile
+    sourceNamespace = 'intermediary'
 }

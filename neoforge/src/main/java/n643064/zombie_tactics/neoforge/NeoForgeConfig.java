@@ -1,5 +1,7 @@
 package n643064.zombie_tactics.neoforge;
 
+import n643064.zombie_tactics.Config;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -8,7 +10,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 @EventBusSubscriber(modid = Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
-public class Config {
+public class NeoForgeConfig {
     private static final Pair<build, ModConfigSpec> BUILDER = new ModConfigSpec.Builder().configure(build::new);
     private static ModConfigSpec.BooleanValue TARGET_ANIMALS;
     private static ModConfigSpec.IntValue TARGET_ANIMALS_PRIORITY;
@@ -32,49 +34,27 @@ public class Config {
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
-    public static boolean mineBlocks,
-            targetAnimals,
-            targetAnimalsVisibility,
-            zombiesClimbing,
-            dropBlocks,
-            sunSensitive,
-            noMercy;
-
-    public static double increment,
-            maxHardness,
-            hardnessMultiplier,
-            climbingSpeed,
-            minDist,
-            maxDist,
-            healAmount,
-            aggressiveSpeed,
-            attackRange;
-
-    public static int targetAnimalsPriority,
-            miningPriority,
-            attackCooldown;
-
     @SubscribeEvent
     static void onLoad(final ModConfigEvent ignored) {
-        mineBlocks = MINE_BLOCKS.get();
-        minDist = MIN_DISTANCE.get();
-        maxDist = MAX_DISTANCE.get();
-        dropBlocks = DROP_BROKEN_BLOCKS.get();
-        miningPriority = MINING_PRIORITY.get();
-        targetAnimals = TARGET_ANIMALS.get();
-        targetAnimalsPriority = TARGET_ANIMALS_PRIORITY.get();
-        targetAnimalsVisibility = TARGET_ANIMALS_VISIBILITY.get();
-        increment = MINING_SPEED.get();
-        maxHardness = MAX_HARDNESS.get();
-        hardnessMultiplier = HARDNESS_MULTIPLIER.get();
-        zombiesClimbing = ZOMBIE_CLIMBING.get();
-        climbingSpeed = CLIMBING_SPEED.get();
-        healAmount = HEAL_AMOUNT.get();
-        attackCooldown = ATTACK_COOLDOWN.get();
-        aggressiveSpeed = AGGRESSIVE_SPEED.get();
-        sunSensitive = SUN_SENSITIVE.get();
-        noMercy = NO_MERCY.get();
-        attackRange = ATTACK_RANGE.get();
+        Config.mineBlocks = MINE_BLOCKS.get();
+        Config.minDist = MIN_DISTANCE.get();
+        Config.maxDist = MAX_DISTANCE.get();
+        Config.dropBlocks = DROP_BROKEN_BLOCKS.get();
+        Config.miningPriority = MINING_PRIORITY.get();
+        Config.targetAnimals = TARGET_ANIMALS.get();
+        Config.targetAnimalsPriority = TARGET_ANIMALS_PRIORITY.get();
+        Config.targetAnimalsVisibility = TARGET_ANIMALS_VISIBILITY.get();
+        Config.increment = MINING_SPEED.get();
+        Config.maxHardness = MAX_HARDNESS.get();
+        Config.hardnessMultiplier = HARDNESS_MULTIPLIER.get();
+        Config.zombiesClimbing = ZOMBIE_CLIMBING.get();
+        Config.climbingSpeed = CLIMBING_SPEED.get();
+        Config.healAmount = HEAL_AMOUNT.get();
+        Config.attackCooldown = ATTACK_COOLDOWN.get();
+        Config.aggressiveSpeed = AGGRESSIVE_SPEED.get();
+        Config.sunSensitive = SUN_SENSITIVE.get();
+        Config.noMercy = NO_MERCY.get();
+        Config.attackRange = ATTACK_RANGE.get();
     }
 
     /*

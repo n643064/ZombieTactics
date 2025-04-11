@@ -1,8 +1,7 @@
 package n643064.zombie_tactics.neoforge;
 
-import n643064.zombie_tactics.common.IMain;
-import n643064.zombie_tactics.neoforge.attachments.MiningData;
-import n643064.zombie_tactics.neoforge.commands.CommandSumZ;
+import n643064.zombie_tactics.impl.IMain;
+import n643064.zombie_tactics.commands.CommandSumZ;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -17,19 +16,16 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = Main.MOD_ID)
 @Mod(Main.MOD_ID)
 public class Main implements IMain {
+    // not using for now
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS = DeferredRegister
             .create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
 
-    public static final Supplier<AttachmentType<MiningData>> ZOMBIE_MINING = ATTACHMENTS
-            .register("zombie_mining", () -> AttachmentType.builder(MiningData::new).build());
-
     public Main(IEventBus modEventBus, ModContainer modContainer) {
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, NeoForgeConfig.SPEC);
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         ATTACHMENTS.register(modEventBus);
     }

@@ -1,13 +1,13 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "n643064.zombie_tactics.fabric.mixin",
+  "package": "n643064.zombie_tactics.mixin",
   "compatibilityLevel": "JAVA_21",
   "refmap": "zombie_tactics.refmap.json",
   "mixins": [
     "MeleeAttackGoalMixin",
     "ZombieAttackGoalMixin",
-    "ZombieEntityMixin"
+    "ZombieMixin"
   ],
   "client": [
   ],

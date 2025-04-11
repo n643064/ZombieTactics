@@ -1,9 +1,7 @@
-package n643064.zombie_tactics.neoforge.mixin;
+package n643064.zombie_tactics.mixin;
 
-import n643064.zombie_tactics.neoforge.Config;
-import n643064.zombie_tactics.neoforge.Main;
-import n643064.zombie_tactics.neoforge.attachments.MiningData;
-import n643064.zombie_tactics.neoforge.mining.ZombieMineGoal;
+import n643064.zombie_tactics.Config;
+import n643064.zombie_tactics.mining.ZombieMineGoal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Difficulty;
@@ -36,8 +34,9 @@ import java.util.function.Predicate;
 
 @Mixin(Zombie.class)
 public abstract class ZombieMixin extends Monster {
-    @Unique private boolean zombieTactics$isClimbing = false;
+    @Unique private ZombieMineGoal<? extends Monster> zombie_tactics$mine_goal;
     @Unique private int zombieTactics$climbedCount = 0;
+    @Unique private boolean zombieTactics$isClimbing = false;
     @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
 
     @Shadow public abstract boolean canBreakDoors(); // This just makes path finding
@@ -74,12 +73,13 @@ public abstract class ZombieMixin extends Monster {
 
     protected ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
         super(entityType, level);
+
     }
 
     // fixes that doing both mining and attacking
     @Inject(method = "doHurtTarget", at = @At("HEAD"))
     public void doHurtTargetHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        this.getData(Main.ZOMBIE_MINING).doMining = false;
+        zombie_tactics$mine_goal.mine.doMining = false;
     }
 
     // Healing zombie
@@ -123,9 +123,8 @@ public abstract class ZombieMixin extends Monster {
     @Override
     public void die(@NotNull DamageSource source) {
         super.die(source);
-        MiningData md = this.getData(Main.ZOMBIE_MINING);
-        if(md.doMining)
-            this.level().destroyBlockProgress(this.getId(), md.bp, -1);
+        if(zombie_tactics$mine_goal != null && zombie_tactics$mine_goal.mine.doMining)
+            this.level().destroyBlockProgress(this.getId(), zombie_tactics$mine_goal.mine.bp, -1);
     }
 
     /**
@@ -142,9 +141,10 @@ public abstract class ZombieMixin extends Monster {
                     new NearestAttackableTargetGoal<>(this, Animal.class,
                             Config.targetAnimalsVisibility));
         }
+
+        zombie_tactics$mine_goal = new ZombieMineGoal<>(this);
         if (Config.mineBlocks)
-            this.goalSelector.addGoal(Config.miningPriority,
-                    new ZombieMineGoal<>(this));
+            this.goalSelector.addGoal(Config.miningPriority, zombie_tactics$mine_goal);
 
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this,
                 1.0, false, 4, this::canBreakDoors));

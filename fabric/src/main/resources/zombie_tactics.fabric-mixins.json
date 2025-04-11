@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "n643064.zombie_tactics.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "zombie_tactics.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,4 +1,4 @@
-package n643064.zombie_tactics.neoforge.commands;
+package n643064.zombie_tactics.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;

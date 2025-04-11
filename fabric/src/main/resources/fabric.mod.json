@@ -20,13 +20,14 @@
     ]
   },
   "mixins": [
+    "zombie_tactics.fabric-mixins.json",
     "zombie_tactics.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.16.10",
     "minecraft": "~1.21.1",
-    "java": ">=21"
-    ,"architectury": ">=13.0.8",
+    "java": "21",
+    "architectury": ">=13.0.8",
     "midnightlib": ">=1.6.9",
     "modmenu": ">=11",
     "fabric-api": "*"

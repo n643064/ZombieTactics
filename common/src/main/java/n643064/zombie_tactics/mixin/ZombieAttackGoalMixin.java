@@ -1,6 +1,6 @@
-package n643064.zombie_tactics.neoforge.mixin;
+package n643064.zombie_tactics.mixin;
 
-import n643064.zombie_tactics.neoforge.Config;
+import n643064.zombie_tactics.Config;
 
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;

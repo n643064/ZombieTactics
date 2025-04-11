@@ -8,5 +8,8 @@ dependencies {
     // Do NOT use other classes from Fabric Loader.
     modImplementation "net.fabricmc:fabric-loader:$fabric_loader_version"
     modImplementation "dev.architectury:architectury:$architectury_api_version"
-    mappings loom.officialMojangMappings()
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_version}")
+    }
 }

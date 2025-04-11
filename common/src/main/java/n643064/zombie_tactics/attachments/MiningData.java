@@ -1,6 +1,6 @@
-package n643064.zombie_tactics.fabric.attachments;
+package n643064.zombie_tactics.attachments;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 /*
     This class contains a mining block's position

@@ -1,4 +1,4 @@
-package n643064.zombie_tactics.common.mining;
+package n643064.zombie_tactics.mining;
 
 public class MiningRoutines {
     /*  Y
