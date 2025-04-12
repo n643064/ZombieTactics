@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Random;
+//import java.util.Random;
 import java.util.function.Predicate;
 
 
@@ -89,7 +89,7 @@ public abstract class ZombieMixin extends Monster {
     // fixes that doing both mining and attacking
     @Inject(method = "doHurtTarget", at = @At("HEAD"))
     public void doHurtTargetHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        zombie_tactics$mine_goal.mine.doMining = false;
+        if(zombie_tactics$mine_goal != null) zombie_tactics$mine_goal.mine.doMining = false;
     }
 
     // Healing zombie

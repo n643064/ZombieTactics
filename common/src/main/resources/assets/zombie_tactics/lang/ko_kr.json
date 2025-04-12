@@ -44,9 +44,9 @@
   "zombie_tactics.configuration.General.attack_range.tooltip": "좀비가 공격 가능한 범위",
   "zombie_tactics.configuration.General.attack_invisible": "보이는 엔티티만 공격",
   "zombie_tactics.configuration.General.attack_invisible.tooltip": "좀비의 눈으로 볼 수 있는 엔티티만 공격합니다",
-  "zombie_tactics.configuration.Spawn": "Spawn",
-  "zombie_tactics.configuration.Spawn.persistence_chance": "Persistence Chance",
-  "zombie_tactics.configuration.Spawn.persistence_chance.tooltip": "Chance for PersistenceRequired",
+  "zombie_tactics.configuration.Spawn": "스폰",
+  "zombie_tactics.configuration.Spawn.persistence_chance": "디스폰 면역 확률",
+  "zombie_tactics.configuration.Spawn.persistence_chance.tooltip": "특정 확률로 디스폰되지 않는 좀비가 생성됩니다.",
 
 
 
