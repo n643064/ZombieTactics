@@ -2,6 +2,7 @@ package n643064.zombie_tactics.attachments;
 
 import net.minecraft.core.BlockPos;
 
+
 /*
     This class contains a mining block's position
     and a condition of mine for each of zombie

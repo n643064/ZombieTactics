@@ -1,6 +1,7 @@
 package n643064.zombie_tactics.mixin;
 
 import n643064.zombie_tactics.Config;
+import n643064.zombie_tactics.impl.NearestTargetGoal;
 import n643064.zombie_tactics.mining.ZombieMineGoal;
 
 import net.minecraft.core.BlockPos;
@@ -30,7 +31,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Random;
 import java.util.function.Predicate;
+
 
 @Mixin(Zombie.class)
 public abstract class ZombieMixin extends Monster {
@@ -73,7 +76,14 @@ public abstract class ZombieMixin extends Monster {
 
     protected ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
         super(entityType, level);
+    }
 
+    @Override
+    public boolean isPersistenceRequired() {
+        // randomly set PersistenceRequired
+        // how... how can I use random... why does it crash...?
+        //if(new Random().nextDouble(0, 1) < Config.persistenceChance)
+        return true;
     }
 
     // fixes that doing both mining and attacking
@@ -138,8 +148,7 @@ public abstract class ZombieMixin extends Monster {
                 Config.aggressiveSpeed, true));
         if (Config.targetAnimals) {
             this.targetSelector.addGoal(Config.targetAnimalsPriority,
-                    new NearestAttackableTargetGoal<>(this, Animal.class,
-                            Config.targetAnimalsVisibility));
+                    new NearestAttackableTargetGoal<>(this, Animal.class, false));
         }
 
         zombie_tactics$mine_goal = new ZombieMineGoal<>(this);
@@ -155,18 +164,28 @@ public abstract class ZombieMixin extends Monster {
         this.targetSelector.addGoal(1,
                 (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));
 
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this,
-                Player.class, false));
+        if(Config.attackInvisible) {
+            this.targetSelector.addGoal(2,
+                    new NearestTargetGoal<>(this, Player.class, false));
 
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this,
-                AbstractVillager.class, false));
+            this.targetSelector.addGoal(3,
+                    new NearestTargetGoal<>(this, AbstractVillager.class, false));
 
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this,
-                IronGolem.class, true));
+            this.targetSelector.addGoal(3,
+                    new NearestTargetGoal<>(this, IronGolem.class, true));
+        } else {
+            this.targetSelector.addGoal(2,
+                    new NearestAttackableTargetGoal<>(this, Player.class, false));
 
-        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this,
-                Turtle.class, 10, true, false,
-                Turtle.BABY_ON_LAND_SELECTOR));
+            this.targetSelector.addGoal(3,
+                    new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false));
+
+            this.targetSelector.addGoal(3,
+                    new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+        }
+
+        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(
+                this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
 
         this.goalSelector.addGoal(1, new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
     }

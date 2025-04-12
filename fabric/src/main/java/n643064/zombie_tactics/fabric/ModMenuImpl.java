@@ -5,6 +5,7 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 
 import eu.midnightdust.lib.config.MidnightConfig;
 
+
 public class ModMenuImpl implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {

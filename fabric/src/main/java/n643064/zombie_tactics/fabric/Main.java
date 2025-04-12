@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 import eu.midnightdust.lib.config.MidnightConfig;
 
+
 // initialize the mod for fabric
 public class Main implements ModInitializer, IMain {
     @Override

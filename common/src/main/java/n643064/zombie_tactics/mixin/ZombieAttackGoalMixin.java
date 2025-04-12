@@ -8,6 +8,7 @@ import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 
 import org.spongepowered.asm.mixin.Mixin;
 
+
 // Refactoring ZombieAttackGoal
 // I just want to make attack speed faster
 @Mixin(ZombieAttackGoal.class)

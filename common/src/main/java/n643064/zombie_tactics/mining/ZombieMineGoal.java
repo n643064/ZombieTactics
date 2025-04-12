@@ -1,8 +1,8 @@
 package n643064.zombie_tactics.mining;
 
+import static n643064.zombie_tactics.mining.MiningRoutines.*;
 import n643064.zombie_tactics.Config;
 import n643064.zombie_tactics.attachments.MiningData;
-import static n643064.zombie_tactics.mining.MiningRoutines.*;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.NotNull;
+
 
 public class ZombieMineGoal<T extends Monster> extends Goal {
     private final T zombie;
@@ -141,7 +142,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         // I think that isStuck always return false
         if(zombie.isAlive() && !zombie.isNoAi() &&
                 nav.isDone() && liv != null /*&& nav.isStuck()*/) {
-            if(zombie.isWithinMeleeAttackRange(liv)) return false;
+            if(zombie.isWithinMeleeAttackRange(liv) && zombie.hasLineOfSight(liv)) return false;
 
             // go once more
             // Issue: moveTo sometimes return false while a zombie can go to the target.

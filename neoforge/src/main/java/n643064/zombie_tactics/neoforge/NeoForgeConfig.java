@@ -9,12 +9,13 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+
 @EventBusSubscriber(modid = Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class NeoForgeConfig {
     private static final Pair<build, ModConfigSpec> BUILDER = new ModConfigSpec.Builder().configure(build::new);
     private static ModConfigSpec.BooleanValue TARGET_ANIMALS;
     private static ModConfigSpec.IntValue TARGET_ANIMALS_PRIORITY;
-    private static ModConfigSpec.BooleanValue TARGET_ANIMALS_VISIBILITY;
+    private static ModConfigSpec.BooleanValue ATTACK_INVISIBLE;
     private static ModConfigSpec.BooleanValue MINE_BLOCKS;
     private static ModConfigSpec.DoubleValue MIN_DISTANCE;
     private static ModConfigSpec.DoubleValue MAX_DISTANCE;
@@ -31,6 +32,7 @@ public class NeoForgeConfig {
     private static ModConfigSpec.BooleanValue SUN_SENSITIVE;
     private static ModConfigSpec.BooleanValue NO_MERCY;
     private static ModConfigSpec.DoubleValue ATTACK_RANGE;
+    private static ModConfigSpec.DoubleValue PERSISTENCE_CHANCE;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -43,7 +45,7 @@ public class NeoForgeConfig {
         Config.miningPriority = MINING_PRIORITY.get();
         Config.targetAnimals = TARGET_ANIMALS.get();
         Config.targetAnimalsPriority = TARGET_ANIMALS_PRIORITY.get();
-        Config.targetAnimalsVisibility = TARGET_ANIMALS_VISIBILITY.get();
+        Config.attackInvisible = ATTACK_INVISIBLE.get();
         Config.increment = MINING_SPEED.get();
         Config.maxHardness = MAX_HARDNESS.get();
         Config.hardnessMultiplier = HARDNESS_MULTIPLIER.get();
@@ -55,6 +57,7 @@ public class NeoForgeConfig {
         Config.sunSensitive = SUN_SENSITIVE.get();
         Config.noMercy = NO_MERCY.get();
         Config.attackRange = ATTACK_RANGE.get();
+        Config.persistenceChance = PERSISTENCE_CHANCE.get();
     }
 
     /*
@@ -67,7 +70,6 @@ public class NeoForgeConfig {
             b.push("Animals");
             TARGET_ANIMALS = b.comment("Should zombies target animals").translation(MOD_CFG + "Animals.do_hurt_animals").define("zombiesTargetAnimals", true);
             TARGET_ANIMALS_PRIORITY = b.comment("Animal targeting priority (lower values mean higher priority). Do not change if you don't know what it is").translation(MOD_CFG + "Animals.hurt_animal_priority").defineInRange("targetAnimalsPriority", 3, 0, Integer.MAX_VALUE);
-            TARGET_ANIMALS_VISIBILITY = b.comment("Does animal targeting require line of sight").translation(MOD_CFG + "Animals.hurt_visible_animal").define("targetAnimalsVisibilityCheck", false);
             b.pop();
             b.push("Mining");
             MINE_BLOCKS = b.comment("Should zombies attempt to break blocks in their way").translation(MOD_CFG + "Mining.do_mine").define("zombiesMineBlocks", true);
@@ -90,6 +92,10 @@ public class NeoForgeConfig {
             SUN_SENSITIVE = b.comment("Zombie is sensitive to the sun").translation(MOD_CFG + "General.sun_sensitive").define("sunSensitive", true);
             NO_MERCY = b.comment("Target entity").translation(MOD_CFG + "General.no_mercy").define("noMercy", false);
             ATTACK_RANGE = b.comment("Zombie attack range").translation(MOD_CFG + "General.attack_range").defineInRange("", Math.sqrt(2.04) - 0.6, 0.25, 127.);
+            ATTACK_INVISIBLE = b.comment("Does animal targeting require line of sight").translation(MOD_CFG + "General.attack_invisible").define("targetVisibilityCheck", false);
+            b.pop();
+            b.push("Spawn");
+            PERSISTENCE_CHANCE = b.translation(MOD_CFG + "Spawn.persistence_chance").defineInRange("persistenceChance", 0.0, 0, 1);
             b.pop();
         }
     }

@@ -1,5 +1,6 @@
 package n643064.zombie_tactics.mining;
 
+
 public class MiningRoutines {
     /*  Y
         /\   Z
@@ -37,7 +38,7 @@ public class MiningRoutines {
             {0, 0, -1},
 
             // Y = -1
-            {0, -1, 0},
+            //{0, -1, 0},
     };
 
     public static final byte[][] routineDown = new byte[][] {

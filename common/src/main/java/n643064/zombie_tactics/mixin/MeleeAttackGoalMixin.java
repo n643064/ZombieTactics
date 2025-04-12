@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.*;
 
 import java.util.EnumSet;
 
+
 @Mixin(MeleeAttackGoal.class)
 public abstract class MeleeAttackGoalMixin extends Goal {
     // Why are there too many unused private fields?

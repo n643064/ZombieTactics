@@ -61,5 +61,4 @@ shadowJar {
 
 remapJar {
     inputFile = shadowJar.archiveFile
-    sourceNamespace = 'intermediary'
 }
