@@ -27,31 +27,48 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import org.jetbrains.annotations.NotNull;
 
-//import java.util.Random;
 import java.util.function.Predicate;
 
 
 @Mixin(Zombie.class)
 public abstract class ZombieMixin extends Monster {
-    @Unique private ZombieMineGoal<? extends Monster> zombie_tactics$mine_goal;
     @Unique private int zombieTactics$climbedCount = 0;
     @Unique private boolean zombieTactics$isClimbing = false;
-    @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
+    @Unique private boolean zombie_tactics$persistence;
+    @Unique private static int zombie_tactics$threshold = 0;
+    @Unique private ZombieMineGoal<? extends Monster> zombie_tactics$mine_goal;
 
+    @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
     @Shadow public abstract boolean canBreakDoors(); // This just makes path finding
 
-    /**
-     * I do not want to see that zombies burn
-     * @author PICOPress
-     * @reason overwrite this function
-     */
-    @Overwrite
-    public boolean isSunSensitive() {
-        return Config.sunSensitive;
+    public ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    @Inject(method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", at = @At("TAIL"))
+    public void constructor(EntityType<? extends Zombie> entityType, Level level, CallbackInfo ci) {
+        double tmp = this.level().random.nextDouble();
+        zombie_tactics$persistence = tmp <= Config.persistenceChance;
+        if(zombie_tactics$persistence && zombie_tactics$threshold < Config.maxThreshold) {
+            ++ zombie_tactics$threshold;
+        } else zombie_tactics$persistence = false;
+        System.out.println(tmp + ", " + zombie_tactics$persistence + ", " + zombie_tactics$threshold);
+    }
+
+    // zombie doesn't take fall damage when climbing
+    @Override
+    protected void checkFallDamage(double y, boolean onGround, @NotNull BlockState state, @NotNull BlockPos pos) {
+        if(zombieTactics$isClimbing && onGround) {
+            fallDistance = 0;
+            zombieTactics$isClimbing = false;
+            zombieTactics$climbedCount = 0;
+        }
+        super.checkFallDamage(y, onGround, state, pos);
     }
 
     // Modifying Attack range
@@ -74,16 +91,39 @@ public abstract class ZombieMixin extends Monster {
         return aabb.inflate(Config.attackRange, Config.attackRange, Config.attackRange);
     }
 
-    protected ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
-        super(entityType, level);
+    @Override
+    public boolean isPersistenceRequired() {
+        return zombie_tactics$persistence;
+    }
+
+    // For climbing
+    @Override
+    public void push(@NotNull Entity entity) {
+        if(Config.zombiesClimbing && entity instanceof Zombie &&
+                horizontalCollision) {
+            if(zombieTactics$climbedCount < 120) {
+                final Vec3 v = getDeltaMovement();
+                setDeltaMovement(v.x, Config.climbingSpeed, v.z);
+                zombieTactics$isClimbing = true;
+                ++ zombieTactics$climbedCount;
+            }
+        }
+        super.push(entity);
     }
 
     @Override
-    public boolean isPersistenceRequired() {
-        // randomly set PersistenceRequired
-        // how... how can I use random... why does it crash...?
-        //if(new Random().nextDouble(0, 1) < Config.persistenceChance)
-        return true;
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
+        -- zombie_tactics$threshold;
+    }
+
+    // reset crack progress if a zombie died when mining
+    @Override
+    public void die(@NotNull DamageSource source) {
+        super.die(source);
+        -- zombie_tactics$threshold;
+        if(zombie_tactics$mine_goal != null && zombie_tactics$mine_goal.mine.doMining)
+            this.level().destroyBlockProgress(this.getId(), zombie_tactics$mine_goal.mine.bp, -1);
     }
 
     // fixes that doing both mining and attacking
@@ -103,38 +143,14 @@ public abstract class ZombieMixin extends Monster {
         if(Config.noMercy) ent.invulnerableTime = 0;
     }
 
-    // For climbing
-    @Override
-    public void push(@NotNull Entity entity) {
-        if(Config.zombiesClimbing && entity instanceof Zombie &&
-                horizontalCollision) {
-            if(zombieTactics$climbedCount < 120) {
-                final Vec3 v = getDeltaMovement();
-                setDeltaMovement(v.x, Config.climbingSpeed, v.z);
-                zombieTactics$isClimbing = true;
-                ++ zombieTactics$climbedCount;
-            }
-        }
-        super.push(entity);
-    }
-
-    // zombie doesn't take fall damage when climbing
-    @Override
-    protected void checkFallDamage(double y, boolean onGround, @NotNull BlockState state, @NotNull BlockPos pos) {
-        if(zombieTactics$isClimbing && onGround) {
-            fallDistance = 0;
-            zombieTactics$isClimbing = false;
-            zombieTactics$climbedCount = 0;
-        }
-        super.checkFallDamage(y, onGround, state, pos);
-    }
-
-    // reset crack progress if a zombie died when mining
-    @Override
-    public void die(@NotNull DamageSource source) {
-        super.die(source);
-        if(zombie_tactics$mine_goal != null && zombie_tactics$mine_goal.mine.doMining)
-            this.level().destroyBlockProgress(this.getId(), zombie_tactics$mine_goal.mine.bp, -1);
+    /**
+     * I do not want to see that zombies burn
+     * @author PICOPress
+     * @reason overwrite this function
+     */
+    @Overwrite
+    public boolean isSunSensitive() {
+        return Config.sunSensitive;
     }
 
     /**
@@ -144,49 +160,22 @@ public abstract class ZombieMixin extends Monster {
      */
     @Overwrite
     public void addBehaviourGoals() {
-        this.goalSelector.addGoal(1, new ZombieAttackGoal((Zombie)(Object)this,
-                Config.aggressiveSpeed, true));
-        if (Config.targetAnimals) {
-            this.targetSelector.addGoal(Config.targetAnimalsPriority,
-                    new NearestAttackableTargetGoal<>(this, Animal.class, false));
-        }
-
-        zombie_tactics$mine_goal = new ZombieMineGoal<>(this);
-        if (Config.mineBlocks)
-            this.goalSelector.addGoal(Config.miningPriority, zombie_tactics$mine_goal);
-
-        this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this,
-                1.0, false, 4, this::canBreakDoors));
-
-        this.goalSelector.addGoal(7,
-                new WaterAvoidingRandomStrollGoal(this, 1.0));
-
-        this.targetSelector.addGoal(1,
-                (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));
-
+        if (Config.targetAnimals) this.targetSelector.addGoal(Config.targetAnimalsPriority, new NearestAttackableTargetGoal<>(this, Animal.class, false));
+        if (Config.mineBlocks) this.goalSelector.addGoal(Config.miningPriority, zombie_tactics$mine_goal = new ZombieMineGoal<>(this));
         if(Config.attackInvisible) {
-            this.targetSelector.addGoal(2,
-                    new NearestTargetGoal<>(this, Player.class, false));
-
-            this.targetSelector.addGoal(3,
-                    new NearestTargetGoal<>(this, AbstractVillager.class, false));
-
-            this.targetSelector.addGoal(3,
-                    new NearestTargetGoal<>(this, IronGolem.class, true));
+            this.targetSelector.addGoal(2, new NearestTargetGoal<>(this, Player.class, false));
+            this.targetSelector.addGoal(3, new NearestTargetGoal<>(this, AbstractVillager.class, false));
+            this.targetSelector.addGoal(3, new NearestTargetGoal<>(this, IronGolem.class, true));
         } else {
-            this.targetSelector.addGoal(2,
-                    new NearestAttackableTargetGoal<>(this, Player.class, false));
-
-            this.targetSelector.addGoal(3,
-                    new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false));
-
-            this.targetSelector.addGoal(3,
-                    new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+            this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false));
+            this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false));
+            this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
         }
-
-        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(
-                this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
-
+        this.goalSelector.addGoal(1, new ZombieAttackGoal((Zombie)(Object)this, Config.aggressiveSpeed, true));
+        this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0, false, 4, this::canBreakDoors));
+        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
+        this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));
+        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
         this.goalSelector.addGoal(1, new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
     }
 }

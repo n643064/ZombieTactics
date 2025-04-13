@@ -48,6 +48,8 @@
   "zombie_tactics.configuration.Spawn": "Spawn",
   "zombie_tactics.configuration.Spawn.persistence_chance": "Persistence Chance",
   "zombie_tactics.configuration.Spawn.persistence_chance.tooltip": "Chance for PersistenceRequired",
+  "zombie_tactics.configuration.Spawn.max_threshold": "Maximum threshold",
+  "zombie_tactics.configuration.Spawn.max_threshold.tooltip": "Limit the persist zombies naturally spawned",
 
 
 
@@ -99,5 +101,7 @@
 
   "zombie_tactics.midnightconfig.category.Spawn": "Spawn",
   "zombie_tactics.midnightconfig.persistence_chance": "Persistence Chance",
-  "zombie_tactics.midnightconfig.persistence_chance.tooltip": "Chance for PersistenceRequired"
+  "zombie_tactics.midnightconfig.persistence_chance.tooltip": "Chance for PersistenceRequired",
+  "zombie_tactics.midnightconfig.max_threshold": "Maximum threshold",
+  "zombie_tactics.midnightconfig.max_threshold.tooltip": "Limit the persist zombies naturally spawned"
 }
