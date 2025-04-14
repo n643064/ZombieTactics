@@ -1,8 +1,9 @@
 package n643064.zombie_tactics.mixin;
 
 import n643064.zombie_tactics.Config;
-import n643064.zombie_tactics.impl.NearestTargetGoal;
+import n643064.zombie_tactics.impl.Plane;
 import n643064.zombie_tactics.mining.ZombieMineGoal;
+import n643064.zombie_tactics.impl.NearestTargetGoal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Difficulty;
@@ -42,22 +43,13 @@ public abstract class ZombieMixin extends Monster {
     @Unique private boolean zombie_tactics$persistence;
     @Unique private static int zombie_tactics$threshold = 0;
     @Unique private ZombieMineGoal<? extends Monster> zombie_tactics$mine_goal;
+    @Unique private BreakDoorGoal zombie_tactics$bdg;
 
     @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
     @Shadow public abstract boolean canBreakDoors(); // This just makes path finding
 
     public ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
         super(entityType, level);
-    }
-
-    @Inject(method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", at = @At("TAIL"))
-    public void constructor(EntityType<? extends Zombie> entityType, Level level, CallbackInfo ci) {
-        double tmp = this.level().random.nextDouble();
-        zombie_tactics$persistence = tmp <= Config.persistenceChance;
-        if(zombie_tactics$persistence && zombie_tactics$threshold < Config.maxThreshold) {
-            ++ zombie_tactics$threshold;
-        } else zombie_tactics$persistence = false;
-        System.out.println(tmp + ", " + zombie_tactics$persistence + ", " + zombie_tactics$threshold);
     }
 
     // zombie doesn't take fall damage when climbing
@@ -80,10 +72,10 @@ public abstract class ZombieMixin extends Monster {
             AABB aabb1 = entity.getBoundingBox();
             AABB aabb2 = this.getBoundingBox();
             aabb = new AABB(Math.min(aabb2.minX, aabb1.minX),
-                    Math.min(aabb2.minY, aabb1.minY),
+                    aabb2.minY,
                     Math.min(aabb2.minZ, aabb1.minZ),
                     Math.max(aabb2.maxX, aabb1.maxX),
-                    Math.max(aabb2.maxY, aabb1.maxY),
+                    aabb2.maxY,
                     Math.max(aabb2.maxZ, aabb1.maxZ));
         } else {
             aabb = this.getBoundingBox();
@@ -93,14 +85,14 @@ public abstract class ZombieMixin extends Monster {
 
     @Override
     public boolean isPersistenceRequired() {
-        return zombie_tactics$persistence;
+        return zombie_tactics$persistence || super.isPersistenceRequired();
     }
 
     // For climbing
     @Override
     public void push(@NotNull Entity entity) {
         if(Config.zombiesClimbing && entity instanceof Zombie &&
-                horizontalCollision) {
+                horizontalCollision && !((Plane)zombie_tactics$bdg).zombie_tactics$getBool()) {
             if(zombieTactics$climbedCount < 120) {
                 final Vec3 v = getDeltaMovement();
                 setDeltaMovement(v.x, Config.climbingSpeed, v.z);
@@ -114,6 +106,7 @@ public abstract class ZombieMixin extends Monster {
     @Override
     public void remove(RemovalReason reason) {
         super.remove(reason);
+        // decrease
         -- zombie_tactics$threshold;
     }
 
@@ -124,6 +117,15 @@ public abstract class ZombieMixin extends Monster {
         -- zombie_tactics$threshold;
         if(zombie_tactics$mine_goal != null && zombie_tactics$mine_goal.mine.doMining)
             this.level().destroyBlockProgress(this.getId(), zombie_tactics$mine_goal.mine.bp, -1);
+    }
+
+    @Inject(method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", at = @At("TAIL"))
+    public void constructor(EntityType<? extends Zombie> entityType, Level level, CallbackInfo ci) {
+        double tmp = this.level().random.nextDouble();
+        zombie_tactics$persistence = tmp <= Config.persistenceChance;
+        if(zombie_tactics$persistence && zombie_tactics$threshold < Config.maxThreshold) {
+            ++ zombie_tactics$threshold;
+        } else zombie_tactics$persistence = false;
     }
 
     // fixes that doing both mining and attacking
@@ -176,6 +178,6 @@ public abstract class ZombieMixin extends Monster {
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
-        this.goalSelector.addGoal(1, new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
+        this.goalSelector.addGoal(1, zombie_tactics$bdg = new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
     }
 }

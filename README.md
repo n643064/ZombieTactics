@@ -29,3 +29,6 @@
 ### 1.2.1
 - Zombies no longer break bedrock
 - If a zombie stops mining, target block's destruction progress is reset 
+
+## Issues
+- `getLookControl` does not work

@@ -15,7 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.Path;
+//import net.minecraft.world.level.pathfinder.Path;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -71,6 +71,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
                 destroying >= 0 && destroying <= Config.maxHardness) {
             mine.doMining = true;
             mine.bp = pos;
+            mine.bp_vec3 = pos.getCenter();
             X = pos.getX();
             Y = pos.getY();
             Z = pos.getZ();
@@ -131,7 +132,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        return mine.doMining && zombie.distanceToSqr(mine.bp.getCenter()) <= Config.maxDist;
+        return mine.doMining && zombie.distanceToSqr(X, Y, Z) <= Config.maxDist;
     }
 
     @Override
@@ -158,15 +159,11 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
 
             // why is the path null even though it can reach a target?
             // the sucks
-            Path p = nav.createPath(liv, 0);
-            if(p == null) {
-                System.out.println(nav + ", " + zombie.getNearestViewDirection().getNormal());
-            }
 
             // go once more
             // Issue: moveTo sometimes return false while a zombie can go to the target.
             // It can solve by using the method `hasLineOfSight` but this causes a problem
-            //   about fences that have 1.5 meters tall.
+            // about fences that have 1.5 meters tall.
             boolean eval = nav.moveTo(liv, zombie.getSpeed());
             if(eval) return false;
             BlockPos[] set = getCandidate(liv);
@@ -176,10 +173,11 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
                 // So 'temp' cannot be determined as valid object
                 // select relative block position
                 BlockPos temp = zombie.blockPosition().offset(pos.rotate(getRelativeRotation()));
+
                 // prevent that they are not stuck but zombie digs under their foot
                 // It may fix the described issue in specific cases
                 if(level.getBlockState(temp).isAir()) ++ airStack;
-                if(airStack == set.length - 1) return false;
+                if(airStack == set.length - 1) break;
                 if(checkBlock(temp)) return true;
             }
             // zombie is in the wall
