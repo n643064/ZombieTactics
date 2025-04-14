@@ -91,7 +91,7 @@ public abstract class ZombieMixin extends Monster {
     // For climbing
     @Override
     public void push(@NotNull Entity entity) {
-        if(Config.zombiesClimbing && entity instanceof Zombie &&
+        if(zombie_tactics$bdg != null && Config.zombiesClimbing && entity instanceof Zombie &&
                 horizontalCollision && !((Plane)zombie_tactics$bdg).zombie_tactics$getBool()) {
             if(zombieTactics$climbedCount < 120) {
                 final Vec3 v = getDeltaMovement();
