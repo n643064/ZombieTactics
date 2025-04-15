@@ -1,9 +1,10 @@
 package n643064.zombie_tactics.mixin;
 
 import n643064.zombie_tactics.Config;
+import n643064.zombie_tactics.goals.CustomZombieAttackGoal;
 import n643064.zombie_tactics.impl.Plane;
 import n643064.zombie_tactics.mining.ZombieMineGoal;
-import n643064.zombie_tactics.impl.NearestTargetGoal;
+import n643064.zombie_tactics.goals.NearestTargetGoal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Difficulty;
@@ -106,8 +107,7 @@ public abstract class ZombieMixin extends Monster {
     @Override
     public void remove(RemovalReason reason) {
         super.remove(reason);
-        // decrease
-        -- zombie_tactics$threshold;
+        -- zombie_tactics$threshold; // decrease
     }
 
     // reset crack progress if a zombie died when mining
@@ -147,18 +147,19 @@ public abstract class ZombieMixin extends Monster {
 
     /**
      * I do not want to see that zombies burn
+     *
      * @author PICOPress
      * @reason overwrite this function
      */
-    @Overwrite
-    public boolean isSunSensitive() {
-        return Config.sunSensitive;
+    @Inject(method = "isSunSensitive", at = @At("RETURN"), cancellable = true)
+    public void isSunSensitive(CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(Config.sunSensitive);
     }
 
     /**
      * ZombieMineGoal doesn't use zombie-exclusive things
      * @author PICOPress
-     * @reason to overwrite
+     * @reason it's very hard to inject for each parameter
      */
     @Overwrite
     public void addBehaviourGoals() {
@@ -173,7 +174,7 @@ public abstract class ZombieMixin extends Monster {
             this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false));
             this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
         }
-        this.goalSelector.addGoal(1, new ZombieAttackGoal((Zombie)(Object)this, Config.aggressiveSpeed, true));
+        this.goalSelector.addGoal(1, new CustomZombieAttackGoal((Zombie)(Object)this, Config.aggressiveSpeed, true));
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0, false, 4, this::canBreakDoors));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));

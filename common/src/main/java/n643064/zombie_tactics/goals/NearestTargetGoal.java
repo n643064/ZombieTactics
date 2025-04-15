@@ -1,4 +1,4 @@
-package n643064.zombie_tactics.impl;
+package n643064.zombie_tactics.goals;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
