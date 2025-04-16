@@ -2,9 +2,9 @@ package n643064.zombie_tactics.mixin;
 
 import n643064.zombie_tactics.Config;
 import n643064.zombie_tactics.goals.CustomZombieAttackGoal;
+import n643064.zombie_tactics.goals.FindAllTargetsGoal;
 import n643064.zombie_tactics.impl.Plane;
 import n643064.zombie_tactics.mining.ZombieMineGoal;
-import n643064.zombie_tactics.goals.NearestTargetGoal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Difficulty;
@@ -34,6 +34,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 
 
@@ -45,6 +47,7 @@ public abstract class ZombieMixin extends Monster {
     @Unique private static int zombie_tactics$threshold = 0;
     @Unique private ZombieMineGoal<? extends Monster> zombie_tactics$mine_goal;
     @Unique private BreakDoorGoal zombie_tactics$bdg;
+    @Unique private static final List<Class<? extends LivingEntity>> zombie_tactics$list = new ArrayList<>();
 
     @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
     @Shadow public abstract boolean canBreakDoors(); // This just makes path finding
@@ -165,20 +168,19 @@ public abstract class ZombieMixin extends Monster {
     public void addBehaviourGoals() {
         if (Config.targetAnimals) this.targetSelector.addGoal(Config.targetAnimalsPriority, new NearestAttackableTargetGoal<>(this, Animal.class, false));
         if (Config.mineBlocks) this.goalSelector.addGoal(Config.miningPriority, zombie_tactics$mine_goal = new ZombieMineGoal<>(this));
-        if(Config.attackInvisible) {
-            this.targetSelector.addGoal(2, new NearestTargetGoal<>(this, Player.class, false));
-            this.targetSelector.addGoal(3, new NearestTargetGoal<>(this, AbstractVillager.class, false));
-            this.targetSelector.addGoal(3, new NearestTargetGoal<>(this, IronGolem.class, true));
-        } else {
-            this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false));
-            this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false));
-            this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
-        }
+
+        this.targetSelector.addGoal(3, new FindAllTargetsGoal(zombie_tactics$list, this, new int[] {2, 3, 3}, false));
         this.goalSelector.addGoal(1, new CustomZombieAttackGoal((Zombie)(Object)this, Config.aggressiveSpeed, true));
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0, false, 4, this::canBreakDoors));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
         this.goalSelector.addGoal(1, zombie_tactics$bdg = new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
+    }
+
+    static {
+        zombie_tactics$list.add(Player.class);
+        zombie_tactics$list.add(AbstractVillager.class);
+        zombie_tactics$list.add(IronGolem.class);
     }
 }

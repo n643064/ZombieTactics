@@ -4,6 +4,7 @@ import static n643064.zombie_tactics.mining.MiningRoutines.*;
 import n643064.zombie_tactics.attachments.MiningData;
 import n643064.zombie_tactics.Config;
 
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.InteractionHand;
@@ -123,7 +124,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         } else {
             level.destroyBlockProgress(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
             zombie.stopInPlace();
-            zombie.getLookControl().setLookAt(X, Y, Z);
+            zombie.lookAt(EntityAnchorArgument.Anchor.EYES, mine.bp.getCenter());
             progress += Config.increment;
             zombie.swing(InteractionHand.MAIN_HAND);
         }
@@ -167,6 +168,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
             if(eval) return false;
             BlockPos[] set = getCandidate(liv);
             int airStack = 0;
+
             for(BlockPos pos: set) {
                 // checkBlock method is able to change 'zombie' variable
                 // So 'temp' cannot be determined as valid object
@@ -179,6 +181,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
                 if(airStack == set.length - 1) break;
                 if(checkBlock(temp)) return true;
             }
+
             // zombie is in the wall
         } else if(zombie.isInWall()) {
             for(BlockPos p: routineWall) {

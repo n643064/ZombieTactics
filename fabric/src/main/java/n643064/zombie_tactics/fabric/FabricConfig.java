@@ -11,8 +11,9 @@ public class FabricConfig extends MidnightConfig {
     public static final String ANIMALS = "Animals";
     public static final String MINING = "Mining";
     public static final String CLIMBING = "Climbing";
-    public static final String GENERAL = "General";
     public static final String SPAWN = "Spawn";
+    public static final String TARGETING = "Targeting";
+    public static final String GENERAL = "General";
 
     // category shuffled because I sorted it to the types
     // which is better?
@@ -39,6 +40,7 @@ public class FabricConfig extends MidnightConfig {
     @Entry(category = MINING, min = 0) public static int mine_priority = Config.miningPriority;
     @Entry(category = GENERAL, min = 1, max = 1000) public static int attack_cooldown = Config.attackCooldown;
     @Entry(category = SPAWN, min = 0, max = Integer.MAX_VALUE) public static int max_threshold = Config.maxThreshold;
+    @Entry(category = TARGETING, min = 1, max = 65536) public static int block_cost = Config.blockCost;
 
     // fabric fields do nothing without the update of config
     public static void updateConfig() {
@@ -65,6 +67,7 @@ public class FabricConfig extends MidnightConfig {
         Config.miningPriority = mine_priority;
         Config.attackCooldown = attack_cooldown;
         Config.maxThreshold = max_threshold;
+        Config.blockCost = block_cost;
     }
 
     @Override

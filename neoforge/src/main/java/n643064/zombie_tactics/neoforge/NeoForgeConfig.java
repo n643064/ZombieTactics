@@ -34,6 +34,7 @@ public class NeoForgeConfig {
     private static ModConfigSpec.DoubleValue ATTACK_RANGE;
     private static ModConfigSpec.DoubleValue PERSISTENCE_CHANCE;
     private static ModConfigSpec.IntValue MAX_THRESHOLD;
+    private static ModConfigSpec.IntValue BLOCK_COST;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -60,6 +61,7 @@ public class NeoForgeConfig {
         Config.attackRange = ATTACK_RANGE.get();
         Config.persistenceChance = PERSISTENCE_CHANCE.get();
         Config.maxThreshold = MAX_THRESHOLD.get();
+        Config.blockCost = BLOCK_COST.get();
     }
 
     /*
@@ -67,7 +69,7 @@ public class NeoForgeConfig {
         Translation!!
      */
     public static class build {
-        static final String MOD_CFG = Main.MOD_ID + ".configuration.";
+        static final String MOD_CFG = Main.MOD_ID + ".midnightconfig.";
         public build(ModConfigSpec.Builder b) {
             b.push("Animals");
             TARGET_ANIMALS = b.comment("Should zombies target animals").translation(MOD_CFG + "do_hurt_animals").define("zombiesTargetAnimals", Config.targetAnimals);
@@ -87,6 +89,13 @@ public class NeoForgeConfig {
             ZOMBIE_CLIMBING = b.comment("Should zombies climb each other on collision").translation(MOD_CFG + "do_climb").define("zombiesClimb", Config.zombiesClimbing);
             CLIMBING_SPEED = b.comment("Zombie climbing speed").translation(MOD_CFG + "climb_speed").defineInRange("zombieClimbingSpeed", Config.climbingSpeed, 0, Double.MAX_VALUE);
             b.pop();
+            b.push("Spawn");
+            PERSISTENCE_CHANCE = b.translation(MOD_CFG + "persistence_chance").defineInRange("persistenceChance", Config.persistenceChance, 0, 1);
+            MAX_THRESHOLD = b.translation(MOD_CFG + "max_threshold").defineInRange("maxThreshold", Config.maxThreshold, 0, Integer.MAX_VALUE);
+            b.pop();
+            b.push("Targeting");
+            BLOCK_COST = b.translation(MOD_CFG + "block_cost").defineInRange("blockCost", Config.blockCost, 1, 65536);
+            b.pop();
             b.push("General");
             HEAL_AMOUNT = b.comment("The amount of heal when a zombie attacks somewhat").translation(MOD_CFG + "heal_amount").defineInRange("healAmount", Config.healAmount, 0, 1024);
             ATTACK_COOLDOWN = b.comment("Interval ticks to attack").translation(MOD_CFG + "attack_cooldown").defineInRange("attackCooldown", Config.attackCooldown, 1, 1000);
@@ -95,10 +104,6 @@ public class NeoForgeConfig {
             NO_MERCY = b.comment("Target entity").translation(MOD_CFG + "no_mercy").define("noMercy", Config.noMercy);
             ATTACK_RANGE = b.comment("Zombie attack range").translation(MOD_CFG + "attack_range").defineInRange("", Config.attackRange, 0.25, 127.);
             ATTACK_INVISIBLE = b.comment("Does animal targeting require line of sight").translation(MOD_CFG + "attack_invisible").define("targetVisibilityCheck", Config.attackInvisible);
-            b.pop();
-            b.push("Spawn");
-            PERSISTENCE_CHANCE = b.translation(MOD_CFG + "persistence_chance").defineInRange("persistenceChance", Config.persistenceChance, 0, 1);
-            MAX_THRESHOLD = b.translation(MOD_CFG + "max_threshold").defineInRange("maxThreshold", Config.maxThreshold, 0, Integer.MAX_VALUE);
             b.pop();
         }
     }
