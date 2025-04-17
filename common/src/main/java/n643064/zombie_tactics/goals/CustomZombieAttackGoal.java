@@ -1,6 +1,7 @@
 package n643064.zombie_tactics.goals;
 
 import n643064.zombie_tactics.Config;
+
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.monster.Zombie;
 

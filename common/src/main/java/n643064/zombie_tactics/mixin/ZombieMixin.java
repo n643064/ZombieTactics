@@ -148,12 +148,7 @@ public abstract class ZombieMixin extends Monster {
         if(Config.noMercy) ent.invulnerableTime = 0;
     }
 
-    /**
-     * I do not want to see that zombies burn
-     *
-     * @author PICOPress
-     * @reason overwrite this function
-     */
+    // I do not want to see that zombies burn
     @Inject(method = "isSunSensitive", at = @At("RETURN"), cancellable = true)
     public void isSunSensitive(CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(Config.sunSensitive);

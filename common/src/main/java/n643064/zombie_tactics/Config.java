@@ -26,5 +26,6 @@ public class Config {
     public static int targetAnimalsPriority = 3,
             miningPriority = 1,
             attackCooldown = 20,
-            maxThreshold = 384, blockCost = 5;
+            maxThreshold = 384,
+            blockCost = 5;
 }
