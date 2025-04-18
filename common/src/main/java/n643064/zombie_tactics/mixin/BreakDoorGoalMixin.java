@@ -21,7 +21,6 @@ public abstract class BreakDoorGoalMixin extends DoorInteractGoal implements Pla
     // to prevent that the zombies climb when breaking a door
     @Unique public boolean zombie_tactics$isBreaking;
 
-    @Unique
     @Override
     public boolean zombie_tactics$getBool() {
         return zombie_tactics$isBreaking;
@@ -30,6 +29,7 @@ public abstract class BreakDoorGoalMixin extends DoorInteractGoal implements Pla
     public BreakDoorGoalMixin(Mob mob) {
         super(mob);
     }
+
     /**
      * distance limit: 2 -> 4
      * @return 4.0

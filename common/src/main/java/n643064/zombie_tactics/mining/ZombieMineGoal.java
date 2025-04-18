@@ -1,12 +1,13 @@
 package n643064.zombie_tactics.mining;
 
 import static n643064.zombie_tactics.mining.MiningRoutines.*;
+import static n643064.zombie_tactics.util.Tactics.getRelativeRotation;
+
 import n643064.zombie_tactics.attachments.MiningData;
 import n643064.zombie_tactics.Config;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -14,8 +15,8 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +27,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
     private double progress, hardness = Double.MAX_VALUE;
 
     // These are constant unless a target is changed
-    private double X, Y, Z;
+    private Vec3 where;
 
     public final MiningData mine;
 
@@ -72,21 +73,10 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
             mine.doMining = true;
             mine.bp = pos;
             mine.bp_vec3 = pos.getCenter();
-            X = pos.getX();
-            Y = pos.getY();
-            Z = pos.getZ();
+            where = pos.getCenter();
             return true;
         }
         return false;
-    }
-
-    private Rotation getRelativeRotation() {
-        Vec3i norm = zombie.getNearestViewDirection().getNormal();
-        int x = norm.getX(), z = norm.getZ();
-        if(x == 0 && z == 1) return Rotation.NONE;
-        else if(x == 0 && z == -1) return Rotation.CLOCKWISE_180;
-        else if(x == 1 && z == 0) return Rotation.CLOCKWISE_90;
-        else return Rotation.COUNTERCLOCKWISE_90; // x == -1, z = 0
     }
 
     @Override
@@ -103,7 +93,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
     @Override
     public void tick() {
         if (!mine.doMining) return;
-        double dist = zombie.distanceToSqr(X, Y, Z);
+        double dist = zombie.distanceToSqr(mine.bp_vec3);
         if (dist <= Config.minDist ||
             dist > Config.maxDist) {
             mine.doMining = false;
@@ -132,7 +122,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        return mine.doMining && zombie.distanceToSqr(X, Y, Z) <= Config.maxDist;
+        return mine.doMining && zombie.distanceToSqr(where) <= Config.maxDist;
     }
 
     @Override
@@ -140,12 +130,9 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         if(zombie.isNoAi() || !zombie.isAlive()) return false;
         // a zombie should be stuck
         // check availability of the mining
-        double x, y, z;
-        x = zombie.getX();
-        y = zombie.getY();
-        z = zombie.getZ();
-        if(X != x || Y != y || Z != z) {
-            X = x; Y = y; Z = z;
+        Vec3 ord = zombie.position();
+        if(!ord.equals(where)) {
+            where = ord;
             return false;
         }
 
@@ -173,13 +160,14 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
                 // checkBlock method is able to change 'zombie' variable
                 // So 'temp' cannot be determined as valid object
                 // select relative block position
-                BlockPos temp = zombie.blockPosition().offset(pos.rotate(getRelativeRotation()));
+                BlockPos temp = zombie.blockPosition().offset(pos.rotate(getRelativeRotation(zombie)));
 
                 // prevent that they are not stuck but zombie digs under their foot
                 // It may fix the described issue in specific cases
                 if(level.getBlockState(temp).isAir()) ++ airStack;
                 if(airStack == set.length - 1) break;
-                if(checkBlock(temp)) return true;
+                if(checkBlock(temp))
+                    return true;
             }
 
             // zombie is in the wall

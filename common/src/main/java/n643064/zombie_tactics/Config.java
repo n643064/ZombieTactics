@@ -10,7 +10,8 @@ public class Config {
             dropBlocks = false,
             sunSensitive = true,
             noMercy = false,
-            attackInvisible = false;
+            attackInvisible = false,
+            canFloat = false;
 
     public static double increment = 0.2,
             maxHardness = 4.5,
@@ -21,11 +22,11 @@ public class Config {
             healAmount = 0,
             aggressiveSpeed = 1,
             attackRange = Math.sqrt(2.04) - 0.6, // from BoundingBox code
-            persistenceChance = 0;
+            persistenceChance = 0,
+            jumpAcceleration = 0.3;
 
-    public static int targetAnimalsPriority = 3,
-            miningPriority = 1,
-            attackCooldown = 20,
+    public static int attackCooldown = 20,
             maxThreshold = 384,
-            blockCost = 5;
+            blockCost = 5,
+            climbLimitTicks = 120;
 }

@@ -1,8 +1,9 @@
 package n643064.zombie_tactics.mixin;
 
 import n643064.zombie_tactics.Config;
-import n643064.zombie_tactics.goals.CustomZombieAttackGoal;
+import n643064.zombie_tactics.goals.ZombieGoal;
 import n643064.zombie_tactics.goals.FindAllTargetsGoal;
+import n643064.zombie_tactics.goals.SelectiveFloatGoal;
 import n643064.zombie_tactics.impl.Plane;
 import n643064.zombie_tactics.mining.ZombieMineGoal;
 
@@ -12,7 +13,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
-import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Turtle;
@@ -47,7 +47,7 @@ public abstract class ZombieMixin extends Monster {
     @Unique private static int zombie_tactics$threshold = 0;
     @Unique private ZombieMineGoal<? extends Monster> zombie_tactics$mine_goal;
     @Unique private BreakDoorGoal zombie_tactics$bdg;
-    @Unique private static final List<Class<? extends LivingEntity>> zombie_tactics$list = new ArrayList<>();
+    @Unique private static final List<Class<? extends LivingEntity>> zombie_tactics$target_list = new ArrayList<>();
 
     @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
     @Shadow public abstract boolean canBreakDoors(); // This just makes path finding
@@ -129,6 +129,7 @@ public abstract class ZombieMixin extends Monster {
         if(zombie_tactics$persistence && zombie_tactics$threshold < Config.maxThreshold) {
             ++ zombie_tactics$threshold;
         } else zombie_tactics$persistence = false;
+        if(zombie_tactics$persistence) this.setPersistenceRequired();
     }
 
     // fixes that doing both mining and attacking
@@ -161,21 +162,22 @@ public abstract class ZombieMixin extends Monster {
      */
     @Overwrite
     public void addBehaviourGoals() {
-        if (Config.targetAnimals) this.targetSelector.addGoal(Config.targetAnimalsPriority, new NearestAttackableTargetGoal<>(this, Animal.class, false));
-        if (Config.mineBlocks) this.goalSelector.addGoal(Config.miningPriority, zombie_tactics$mine_goal = new ZombieMineGoal<>(this));
+        if(Config.targetAnimals) zombie_tactics$target_list.add(Animal.class);
+        if(Config.mineBlocks) this.goalSelector.addGoal(1, zombie_tactics$mine_goal = new ZombieMineGoal<>(this));
+        if(Config.canFloat) this.goalSelector.addGoal(5, new SelectiveFloatGoal(this));
 
-        this.targetSelector.addGoal(3, new FindAllTargetsGoal(zombie_tactics$list, this, new int[] {2, 3, 3}, false));
-        this.goalSelector.addGoal(1, new CustomZombieAttackGoal((Zombie)(Object)this, Config.aggressiveSpeed, true));
+        this.targetSelector.addGoal(3, new FindAllTargetsGoal(zombie_tactics$target_list, this, new int[] {2, 3, 3, 3, 5}, false));
+        this.goalSelector.addGoal(1, new ZombieGoal((Zombie)(Object)this, Config.aggressiveSpeed, true));
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0, false, 4, this::canBreakDoors));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));
-        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
         this.goalSelector.addGoal(1, zombie_tactics$bdg = new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
     }
 
     static {
-        zombie_tactics$list.add(Player.class);
-        zombie_tactics$list.add(AbstractVillager.class);
-        zombie_tactics$list.add(IronGolem.class);
+        zombie_tactics$target_list.add(Player.class);
+        zombie_tactics$target_list.add(AbstractVillager.class);
+        zombie_tactics$target_list.add(IronGolem.class);
+        zombie_tactics$target_list.add(Turtle.class);
     }
 }

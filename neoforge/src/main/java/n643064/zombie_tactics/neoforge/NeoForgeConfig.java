@@ -14,13 +14,11 @@ import org.apache.commons.lang3.tuple.Pair;
 public class NeoForgeConfig {
     private static final Pair<build, ModConfigSpec> BUILDER = new ModConfigSpec.Builder().configure(build::new);
     private static ModConfigSpec.BooleanValue TARGET_ANIMALS;
-    private static ModConfigSpec.IntValue TARGET_ANIMALS_PRIORITY;
     private static ModConfigSpec.BooleanValue ATTACK_INVISIBLE;
     private static ModConfigSpec.BooleanValue MINE_BLOCKS;
     private static ModConfigSpec.DoubleValue MIN_DISTANCE;
     private static ModConfigSpec.DoubleValue MAX_DISTANCE;
     private static ModConfigSpec.BooleanValue DROP_BROKEN_BLOCKS;
-    private static ModConfigSpec.IntValue MINING_PRIORITY;
     private static ModConfigSpec.BooleanValue ZOMBIE_CLIMBING;
     private static ModConfigSpec.DoubleValue CLIMBING_SPEED;
     private static ModConfigSpec.DoubleValue MINING_SPEED;
@@ -35,6 +33,9 @@ public class NeoForgeConfig {
     private static ModConfigSpec.DoubleValue PERSISTENCE_CHANCE;
     private static ModConfigSpec.IntValue MAX_THRESHOLD;
     private static ModConfigSpec.IntValue BLOCK_COST;
+    private static ModConfigSpec.BooleanValue CAN_FLOAT;
+    private static ModConfigSpec.IntValue CLIMB_LIMIT_TICKS;
+    private static ModConfigSpec.DoubleValue JUMP_ACCELERATION;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -44,9 +45,7 @@ public class NeoForgeConfig {
         Config.minDist = MIN_DISTANCE.get();
         Config.maxDist = MAX_DISTANCE.get();
         Config.dropBlocks = DROP_BROKEN_BLOCKS.get();
-        Config.miningPriority = MINING_PRIORITY.get();
         Config.targetAnimals = TARGET_ANIMALS.get();
-        Config.targetAnimalsPriority = TARGET_ANIMALS_PRIORITY.get();
         Config.attackInvisible = ATTACK_INVISIBLE.get();
         Config.increment = MINING_SPEED.get();
         Config.maxHardness = MAX_HARDNESS.get();
@@ -62,6 +61,9 @@ public class NeoForgeConfig {
         Config.persistenceChance = PERSISTENCE_CHANCE.get();
         Config.maxThreshold = MAX_THRESHOLD.get();
         Config.blockCost = BLOCK_COST.get();
+        Config.canFloat = CAN_FLOAT.get();
+        Config.climbLimitTicks = CLIMB_LIMIT_TICKS.get();
+        Config.jumpAcceleration = JUMP_ACCELERATION.get();
     }
 
     /*
@@ -73,14 +75,12 @@ public class NeoForgeConfig {
         public build(ModConfigSpec.Builder b) {
             b.push("Animals");
             TARGET_ANIMALS = b.comment("Should zombies target animals").translation(MOD_CFG + "do_hurt_animals").define("zombiesTargetAnimals", Config.targetAnimals);
-            TARGET_ANIMALS_PRIORITY = b.comment("Animal targeting priority (lower values mean higher priority). Do not change if you don't know what it is").translation(MOD_CFG + "hurt_animal_priority").defineInRange("targetAnimalsPriority", Config.targetAnimalsPriority, 0, Integer.MAX_VALUE);
             b.pop();
             b.push("Mining");
             MINE_BLOCKS = b.comment("Should zombies attempt to break blocks in their way").translation(MOD_CFG + "do_mine").define("zombiesMineBlocks", Config.mineBlocks);
             MIN_DISTANCE = b.comment("Min distance for mining").translation(MOD_CFG + "min_mine_dist").defineInRange("minDistForMining", Config.minDist, 0, Double.MAX_VALUE);
             MAX_DISTANCE = b.comment("Max distance for mining").translation(MOD_CFG + "max_mine_dist").defineInRange("maxDistForMining", Config.maxDist, 0, Double.MAX_VALUE);
             DROP_BROKEN_BLOCKS = b.comment("Should broken blocks be dropped").translation(MOD_CFG + "drop_blocks").define("dropBrokenBlocks", Config.dropBlocks);
-            MINING_PRIORITY = b.comment("Block breaking goal priority. Do not change if you don't know what it is").translation(MOD_CFG + "mine_priority").defineInRange("minePriority", Config.miningPriority, 0, Integer.MAX_VALUE);
             MINING_SPEED = b.comment("The amount of mining progress made per tick").translation(MOD_CFG + "mining_speed").defineInRange("miningSpeed", Config.increment, 0, Double.MAX_VALUE);
             MAX_HARDNESS = b.comment("The maximum hardness of targeted blocks. For example, Iron block is 5").translation(MOD_CFG + "max_hardness").defineInRange("maxHardness", Config.maxHardness, 0, Double.MAX_VALUE);
             HARDNESS_MULTIPLIER = b.comment("Target block hardness multiplier, and doesn't affect block selection. Mining progress = hardnessMultiplier * block hardness").translation(MOD_CFG + "hardness_multiplier").defineInRange("hardnessMultiplier", Config.hardnessMultiplier, 0, Double.MAX_VALUE);
@@ -88,6 +88,7 @@ public class NeoForgeConfig {
             b.push("Climbing");
             ZOMBIE_CLIMBING = b.comment("Should zombies climb each other on collision").translation(MOD_CFG + "do_climb").define("zombiesClimb", Config.zombiesClimbing);
             CLIMBING_SPEED = b.comment("Zombie climbing speed").translation(MOD_CFG + "climb_speed").defineInRange("zombieClimbingSpeed", Config.climbingSpeed, 0, Double.MAX_VALUE);
+            CLIMB_LIMIT_TICKS = b.comment("Zombie climbing limit ticks").translation(MOD_CFG + "climb_limit_ticks").defineInRange("climbLimitTicks", Config.climbLimitTicks, 1, Integer.MAX_VALUE);
             b.pop();
             b.push("Spawn");
             PERSISTENCE_CHANCE = b.translation(MOD_CFG + "persistence_chance").defineInRange("persistenceChance", Config.persistenceChance, 0, 1);
@@ -95,6 +96,7 @@ public class NeoForgeConfig {
             b.pop();
             b.push("Targeting");
             BLOCK_COST = b.translation(MOD_CFG + "block_cost").defineInRange("blockCost", Config.blockCost, 1, 65536);
+            JUMP_ACCELERATION = b.translation(MOD_CFG + "jump_acceleration").defineInRange("jumpAcceleration", Config.jumpAcceleration, 0, 128);
             b.pop();
             b.push("General");
             HEAL_AMOUNT = b.comment("The amount of heal when a zombie attacks somewhat").translation(MOD_CFG + "heal_amount").defineInRange("healAmount", Config.healAmount, 0, 1024);
@@ -104,6 +106,7 @@ public class NeoForgeConfig {
             NO_MERCY = b.comment("Target entity").translation(MOD_CFG + "no_mercy").define("noMercy", Config.noMercy);
             ATTACK_RANGE = b.comment("Zombie attack range").translation(MOD_CFG + "attack_range").defineInRange("", Config.attackRange, 0.25, 127.);
             ATTACK_INVISIBLE = b.comment("Does animal targeting require line of sight").translation(MOD_CFG + "attack_invisible").define("targetVisibilityCheck", Config.attackInvisible);
+            CAN_FLOAT = b.translation(MOD_CFG + "can_float").define("canFloat", Config.canFloat);
             b.pop();
         }
     }

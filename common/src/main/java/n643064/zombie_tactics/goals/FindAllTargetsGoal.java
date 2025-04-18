@@ -26,7 +26,7 @@ public class FindAllTargetsGoal extends TargetGoal {
     private boolean section;
 
     /**
-     * @param priorities specify mobs' priority respectively. its length must be equal to the target size.
+     * @param priorities specify mobs' priority respectively. its length must be equal or larger than to the target list size.
      */
     public FindAllTargetsGoal(List<Class<? extends LivingEntity>> targets, Mob mob, int[] priorities, boolean mustSee) {
         super(mob, mustSee);
@@ -59,11 +59,11 @@ public class FindAllTargetsGoal extends TargetGoal {
 
             // query targets
             for(var sus: list) {
-                if(sus == Player.class || sus == ServerPlayer.class){
-
-                    continue;
-                }
-                var imposter2 = mob.level().getNearbyEntities(sus,targetingConditions, mob, boundary);
+                List<? extends LivingEntity> imposter2;
+                if(sus == Player.class || sus == ServerPlayer.class) {
+                    // players
+                    imposter2 = mob.level().getNearbyPlayers(targetingConditions, mob, boundary);
+                } else imposter2 = mob.level().getNearbyEntities(sus,targetingConditions, mob, boundary); // just mobs
                 for(var imposter: imposter2) {
                     if(imposter != null) imposters.add(imposter);
                 }
@@ -91,7 +91,14 @@ public class FindAllTargetsGoal extends TargetGoal {
                     else ++ score;
                 }
                 // apply priority
-                score *= priorities[list.indexOf(amogus.getClass())];
+                int idx = 0;
+                for(var p: list) {
+                    if(p.isAssignableFrom(amogus.getClass())) {
+                        break;
+                    }
+                    ++ idx;
+                }
+                score *= priorities[idx];
 
                 // getting insane
                 if(mob.hasLineOfSight(amogus)) score /= 2;
@@ -106,6 +113,7 @@ public class FindAllTargetsGoal extends TargetGoal {
                     target = amogus;
                 }
             }
+            // set target
             mob.setTarget(target);
             imposters.clear();
         }
