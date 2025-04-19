@@ -21,6 +21,10 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -65,6 +69,19 @@ public abstract class ZombieMixin extends Monster {
             zombieTactics$climbedCount = 0;
         }
         super.checkFallDamage(y, onGround, state, pos);
+    }
+
+    @Override
+    public boolean wantsToPickUp(@NotNull ItemStack stack) {
+        Item item = stack.getItem();
+        if(item instanceof SwordItem s) {
+            System.out.println(stack);
+            if(s.getTier().getAttackDamageBonus() > this.getMainHandItem().getDamageValue()) return true;
+        } else if(item instanceof ArmorItem armor) {
+            System.out.println(armor);
+            if(armor.getDefense() >= this.getArmorValue()) return true;
+        }
+        return super.wantsToPickUp(stack);
     }
 
     // Modifying Attack range
@@ -122,7 +139,7 @@ public abstract class ZombieMixin extends Monster {
             this.level().destroyBlockProgress(this.getId(), zombie_tactics$mine_goal.mine.bp, -1);
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", at = @At("TAIL"))
+    @Inject(method="<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", at=@At("TAIL"))
     public void constructor(EntityType<? extends Zombie> entityType, Level level, CallbackInfo ci) {
         double tmp = this.level().random.nextDouble();
         zombie_tactics$persistence = tmp <= Config.persistenceChance;
@@ -133,13 +150,13 @@ public abstract class ZombieMixin extends Monster {
     }
 
     // fixes that doing both mining and attacking
-    @Inject(method = "doHurtTarget", at = @At("HEAD"))
+    @Inject(method="doHurtTarget", at=@At("HEAD"))
     public void doHurtTargetHead(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if(zombie_tactics$mine_goal != null) zombie_tactics$mine_goal.mine.doMining = false;
     }
 
     // Healing zombie
-    @Inject(method = "doHurtTarget", at = @At("TAIL"))
+    @Inject(method="doHurtTarget", at=@At("TAIL"))
     public void doHurtTargetTail(Entity ent, CallbackInfoReturnable<Boolean> ci) {
         if(ent instanceof LivingEntity) {
             if(this.getHealth() <= this.getMaxHealth())
@@ -150,7 +167,7 @@ public abstract class ZombieMixin extends Monster {
     }
 
     // I do not want to see that zombies burn
-    @Inject(method = "isSunSensitive", at = @At("RETURN"), cancellable = true)
+    @Inject(method="isSunSensitive", at=@At("RETURN"), cancellable=true)
     public void isSunSensitive(CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(Config.sunSensitive);
     }

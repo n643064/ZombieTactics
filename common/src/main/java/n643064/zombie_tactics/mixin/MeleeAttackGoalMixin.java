@@ -9,8 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
-import java.util.EnumSet;
-
 
 @Mixin(MeleeAttackGoal.class)
 public abstract class MeleeAttackGoalMixin extends Goal {
@@ -27,16 +25,15 @@ public abstract class MeleeAttackGoalMixin extends Goal {
         this.mob = mob;
         this.speedModifier = speedModifier;
         this.followingTargetEvenIfNotSeen = followingTargetEvenIfNotSeen;
-        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
-    @ModifyExpressionValue(method = "resetAttackCooldown", at =@At(value="CONSTANT", args="intValue=20"))
-    public int resetAttackCooldown(int original) {
+    @ModifyExpressionValue(method="resetAttackCooldown", at=@At(value="CONSTANT", args="intValue=20"))
+    public int reset(int original) {
         return getAttackInterval();
     }
 
-    @ModifyExpressionValue(method = "getAttackInterval", at =@At(value="CONSTANT", args="intValue=20"))
-    public int g(int original) {
+    @ModifyExpressionValue(method="getAttackInterval", at=@At(value="CONSTANT", args="intValue=20"))
+    public int attack(int original) {
         return attackInterval;
     }
 }

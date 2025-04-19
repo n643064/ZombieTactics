@@ -34,23 +34,23 @@ public abstract class BreakDoorGoalMixin extends DoorInteractGoal implements Pla
      * distance limit: 2 -> 4
      * @return 4.0
      */
-    @ModifyExpressionValue(method = "canContinueToUse", at = @At(value="CONSTANT", args="doubleValue=2.0"))
+    @ModifyExpressionValue(method="canContinueToUse", at=@At(value="CONSTANT", args="doubleValue=2.0"))
     public double doorRange(double original) {
         return 4;
     }
 
-    @Inject(method = "start", at = @At("TAIL"))
+    @Inject(method="start", at=@At("TAIL"))
     public void start(CallbackInfo ci) {
         zombie_tactics$isBreaking = true;
     }
 
-    @Inject(method = "stop", at = @At("TAIL"))
+    @Inject(method="stop", at=@At("TAIL"))
     public void stop(CallbackInfo ci) {
         zombie_tactics$isBreaking = false;
     }
 
     // breaking door sound and the swinging arms are continued while the door was broken
-    @Inject(method = "canContinueToUse", at = @At("RETURN"), cancellable = true)
+    @Inject(method="canContinueToUse", at=@At("RETURN"), cancellable=true)
     public void canContinueToUse(CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(cir.getReturnValue() && !mob.level().getBlockState(this.doorPos).isAir());
     }

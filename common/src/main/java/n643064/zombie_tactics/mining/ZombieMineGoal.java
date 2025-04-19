@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 
+
 public class ZombieMineGoal<T extends Monster> extends Goal {
     private final T zombie;
     private final Level level;

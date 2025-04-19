@@ -10,6 +10,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
+
 // for attacking and following
 public class ZombieGoal extends ZombieAttackGoal {
     public ZombieGoal(Zombie zombie, double speedModifier, boolean followingTargetEvenIfNotSeen) {
@@ -43,11 +44,10 @@ public class ZombieGoal extends ZombieAttackGoal {
                 LivingEntity liv = mob.getTarget();
                 if(liv != null) {
                     Vec3 v = liv.position().subtract(mob.position());
-                    mob.getLookControl().setLookAt(liv);
+                    //mob.getLookControl().setLookAt(liv);
                     mob.setDeltaMovement(v.scale(Config.jumpAcceleration / v.length()));
                 }
             }
-
         }
     }
 }

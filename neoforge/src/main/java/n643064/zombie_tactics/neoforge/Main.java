@@ -17,7 +17,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 
-@EventBusSubscriber(modid = Main.MOD_ID)
+@EventBusSubscriber(modid=Main.MOD_ID)
 @Mod(Main.MOD_ID)
 public class Main implements IMain {
     // not using for now

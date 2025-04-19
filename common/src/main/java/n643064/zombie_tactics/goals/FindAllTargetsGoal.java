@@ -85,7 +85,7 @@ public class FindAllTargetsGoal extends TargetGoal {
                 // using linear function
                 double len = mob.distanceToSqr(amogus);
                 for(int i = 0; i <= len; ++ i) {
-                    if(! mob.level().getBlockState(new BlockPos((int)(xx + delta.getX() * i / len),
+                    if(!mob.level().getBlockState(new BlockPos((int)(xx + delta.getX() * i / len),
                             (int)(yy + delta.getY() * i / len), (int)(zz + delta.getZ() * i / len))).isAir())
                         score += Config.blockCost;
                     else ++ score;
@@ -98,6 +98,7 @@ public class FindAllTargetsGoal extends TargetGoal {
                     }
                     ++ idx;
                 }
+                // idx must match the target list unless priorities are invalid
                 score *= priorities[idx];
 
                 // getting insane
@@ -113,6 +114,7 @@ public class FindAllTargetsGoal extends TargetGoal {
                     target = amogus;
                 }
             }
+            //System.out.println(mob.getId() + ": " + mob.canPickUpLoot());
             // set target
             mob.setTarget(target);
             imposters.clear();

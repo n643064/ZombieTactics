@@ -5,6 +5,8 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 
 public class SelectiveFloatGoal extends FloatGoal {
     private final Mob mob;
+    private boolean need_air;
+
     public SelectiveFloatGoal(Mob mob) {
         super(mob);
         this.mob = mob;
@@ -13,7 +15,11 @@ public class SelectiveFloatGoal extends FloatGoal {
     @Override
     public boolean canUse() {
         if(mob.getTarget() == null) return super.canUse();
-        // zombies want to float
-        return super.canUse() && !mob.getTarget().isInWater() || mob.getAirSupply() < 2;
+        // zombies want to breathe
+        if(mob.getAirSupply() < 10) need_air = true;
+        if(need_air && mob.getAirSupply() == 300) {
+            need_air = false;
+        }
+        return super.canUse() && !mob.getTarget().isInWater() || need_air;
     }
 }
