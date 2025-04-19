@@ -25,6 +25,7 @@ public class FabricConfig extends MidnightConfig {
     @Entry(category=GENERAL) public static boolean sun_sensitive = Config.sunSensitive;
     @Entry(category=GENERAL) public static boolean no_mercy = Config.noMercy;
     @Entry(category=GENERAL) public static boolean can_float = Config.canFloat;
+    @Entry(category=CLIMBING) public static boolean hyper_climbing = Config.hyperClimbing;
 
     @Entry(category=MINING, min=0) public static double mining_speed = Config.increment;
     @Entry(category=MINING, min=0) public static double max_hardness = Config.maxHardness;
@@ -70,6 +71,7 @@ public class FabricConfig extends MidnightConfig {
         Config.blockCost = block_cost;
         Config.climbLimitTicks = climb_limit_ticks;
         Config.jumpAcceleration = jump_acceleration;
+        Config.hyperClimbing = hyper_climbing;
     }
 
     @Override

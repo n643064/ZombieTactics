@@ -39,6 +39,8 @@
     "zombie_tactics.midnightconfig.climb_speed.tooltip": "Zombie climbing speed",
     "zombie_tactics.midnightconfig.climb_limit_ticks": "Climbing limit ticks",
     "zombie_tactics.midnightconfig.climb_limit_ticks.tooltip": "The maximum number of ticks a zombie can climb",
+    "zombie_tactics.midnightconfig.hyper_climbing": "Hyper climbing",
+    "zombie_tactics.midnightconfig.hyper_climbing.tooltip": "Climbing becomes unrestricted from horizontalCollision",
 
     "zombie_tactics.midnightconfig.category.General": "General",
     "zombie_tactics.midnightconfig.heal_amount": "Heal amount when attacking",

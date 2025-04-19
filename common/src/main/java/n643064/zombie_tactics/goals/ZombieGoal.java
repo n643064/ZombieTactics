@@ -1,5 +1,6 @@
 package n643064.zombie_tactics.goals;
 
+import static n643064.zombie_tactics.util.Tactics.*;
 import n643064.zombie_tactics.Config;
 
 import net.minecraft.core.BlockPos;
@@ -27,24 +28,12 @@ public class ZombieGoal extends ZombieAttackGoal {
         super.tick();
         Optional<BlockPos> bp = mob.mainSupportingBlockPos;
         if(bp.isPresent()) {
-            BlockPos pos = bp.get().mutable();
-            float rot = mob.getViewXRot(1);
-            if(rot >= -45 && rot <= 45) {
-                pos = pos.offset(1, 0, 0);
-            } else if(rot > 45 && rot < 135) {
-                pos = pos.offset(0, 0, 1);
-            } else if(rot >= 135 || rot <= -135) {
-                pos = pos.offset(-1, 0, 0);
-            } else if(rot < -45) {
-                pos = pos.offset(0, 0, -1);
-            }
-            //System.out.println(mob.level().getBlockState(pos).getBlock());
+            BlockPos pos = bp.get().mutable().offset(UNIT_FRONT.rotate(getRelativeRotation(mob)));
             if(mob.level().getBlockState(pos).isAir()) {
                 mob.getJumpControl().jump();
                 LivingEntity liv = mob.getTarget();
                 if(liv != null) {
                     Vec3 v = liv.position().subtract(mob.position());
-                    //mob.getLookControl().setLookAt(liv);
                     mob.setDeltaMovement(v.scale(Config.jumpAcceleration / v.length()));
                 }
             }

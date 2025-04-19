@@ -2,7 +2,6 @@ package n643064.zombie_tactics.mining;
 
 import static n643064.zombie_tactics.mining.MiningRoutines.*;
 import static n643064.zombie_tactics.util.Tactics.getRelativeRotation;
-
 import n643064.zombie_tactics.attachments.MiningData;
 import n643064.zombie_tactics.Config;
 
@@ -19,7 +18,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import org.jetbrains.annotations.NotNull;
-
 
 
 public class ZombieMineGoal<T extends Monster> extends Goal {

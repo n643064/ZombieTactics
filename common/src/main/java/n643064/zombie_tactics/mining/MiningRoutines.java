@@ -4,13 +4,16 @@ import net.minecraft.core.BlockPos;
 
 
 public class MiningRoutines {
-    /*  Y
-        /\   Z
-        |   /
-        |  /
-        | /
-        |/________ X
-        O
+    /*      Y
+            /\
+            |
+            |
+            |
+           O|_________ X
+           /
+          /
+         /
+        Z
      */
     // The sequence of these array is important because
     //      it determines how a zombie reaches its target.

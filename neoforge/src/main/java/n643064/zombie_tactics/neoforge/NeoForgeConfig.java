@@ -36,6 +36,7 @@ public class NeoForgeConfig {
     private static ModConfigSpec.BooleanValue CAN_FLOAT;
     private static ModConfigSpec.IntValue CLIMB_LIMIT_TICKS;
     private static ModConfigSpec.DoubleValue JUMP_ACCELERATION;
+    private static ModConfigSpec.BooleanValue HYPER_CLIMBING;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -64,6 +65,7 @@ public class NeoForgeConfig {
         Config.canFloat = CAN_FLOAT.get();
         Config.climbLimitTicks = CLIMB_LIMIT_TICKS.get();
         Config.jumpAcceleration = JUMP_ACCELERATION.get();
+        Config.hyperClimbing = HYPER_CLIMBING.get();
     }
 
     /*
@@ -89,6 +91,7 @@ public class NeoForgeConfig {
             ZOMBIE_CLIMBING = b.comment("Should zombies climb each other on collision").translation(MOD_CFG + "do_climb").define("zombiesClimb", Config.zombiesClimbing);
             CLIMBING_SPEED = b.comment("Zombie climbing speed").translation(MOD_CFG + "climb_speed").defineInRange("zombieClimbingSpeed", Config.climbingSpeed, 0, Double.MAX_VALUE);
             CLIMB_LIMIT_TICKS = b.comment("Zombie climbing limit ticks").translation(MOD_CFG + "climb_limit_ticks").defineInRange("climbLimitTicks", Config.climbLimitTicks, 1, Integer.MAX_VALUE);
+            HYPER_CLIMBING = b.translation(MOD_CFG + "hyper_climbing").define("hyperClimbing", Config.hyperClimbing);
             b.pop();
             b.push("Spawn");
             PERSISTENCE_CHANCE = b.translation(MOD_CFG + "persistence_chance").defineInRange("persistenceChance", Config.persistenceChance, 0, 1);

@@ -30,9 +30,9 @@ public class FindAllTargetsGoal extends TargetGoal {
      */
     public FindAllTargetsGoal(List<Class<? extends LivingEntity>> targets, Mob mob, int[] priorities, boolean mustSee) {
         super(mob, mustSee);
+        setFlags(EnumSet.of(Flag.TARGET));
         list = targets;
         this.priorities = priorities;
-        setFlags(EnumSet.of(Flag.TARGET));
         targetingConditions = TargetingConditions.forCombat().range(getFollowDistance()).selector(null);
         if(Config.attackInvisible) targetingConditions = targetingConditions.ignoreLineOfSight();
     }
@@ -52,10 +52,11 @@ public class FindAllTargetsGoal extends TargetGoal {
     public void tick() {
         ++ delay;
         if(delay > 5) {
+            double follow = getFollowDistance(); //follow *= follow;
+            AABB boundary = mob.getBoundingBox().inflate(follow);
+
             delay = 0;
             section = true;
-            double follow = getFollowDistance(); follow *= follow;
-            AABB boundary = mob.getBoundingBox().inflate(follow);
 
             // query targets
             for(var sus: list) {
@@ -70,20 +71,22 @@ public class FindAllTargetsGoal extends TargetGoal {
             }
             // distribute the loads
         } else if(section) {
-            section = false;
             BlockPos me = mob.blockPosition();
-            int minimumCost = Integer.MAX_VALUE;LivingEntity target = null;
+            LivingEntity target = null;
+            int minimumCost = Integer.MAX_VALUE;
             int xx = mob.getBlockX();
             int yy = mob.getBlockY();
             int zz = mob.getBlockZ();
 
+            section = false;
             // calculate the cost for each of imposters
-            for(var amogus : imposters) {
+            for(var amogus: imposters) {
                 BlockPos delta = me.subtract(amogus.blockPosition());
+                double len = mob.distanceToSqr(amogus);
                 int score = 0;
+                int idx = 0;
 
                 // using linear function
-                double len = mob.distanceToSqr(amogus);
                 for(int i = 0; i <= len; ++ i) {
                     if(!mob.level().getBlockState(new BlockPos((int)(xx + delta.getX() * i / len),
                             (int)(yy + delta.getY() * i / len), (int)(zz + delta.getZ() * i / len))).isAir())
@@ -91,7 +94,6 @@ public class FindAllTargetsGoal extends TargetGoal {
                     else ++ score;
                 }
                 // apply priority
-                int idx = 0;
                 for(var p: list) {
                     if(p.isAssignableFrom(amogus.getClass())) {
                         break;

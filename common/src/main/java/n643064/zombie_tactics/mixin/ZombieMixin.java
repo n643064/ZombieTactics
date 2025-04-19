@@ -75,11 +75,9 @@ public abstract class ZombieMixin extends Monster {
     public boolean wantsToPickUp(@NotNull ItemStack stack) {
         Item item = stack.getItem();
         if(item instanceof SwordItem s) {
-            System.out.println(stack);
             if(s.getTier().getAttackDamageBonus() > this.getMainHandItem().getDamageValue()) return true;
         } else if(item instanceof ArmorItem armor) {
-            System.out.println(armor);
-            if(armor.getDefense() >= this.getArmorValue()) return true;
+            if(armor.getDefense() > this.getArmorValue()) return true;
         }
         return super.wantsToPickUp(stack);
     }
@@ -113,7 +111,7 @@ public abstract class ZombieMixin extends Monster {
     @Override
     public void push(@NotNull Entity entity) {
         if(zombie_tactics$bdg != null && Config.zombiesClimbing && entity instanceof Zombie &&
-                horizontalCollision && !((Plane)zombie_tactics$bdg).zombie_tactics$getBool()) {
+                (horizontalCollision || Config.hyperClimbing) && !((Plane)zombie_tactics$bdg).zombie_tactics$getBool()) {
             if(zombieTactics$climbedCount < 120) {
                 final Vec3 v = getDeltaMovement();
                 setDeltaMovement(v.x, Config.climbingSpeed, v.z);
@@ -147,6 +145,11 @@ public abstract class ZombieMixin extends Monster {
             ++ zombie_tactics$threshold;
         } else zombie_tactics$persistence = false;
         if(zombie_tactics$persistence) this.setPersistenceRequired();
+    }
+
+    @Inject(method="tick", at=@At("TAIL"))
+    public void tick(CallbackInfo ci) {
+        if(!this.canPickUpLoot()) this.setCanPickUpLoot(true);
     }
 
     // fixes that doing both mining and attacking

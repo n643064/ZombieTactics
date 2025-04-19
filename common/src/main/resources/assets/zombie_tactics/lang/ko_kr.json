@@ -39,6 +39,8 @@
     "zombie_tactics.midnightconfig.climb_speed.tooltip": "미는 힘의 크기",
     "zombie_tactics.midnightconfig.climb_limit_ticks": "등반 제한 틱",
     "zombie_tactics.midnightconfig.climb_limit_ticks.tooltip": "좀비가 등반 가능한 최대 틱 수",
+    "zombie_tactics.midnightconfig.hyper_climbing": "하이퍼 등반",
+    "zombie_tactics.midnightconfig.hyper_climbing.tooltip": "수평 충돌에 관계없이 서로를 밀칩니다",
 
     "zombie_tactics.midnightconfig.category.General": "일반",
     "zombie_tactics.midnightconfig.heal_amount": "공격시 체력 회복량",
