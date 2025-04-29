@@ -11,7 +11,9 @@ public class Config {
             sunSensitive = true,
             noMercy = false,
             attackInvisible = false,
-            canFloat = false, hyperClimbing = false;
+            canFloat = false,
+            hyperClimbing = false,
+            jumpBlock = true;
 
     public static double increment = 0.2,
             maxHardness = 4.5,

@@ -37,6 +37,7 @@ public class NeoForgeConfig {
     private static ModConfigSpec.IntValue CLIMB_LIMIT_TICKS;
     private static ModConfigSpec.DoubleValue JUMP_ACCELERATION;
     private static ModConfigSpec.BooleanValue HYPER_CLIMBING;
+    private static ModConfigSpec.BooleanValue JUMP_BLOCK;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -66,6 +67,7 @@ public class NeoForgeConfig {
         Config.climbLimitTicks = CLIMB_LIMIT_TICKS.get();
         Config.jumpAcceleration = JUMP_ACCELERATION.get();
         Config.hyperClimbing = HYPER_CLIMBING.get();
+        Config.jumpBlock = JUMP_BLOCK.get();
     }
 
     /*
@@ -98,6 +100,7 @@ public class NeoForgeConfig {
             MAX_THRESHOLD = b.translation(MOD_CFG + "max_threshold").defineInRange("maxThreshold", Config.maxThreshold, 0, Integer.MAX_VALUE);
             b.pop();
             b.push("Targeting");
+            JUMP_BLOCK = b.translation(MOD_CFG + "jump_block").define("jumpBlock", Config.jumpBlock);
             BLOCK_COST = b.translation(MOD_CFG + "block_cost").defineInRange("blockCost", Config.blockCost, 1, 65536);
             JUMP_ACCELERATION = b.translation(MOD_CFG + "jump_acceleration").defineInRange("jumpAcceleration", Config.jumpAcceleration, 0, 128);
             b.pop();

@@ -70,5 +70,7 @@
     "zombie_tactics.midnightconfig.block_cost": "Block cost",
     "zombie_tactics.midnightconfig.block_cost.tooltip": "Cost of block when selecting a target",
     "zombie_tactics.midnightconfig.jump_acceleration": "Jump acceleration",
-    "zombie_tactics.midnightconfig.jump_acceleration.tooltip": "The acceleration of jump between blocks"
+    "zombie_tactics.midnightconfig.jump_acceleration.tooltip": "The acceleration of jump between blocks",
+    "zombie_tactics.midnightconfig.jump_block": "Jump block",
+    "zombie_tactics.midnightconfig.jump_block.tooltip": "Jump block if cannot reach a target by walking"
 }

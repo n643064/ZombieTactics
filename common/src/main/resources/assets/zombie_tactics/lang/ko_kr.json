@@ -55,7 +55,7 @@
     "zombie_tactics.midnightconfig.no_mercy.tooltip": "매 공격마다 목표물의 무적을 해제합니다",
     "zombie_tactics.midnightconfig.attack_range": "공격 거리",
     "zombie_tactics.midnightconfig.attack_range.tooltip": "좀비가 공격 가능한 범위",
-    "zombie_tactics.midnightconfig.attack_invisible": "무치뱔 공격",
+    "zombie_tactics.midnightconfig.attack_invisible": "무치별 공격",
     "zombie_tactics.midnightconfig.attack_invisible.tooltip": "보지 못한 엔티티도 따라가 공격합니다",
     "zombie_tactics.midnightconfig.can_float": "물에 뜨는 좀비",
     "zombie_tactics.midnightconfig.can_float.tooltip": "좀비가 물에 뜹니다",
@@ -70,5 +70,7 @@
     "zombie_tactics.midnightconfig.block_cost": "블럭 비용",
     "zombie_tactics.midnightconfig.block_cost.tooltip": "타겟을 고를 때의 블럭의 비용",
     "zombie_tactics.midnightconfig.jump_acceleration": "점프 가속도",
-    "zombie_tactics.midnightconfig.jump_acceleration.tooltip": "블럭간 점프 시 가속도"
+    "zombie_tactics.midnightconfig.jump_acceleration.tooltip": "블럭간 점프 시 가속도",
+    "zombie_tactics.midnightconfig.jump_block": "점프 블럭",
+    "zombie_tactics.midnightconfig.jump_block.tooltip": "걷는 것만으로는 목표에 도달할 수 없을 때 점프합니다"
 }

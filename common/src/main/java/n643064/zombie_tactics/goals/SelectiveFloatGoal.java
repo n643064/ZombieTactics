@@ -14,6 +14,7 @@ public class SelectiveFloatGoal extends FloatGoal {
     @Override
     public boolean canUse() {
         if(mob.getTarget() == null) return super.canUse();
-        return super.canUse() && !mob.getTarget().isInWater();
+        // selectively float
+        return super.canUse() && (!mob.getTarget().isInWater() || mob.getBlockY() - mob.getTarget().getBlockY() < 1);
     }
 }
