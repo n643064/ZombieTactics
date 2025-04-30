@@ -72,5 +72,7 @@
     "zombie_tactics.midnightconfig.jump_acceleration": "Jump acceleration",
     "zombie_tactics.midnightconfig.jump_acceleration.tooltip": "The acceleration of jump between blocks",
     "zombie_tactics.midnightconfig.jump_block": "Jump block",
-    "zombie_tactics.midnightconfig.jump_block.tooltip": "Jump block if cannot reach a target by walking"
+    "zombie_tactics.midnightconfig.jump_block.tooltip": "Jump block if cannot reach a target by walking",
+    "zombie_tactics.midnightconfig.follow_range": "Follow range",
+    "zombie_tactics.midnightconfig.follow_range.tooltip": "The range of following a target"
 }

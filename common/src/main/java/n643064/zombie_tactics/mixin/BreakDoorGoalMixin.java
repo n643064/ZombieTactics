@@ -22,7 +22,7 @@ public abstract class BreakDoorGoalMixin extends DoorInteractGoal implements Pla
     @Unique public boolean zombie_tactics$isBreaking;
 
     @Override
-    public boolean zombie_tactics$getBool() {
+    public boolean zombie_tactics$getBool(int i) {
         return zombie_tactics$isBreaking;
     }
 

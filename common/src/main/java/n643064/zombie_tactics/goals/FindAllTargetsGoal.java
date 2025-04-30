@@ -9,7 +9,9 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
+import oshi.util.tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -18,10 +20,11 @@ import java.util.List;
 
 // the new improved target finding goal
 public class FindAllTargetsGoal extends TargetGoal {
+    public static final List<Pair<LivingEntity, Path>> cache_path = new ArrayList<>();
     private final List<Class<? extends LivingEntity>> list;
     private final List<LivingEntity> imposters = new ArrayList<>();
-    private TargetingConditions targetingConditions;
     private final int[] priorities;
+    private TargetingConditions targetingConditions;
     private int delay;
     private boolean section;
 
@@ -33,7 +36,7 @@ public class FindAllTargetsGoal extends TargetGoal {
         setFlags(EnumSet.of(Flag.TARGET));
         list = targets;
         this.priorities = priorities;
-        targetingConditions = TargetingConditions.forCombat().range(getFollowDistance()).selector(null);
+        targetingConditions = TargetingConditions.forCombat().range(Config.followRange).selector(null);
         if(Config.attackInvisible) targetingConditions = targetingConditions.ignoreLineOfSight();
     }
 
@@ -74,24 +77,31 @@ public class FindAllTargetsGoal extends TargetGoal {
             BlockPos me = mob.blockPosition();
             LivingEntity target = null;
             int minimumCost = Integer.MAX_VALUE;
-            int xx = mob.getBlockX();
-            int yy = mob.getBlockY();
-            int zz = mob.getBlockZ();
 
             section = false;
             // calculate the cost for each of imposters
             for(var amogus: imposters) {
                 BlockPos delta = me.subtract(amogus.blockPosition());
-                double len = mob.distanceToSqr(amogus);
                 int score = 0;
                 int idx = 0;
+                boolean found = false;
 
-                // using linear function
-                for(int i = 0; i <= len; ++ i) {
-                    if(!mob.level().getBlockState(new BlockPos((int)(xx + delta.getX() * i / len),
-                            (int)(yy + delta.getY() * i / len), (int)(zz + delta.getZ() * i / len))).isAir())
-                        score += Config.blockCost;
-                    else ++ score;
+                Path path = null;
+                for(var p: cache_path) {
+                    if(p.getA() == amogus) {
+                        path = p.getB();
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) {
+                    // use cache to prevent overloading
+                    path = mob.getNavigation().createPath(amogus, 0);
+                    cache_path.add(new Pair<>(amogus, path));
+                }
+                if(path != null) {
+                    score += path.getNodeCount();
+                    if(!path.canReach()) score *= 128;
                 }
                 // apply priority
                 for(var p: list) {

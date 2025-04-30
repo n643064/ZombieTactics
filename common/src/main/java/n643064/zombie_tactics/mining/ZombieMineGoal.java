@@ -67,8 +67,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         float destroying = b.defaultDestroyTime();
 
         // exclude unbreakable blocks
-        if(!b.isPossibleToRespawnInThis(state) &&
-                destroying >= 0 && destroying <= Config.maxHardness) {
+        if(!b.isPossibleToRespawnInThis(state) && destroying >= 0 && destroying <= Config.maxHardness) {
             mine.doMining = true;
             mine.bp = pos;
             mine.bp_vec3 = pos.getCenter();

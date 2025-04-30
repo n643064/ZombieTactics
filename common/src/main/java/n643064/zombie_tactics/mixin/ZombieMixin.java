@@ -44,16 +44,18 @@ import java.util.function.Predicate;
 
 
 @Mixin(Zombie.class)
-public abstract class ZombieMixin extends Monster {
+public abstract class ZombieMixin extends Monster implements Plane {
+    @Unique private static final List<Class<? extends LivingEntity>> zombie_tactics$target_list = new ArrayList<>();
+    @Unique private static int zombie_tactics$threshold = 0;
+
+    @Unique private ZombieMineGoal<? extends Monster> zombie_tactics$mine_goal;
+    @Unique private BreakDoorGoal zombie_tactics$bdg;
     @Unique private int zombieTactics$climbedCount = 0;
     @Unique private boolean zombieTactics$isClimbing = false;
     @Unique private boolean zombie_tactics$persistence;
-    @Unique private static int zombie_tactics$threshold = 0;
-    @Unique private ZombieMineGoal<? extends Monster> zombie_tactics$mine_goal;
-    @Unique private BreakDoorGoal zombie_tactics$bdg;
-    @Unique private static final List<Class<? extends LivingEntity>> zombie_tactics$target_list = new ArrayList<>();
 
     @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
+    @Shadow private int inWaterTime;
     @Shadow public abstract boolean canBreakDoors(); // This just makes path finding
 
     public ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
@@ -69,6 +71,16 @@ public abstract class ZombieMixin extends Monster {
             zombieTactics$climbedCount = 0;
         }
         super.checkFallDamage(y, onGround, state, pos);
+    }
+
+    @Override
+    public int zombie_tactics$getInt(int id) {
+        // inWaterTime
+        if(id == 0) {
+            return inWaterTime;
+        }
+        // nothing else
+        return 0;
     }
 
     @Override
@@ -111,7 +123,7 @@ public abstract class ZombieMixin extends Monster {
     @Override
     public void push(@NotNull Entity entity) {
         if(zombie_tactics$bdg != null && Config.zombiesClimbing && entity instanceof Zombie &&
-                (horizontalCollision || Config.hyperClimbing) && !((Plane)zombie_tactics$bdg).zombie_tactics$getBool()) {
+                (horizontalCollision || Config.hyperClimbing) && !((Plane)zombie_tactics$bdg).zombie_tactics$getBool(0)) {
             if(zombieTactics$climbedCount < 120) {
                 final Vec3 v = getDeltaMovement();
                 setDeltaMovement(v.x, Config.climbingSpeed, v.z);

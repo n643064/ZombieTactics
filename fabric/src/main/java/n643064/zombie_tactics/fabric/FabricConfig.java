@@ -44,6 +44,7 @@ public class FabricConfig extends MidnightConfig {
     @Entry(category=SPAWN, min=0, max=Integer.MAX_VALUE) public static int max_threshold = Config.maxThreshold;
     @Entry(category=TARGETING, min=1, max=65536) public static int block_cost = Config.blockCost;
     @Entry(category=CLIMBING, min=1, max=Integer.MAX_VALUE) public static int climb_limit_ticks = Config.climbLimitTicks;
+    @Entry(category=TARGETING, min=1, max=Integer.MAX_VALUE) public static int follow_distance = Config.followRange;
 
     // fabric fields do nothing without the update of config
     public static void updateConfig() {
@@ -74,6 +75,7 @@ public class FabricConfig extends MidnightConfig {
         Config.maxThreshold = max_threshold;
         Config.blockCost = block_cost;
         Config.climbLimitTicks = climb_limit_ticks;
+        Config.followRange = follow_distance;
     }
 
     @Override

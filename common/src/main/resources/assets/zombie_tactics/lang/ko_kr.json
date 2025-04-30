@@ -72,5 +72,7 @@
     "zombie_tactics.midnightconfig.jump_acceleration": "점프 가속도",
     "zombie_tactics.midnightconfig.jump_acceleration.tooltip": "블럭간 점프 시 가속도",
     "zombie_tactics.midnightconfig.jump_block": "점프 블럭",
-    "zombie_tactics.midnightconfig.jump_block.tooltip": "걷는 것만으로는 목표에 도달할 수 없을 때 점프합니다"
+    "zombie_tactics.midnightconfig.jump_block.tooltip": "걷는 것만으로는 목표에 도달할 수 없을 때 점프합니다",
+    "zombie_tactics.midnightconfig.follow_range": "추적 거리",
+    "zombie_tactics.midnightconfig.follow_range.tooltip": "좀비가 목표를 추적할 수 있는 거리"
 }

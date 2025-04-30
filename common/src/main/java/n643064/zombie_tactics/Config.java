@@ -30,5 +30,6 @@ public class Config {
     public static int attackCooldown = 20,
             maxThreshold = 384,
             blockCost = 5,
-            climbLimitTicks = 120;
+            climbLimitTicks = 120,
+            followRange = 42;
 }

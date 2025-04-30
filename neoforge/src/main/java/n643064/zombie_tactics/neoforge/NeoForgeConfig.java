@@ -38,6 +38,7 @@ public class NeoForgeConfig {
     private static ModConfigSpec.DoubleValue JUMP_ACCELERATION;
     private static ModConfigSpec.BooleanValue HYPER_CLIMBING;
     private static ModConfigSpec.BooleanValue JUMP_BLOCK;
+    private static ModConfigSpec.IntValue FOLLOW_RANGE;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -68,6 +69,7 @@ public class NeoForgeConfig {
         Config.jumpAcceleration = JUMP_ACCELERATION.get();
         Config.hyperClimbing = HYPER_CLIMBING.get();
         Config.jumpBlock = JUMP_BLOCK.get();
+        Config.followRange = FOLLOW_RANGE.get();
     }
 
     /*
@@ -103,6 +105,7 @@ public class NeoForgeConfig {
             JUMP_BLOCK = b.translation(MOD_CFG + "jump_block").define("jumpBlock", Config.jumpBlock);
             BLOCK_COST = b.translation(MOD_CFG + "block_cost").defineInRange("blockCost", Config.blockCost, 1, 65536);
             JUMP_ACCELERATION = b.translation(MOD_CFG + "jump_acceleration").defineInRange("jumpAcceleration", Config.jumpAcceleration, 0, 128);
+            FOLLOW_RANGE = b.translation(MOD_CFG + "follow_range").defineInRange("followRange", Config.followRange, 1, 255);
             b.pop();
             b.push("General");
             HEAL_AMOUNT = b.comment("The amount of heal when a zombie attacks somewhat").translation(MOD_CFG + "heal_amount").defineInRange("healAmount", Config.healAmount, 0, 1024);
