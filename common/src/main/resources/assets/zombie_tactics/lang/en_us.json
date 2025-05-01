@@ -74,5 +74,15 @@
     "zombie_tactics.midnightconfig.jump_block": "Jump block",
     "zombie_tactics.midnightconfig.jump_block.tooltip": "Jump block if cannot reach a target by walking",
     "zombie_tactics.midnightconfig.follow_range": "Follow range",
-    "zombie_tactics.midnightconfig.follow_range.tooltip": "The range of following a target"
+    "zombie_tactics.midnightconfig.follow_range.tooltip": "The range of following a target",
+    "zombie_tactics.midnightconfig.find_target_type": "Find target type",
+    "zombie_tactics.midnightconfig.find_target_type.tooltip": "The algorithm used to select a target",
+    "zombie_tactics.midnightconfig.enum.FindTargetType.SIMPLE": "Simple",
+    "zombie_tactics.midnightconfig.enum.FindTargetType.SIMPLE.tooltip": "Simple way to find a target",
+    "zombie_tactics.midnightconfig.enum.FindTargetType.LINEAR": "Linear",
+    "zombie_tactics.midnightconfig.enum.FindTargetType.LINEAR.tooltip": "Linear way to find a target",
+    "zombie_tactics.midnightconfig.enum.FindTargetType.INTENSIVE": "Intensive",
+    "zombie_tactics.midnightconfig.enum.FindTargetType.INTENSIVE.tooltip": "Intensive search but moderated for performance, so may be inaccurate",
+    "zombie_tactics.midnightconfig.enum.FindTargetType.OVERLOAD": "Overload",
+    "zombie_tactics.midnightconfig.enum.FindTargetType.OVERLOAD.tooltip": "Full calculation without moderation, and it is not recommended"
 }

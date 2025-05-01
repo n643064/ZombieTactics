@@ -2,6 +2,7 @@ package n643064.zombie_tactics.neoforge;
 
 import n643064.zombie_tactics.Config;
 
+import n643064.zombie_tactics.attachments.FindTargetType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -39,6 +40,7 @@ public class NeoForgeConfig {
     private static ModConfigSpec.BooleanValue HYPER_CLIMBING;
     private static ModConfigSpec.BooleanValue JUMP_BLOCK;
     private static ModConfigSpec.IntValue FOLLOW_RANGE;
+    private static ModConfigSpec.EnumValue<FindTargetType> TARGET_TYPE;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -70,6 +72,7 @@ public class NeoForgeConfig {
         Config.hyperClimbing = HYPER_CLIMBING.get();
         Config.jumpBlock = JUMP_BLOCK.get();
         Config.followRange = FOLLOW_RANGE.get();
+        Config.findTargetType = TARGET_TYPE.get();
     }
 
     /*
@@ -106,6 +109,7 @@ public class NeoForgeConfig {
             BLOCK_COST = b.translation(MOD_CFG + "block_cost").defineInRange("blockCost", Config.blockCost, 1, 65536);
             JUMP_ACCELERATION = b.translation(MOD_CFG + "jump_acceleration").defineInRange("jumpAcceleration", Config.jumpAcceleration, 0, 128);
             FOLLOW_RANGE = b.translation(MOD_CFG + "follow_range").defineInRange("followRange", Config.followRange, 1, 255);
+            TARGET_TYPE = b.translation(MOD_CFG + "find_target_type").defineEnum("findTargetType", Config.findTargetType);
             b.pop();
             b.push("General");
             HEAL_AMOUNT = b.comment("The amount of heal when a zombie attacks somewhat").translation(MOD_CFG + "heal_amount").defineInRange("healAmount", Config.healAmount, 0, 1024);

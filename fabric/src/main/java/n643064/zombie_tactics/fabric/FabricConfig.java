@@ -3,6 +3,7 @@ package n643064.zombie_tactics.fabric;
 import n643064.zombie_tactics.Config;
 
 import eu.midnightdust.lib.config.MidnightConfig;
+import n643064.zombie_tactics.attachments.FindTargetType;
 
 
 // I think MidnightConfig is even better than cloth-config :(
@@ -46,6 +47,8 @@ public class FabricConfig extends MidnightConfig {
     @Entry(category=CLIMBING, min=1, max=Integer.MAX_VALUE) public static int climb_limit_ticks = Config.climbLimitTicks;
     @Entry(category=TARGETING, min=1, max=Integer.MAX_VALUE) public static int follow_distance = Config.followRange;
 
+    @Entry(category=TARGETING) public static FindTargetType findTargetType = Config.findTargetType;
+
     // fabric fields do nothing without the update of config
     public static void updateConfig() {
         Config.mineBlocks = do_mine;
@@ -76,6 +79,8 @@ public class FabricConfig extends MidnightConfig {
         Config.blockCost = block_cost;
         Config.climbLimitTicks = climb_limit_ticks;
         Config.followRange = follow_distance;
+
+        Config.findTargetType = findTargetType;
     }
 
     @Override

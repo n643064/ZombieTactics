@@ -1,5 +1,7 @@
 package n643064.zombie_tactics.mixin;
 
+import n643064.zombie_tactics.Config;
+import n643064.zombie_tactics.attachments.FindTargetType;
 import n643064.zombie_tactics.goals.FindAllTargetsGoal;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -28,25 +30,27 @@ public abstract class ServerLevelMixin extends Level {
         super(levelData, dimension, registryAccess, dimensionTypeRegistration, profiler, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
     }
 
-
     // garbage
     @Inject(method = "tick", at = @At("TAIL"))
     public void tick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        ++ zombie_tactics$duration;
-        if(zombie_tactics$duration > 10) {
-            zombie_tactics$duration = 0;
-            while(true) {
-                boolean mark = true;
-                int idx = 0;
-                for(var cp: FindAllTargetsGoal.cache_path) {
-                    if(!cp.getA().isAlive()) {
-                        mark = false;
-                        break;
+        // run if FindTargetType is not LINEAR
+        if(Config.findTargetType != FindTargetType.LINEAR && Config.findTargetType != FindTargetType.SIMPLE) {
+            ++ zombie_tactics$duration;
+            if(zombie_tactics$duration > 10) {
+                zombie_tactics$duration = 0;
+                while(true) {
+                    boolean mark = true;
+                    int idx = 0;
+                    for(var cp: FindAllTargetsGoal.cache_path) {
+                        if(! cp.getA().isAlive()) {
+                            mark = false;
+                            break;
+                        }
+                        ++ idx;
                     }
-                    ++ idx;
+                    if(mark) break;
+                    FindAllTargetsGoal.cache_path.remove(idx);
                 }
-                if(mark) break;
-                FindAllTargetsGoal.cache_path.remove(idx);
             }
         }
     }

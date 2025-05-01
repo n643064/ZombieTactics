@@ -1,5 +1,6 @@
 package n643064.zombie_tactics;
 
+import n643064.zombie_tactics.attachments.FindTargetType;
 
 // just define configurations
 // balance patch
@@ -32,4 +33,6 @@ public class Config {
             blockCost = 5,
             climbLimitTicks = 120,
             followRange = 42;
+
+    public static FindTargetType findTargetType = FindTargetType.SIMPLE;
 }
