@@ -28,10 +28,10 @@ public class ZombieGoal extends ZombieAttackGoal {
         super.tick();
 
         // jump a block
-        if(Config.jumpBlock) {
+        if(Config.jumpBlock && !mob.isWithinMeleeAttackRange(mob.getTarget())) {
             Optional<BlockPos> bp = mob.mainSupportingBlockPos;
             if(bp.isPresent()) {
-                BlockPos pos = bp.get().mutable().offset(UNIT_FRONT.rotate(getRelativeRotation(mob)));
+                BlockPos pos = bp.get().mutable().offset(UNIT_FRONT.rotate(getRelativeRotation(mob))).above().above();
                 boolean airs = true;
                 /* do not jump in an inadequate situation
                     zombie      target
@@ -40,12 +40,12 @@ public class ZombieGoal extends ZombieAttackGoal {
                     |    |    |    |
                     |    |____|    |
                  */
-                for(int i = 0; i < 3; ++ i) {
-                    pos = pos.below();
+                for(int i = 0; i < 5; ++ i) {
                     if(!mob.level().isEmptyBlock(pos)) {
                         airs = false;
                         break;
                     }
+                    if(i != 4) pos = pos.below();
                 }
                 // this algorithm should be improved
                 // for now, it cannot cover all cases

@@ -27,11 +27,10 @@ public class FindAllTargetsGoal extends TargetGoal {
     private final List<Class<? extends LivingEntity>> list;
     private final List<LivingEntity> imposters = new ArrayList<>();
     private final int[] priorities;
-    private final AABB boundary;
     private TargetingConditions targetingConditions;
     private int delay;
     private int idx;
-    private boolean section;
+    private Task task;
 
     /**
      * @param priorities specify mobs' priority respectively. its length must be equal or larger than to the target list size.
@@ -41,7 +40,6 @@ public class FindAllTargetsGoal extends TargetGoal {
         setFlags(EnumSet.of(Flag.TARGET));
         list = targets.stream().toList();
         this.priorities = priorities;
-        boundary = mob.getBoundingBox().inflate(getFollowDistance() * getFollowDistance());
         targetingConditions = TargetingConditions.forCombat().range(Config.followRange).selector(null);
         if(Config.attackInvisible) targetingConditions = targetingConditions.ignoreLineOfSight();
     }
@@ -54,49 +52,51 @@ public class FindAllTargetsGoal extends TargetGoal {
     @Override
     public void start() {
         delay = 0;
-        section = false;
+        task = Task.IDLE;
     }
 
     @Override
     public void tick() {
-        ++ delay;
-        if(Config.findTargetType == FindTargetType.SIMPLE && delay > 3) {
-            delay = 0;
-            // simple target finding
-            LivingEntity target;
-            var clazz = list.get(idx);
-            if (clazz != Player.class && clazz != ServerPlayer.class) {
-                target = mob.level().getNearestEntity(clazz, targetingConditions, mob, mob.getX(), mob.getEyeY(), mob.getZ(), boundary);
-            } else {
-                 target = mob.level().getNearestPlayer(targetingConditions, mob, mob.getX(), mob.getEyeY(), mob.getZ());
-            }
-            if(target != null && mob.getTarget() != null && mob.distanceToSqr(target) < mob.distanceToSqr(mob.getTarget()) || mob.getTarget() == null) {
-                mob.setTarget(target);
-            }
-            ++ idx;
-            idx %= list.size();
-        } else if(delay > 5) {
-            delay = 0;
-            section = true;
-
-            // query targets
-            // and fucking slow
-            for(var sus: list) {
-                List<? extends LivingEntity> imposter2;
-                if(sus == Player.class || sus == ServerPlayer.class) {
-                    imposter2 = mob.level().getNearbyPlayers(targetingConditions, mob, boundary); // players
-                } else imposter2 = mob.level().getNearbyEntities(sus, targetingConditions, mob, boundary); // just mobs
-                for(var imposter: imposter2) {
-                    if(imposter != null) imposters.add(imposter);
+        if(task == Task.IDLE) {
+            ++ delay;
+            if(Config.findTargetType == FindTargetType.SIMPLE && delay > 3) task = Task.SEARCH;
+            else if(delay > 5) task = Task.SEARCH;
+        } else if(task == Task.SEARCH) {
+            // simple target finding a target of the specific class per 1 tick
+            if(Config.findTargetType == FindTargetType.SIMPLE) {
+                LivingEntity target;
+                var clazz = list.get(idx);
+                if (clazz != Player.class && clazz != ServerPlayer.class) {
+                    target = mob.level().getNearestEntity(clazz, targetingConditions, mob, mob.getX(), mob.getEyeY(), mob.getZ(), followBox());
+                } else {
+                    target = mob.level().getNearestPlayer(targetingConditions, mob, mob.getX(), mob.getEyeY(), mob.getZ());
                 }
+                if(target != null && mob.getTarget() != null && mob.distanceToSqr(target) < mob.distanceToSqr(mob.getTarget()) || mob.getTarget() == null) {
+                    mob.setTarget(target);
+                }
+                ++ idx;
+                idx %= list.size();
+                task = Task.IDLE;
+            } else {
+                // query targets
+                // and fucking slow
+                for(var sus: list) {
+                    List<? extends LivingEntity> imposter2;
+                    if(sus == Player.class || sus == ServerPlayer.class) {
+                        imposter2 = mob.level().getNearbyPlayers(targetingConditions, mob, followBox()); // players
+                    } else imposter2 = mob.level().getNearbyEntities(sus, targetingConditions, mob, followBox()); // just mobs
+                    for(var imposter: imposter2) {
+                        if(imposter != null) imposters.add(imposter);
+                    }
+                }
+                task = Task.PRIORITIZE;
             }
-            // distribute the loads
-        } else if(section) {
+            delay = 0;
+        } else if(task == Task.PRIORITIZE) { // distribute loads with tasks, but it is similar to the brain system
             BlockPos me = mob.blockPosition();
             LivingEntity target = null;
             int minimumCost = Integer.MAX_VALUE;
 
-            section = false;
             // calculate the cost for each of imposters
             for(var amogus: imposters) {
                 BlockPos delta = me.subtract(amogus.blockPosition());
@@ -144,9 +144,7 @@ public class FindAllTargetsGoal extends TargetGoal {
 
                 // apply priority
                 for(var p: list) {
-                    if(p.isAssignableFrom(amogus.getClass())) {
-                        break;
-                    }
+                    if(p.isAssignableFrom(amogus.getClass())) break;
                     ++ idx;
                 }
                 // idx must match the target list unless priorities are invalid
@@ -169,11 +167,23 @@ public class FindAllTargetsGoal extends TargetGoal {
             // set target
             mob.setTarget(target);
             imposters.clear();
+            task = Task.IDLE;
         }
     }
 
     @Override
     public boolean canContinueToUse() {
         return canUse() || super.canContinueToUse();
+    }
+
+    private AABB followBox() {
+        return mob.getBoundingBox().inflate(getFollowDistance());
+    }
+
+    // brain rot
+    public enum Task {
+        SEARCH,
+        PRIORITIZE,
+        IDLE,
     }
 }

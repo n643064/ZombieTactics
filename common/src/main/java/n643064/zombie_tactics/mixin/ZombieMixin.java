@@ -29,6 +29,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -97,6 +98,18 @@ public abstract class ZombieMixin extends Monster implements Plane {
     }
 
     @Override
+    public int getMaxSpawnClusterSize() {
+        return 64; // I think, the bigger the number is the better
+    }
+
+    // not to despawn
+    @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        if(zombie_tactics$persistence) return false;
+        else return super.removeWhenFarAway(distanceToClosestPlayer);
+    }
+
+    @Override
     public int zombie_tactics$getInt(int id) {
         // inWaterTime
         if(id == 0) {
@@ -157,6 +170,12 @@ public abstract class ZombieMixin extends Monster implements Plane {
         -- zombie_tactics$threshold;
         if(zombie_tactics$mine_goal != null && zombie_tactics$mine_goal.mine.doMining)
             this.level().destroyBlockProgress(this.getId(), zombie_tactics$mine_goal.mine.bp, -1);
+    }
+
+    @Override
+    public float getWalkTargetValue(BlockPos pos, LevelReader level) {
+        // unlock darkness
+        return Config.spawnUnderSun? 0: super.getWalkTargetValue(pos, level);
     }
 
     @Inject(method="<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", at=@At("TAIL"))

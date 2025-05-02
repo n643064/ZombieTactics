@@ -41,6 +41,7 @@ public class NeoForgeConfig {
     private static ModConfigSpec.BooleanValue JUMP_BLOCK;
     private static ModConfigSpec.IntValue FOLLOW_RANGE;
     private static ModConfigSpec.EnumValue<FindTargetType> TARGET_TYPE;
+    private static ModConfigSpec.BooleanValue SPAWN_UNDER_SUN;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -73,6 +74,7 @@ public class NeoForgeConfig {
         Config.jumpBlock = JUMP_BLOCK.get();
         Config.followRange = FOLLOW_RANGE.get();
         Config.findTargetType = TARGET_TYPE.get();
+        Config.spawnUnderSun = SPAWN_UNDER_SUN.get();
     }
 
     /*
@@ -103,12 +105,13 @@ public class NeoForgeConfig {
             b.push("Spawn");
             PERSISTENCE_CHANCE = b.translation(MOD_CFG + "persistence_chance").defineInRange("persistenceChance", Config.persistenceChance, 0, 1);
             MAX_THRESHOLD = b.translation(MOD_CFG + "max_threshold").defineInRange("maxThreshold", Config.maxThreshold, 0, Integer.MAX_VALUE);
+            SPAWN_UNDER_SUN = b.translation(MOD_CFG + "spawn_under_sun").define("spawnUnderSun", Config.spawnUnderSun);
             b.pop();
             b.push("Targeting");
             JUMP_BLOCK = b.translation(MOD_CFG + "jump_block").define("jumpBlock", Config.jumpBlock);
             BLOCK_COST = b.translation(MOD_CFG + "block_cost").defineInRange("blockCost", Config.blockCost, 1, 65536);
             JUMP_ACCELERATION = b.translation(MOD_CFG + "jump_acceleration").defineInRange("jumpAcceleration", Config.jumpAcceleration, 0, 128);
-            FOLLOW_RANGE = b.translation(MOD_CFG + "follow_range").defineInRange("followRange", Config.followRange, 1, 255);
+            FOLLOW_RANGE = b.translation(MOD_CFG + "follow_range").defineInRange("followRange", Config.followRange, 1, 128);
             TARGET_TYPE = b.translation(MOD_CFG + "find_target_type").defineEnum("findTargetType", Config.findTargetType);
             b.pop();
             b.push("General");

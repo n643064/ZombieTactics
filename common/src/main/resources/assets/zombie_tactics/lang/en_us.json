@@ -65,10 +65,12 @@
     "zombie_tactics.midnightconfig.persistence_chance.tooltip": "Chance for PersistenceRequired",
     "zombie_tactics.midnightconfig.max_threshold": "Maximum threshold",
     "zombie_tactics.midnightconfig.max_threshold.tooltip": "Limit the persist zombies naturally spawned",
+    "zombie_tactics.midnightconfig.spawn_under_sun": "Spawn under the sun",
+    "zombie_tactics.midnightconfig.spawn_under_sun.tooltip": "Spawn under the sun",
 
     "zombie_tactics.midnightconfig.category.Targeting": "Targeting",
     "zombie_tactics.midnightconfig.block_cost": "Block cost",
-    "zombie_tactics.midnightconfig.block_cost.tooltip": "Cost of block when selecting a target",
+    "zombie_tactics.midnightconfig.block_cost.tooltip": "Cost of block when selecting a target only if FindTargetType is LINEAR",
     "zombie_tactics.midnightconfig.jump_acceleration": "Jump acceleration",
     "zombie_tactics.midnightconfig.jump_acceleration.tooltip": "The acceleration of jump between blocks",
     "zombie_tactics.midnightconfig.jump_block": "Jump block",

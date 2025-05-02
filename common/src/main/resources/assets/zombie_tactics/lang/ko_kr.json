@@ -65,10 +65,12 @@
     "zombie_tactics.midnightconfig.persistence_chance.tooltip": "특정 확률로 디스폰되지 않는 좀비가 생성됩니다",
     "zombie_tactics.midnightconfig.max_threshold": "임계치",
     "zombie_tactics.midnightconfig.max_threshold.tooltip": "자연적으로 스폰되는 영구적인 좀비의 최댓값",
+    "zombie_tactics.midnightconfig.spawn_under_sun": "낮에도 스폰",
+    "zombie_tactics.midnightconfig.spawn_under_sun.tooltip": "좀비가 낮에도 스폰됨",
 
     "zombie_tactics.midnightconfig.category.Targeting": "목표 탐색",
     "zombie_tactics.midnightconfig.block_cost": "블럭 비용",
-    "zombie_tactics.midnightconfig.block_cost.tooltip": "타겟을 고를 때의 블럭의 비용",
+    "zombie_tactics.midnightconfig.block_cost.tooltip": "타겟을 고를 때의 블럭의 비용, 탐색 타입이 선형일 때만 유효",
     "zombie_tactics.midnightconfig.jump_acceleration": "점프 가속도",
     "zombie_tactics.midnightconfig.jump_acceleration.tooltip": "블럭간 점프 시 가속도",
     "zombie_tactics.midnightconfig.jump_block": "점프 블럭",

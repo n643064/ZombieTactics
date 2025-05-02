@@ -6,6 +6,7 @@
     "mixins": [
         "BreakDoorGoalMixin",
         "MeleeAttackGoalMixin",
+        "MonsterMixin",
         "ServerLevelMixin",
         "ZombieMixin",
         "ZombieVillagerMixin"

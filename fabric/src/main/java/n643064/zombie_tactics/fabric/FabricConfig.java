@@ -28,6 +28,7 @@ public class FabricConfig extends MidnightConfig {
     @Entry(category=GENERAL) public static boolean can_float = Config.canFloat;
     @Entry(category=CLIMBING) public static boolean jump_block = Config.jumpBlock;
     @Entry(category=CLIMBING) public static boolean hyper_climbing = Config.hyperClimbing;
+    @Entry(category=SPAWN) public static boolean spawn_under_sun = Config.spawnUnderSun;
 
     @Entry(category=MINING, min=0) public static double mining_speed = Config.increment;
     @Entry(category=MINING, min=0) public static double max_hardness = Config.maxHardness;
@@ -45,9 +46,9 @@ public class FabricConfig extends MidnightConfig {
     @Entry(category=SPAWN, min=0, max=Integer.MAX_VALUE) public static int max_threshold = Config.maxThreshold;
     @Entry(category=TARGETING, min=1, max=65536) public static int block_cost = Config.blockCost;
     @Entry(category=CLIMBING, min=1, max=Integer.MAX_VALUE) public static int climb_limit_ticks = Config.climbLimitTicks;
-    @Entry(category=TARGETING, min=1, max=Integer.MAX_VALUE) public static int follow_distance = Config.followRange;
+    @Entry(category=TARGETING, min=1, max=128) public static int follow_range = Config.followRange;
 
-    @Entry(category=TARGETING) public static FindTargetType findTargetType = Config.findTargetType;
+    @Entry(category=TARGETING) public static FindTargetType find_target_type = Config.findTargetType;
 
     // fabric fields do nothing without the update of config
     public static void updateConfig() {
@@ -61,6 +62,7 @@ public class FabricConfig extends MidnightConfig {
         Config.canFloat = can_float;
         Config.hyperClimbing = hyper_climbing;
         Config.jumpBlock = jump_block;
+        Config.spawnUnderSun = spawn_under_sun;
 
         Config.increment = mining_speed;
         Config.maxHardness = max_hardness;
@@ -78,9 +80,9 @@ public class FabricConfig extends MidnightConfig {
         Config.maxThreshold = max_threshold;
         Config.blockCost = block_cost;
         Config.climbLimitTicks = climb_limit_ticks;
-        Config.followRange = follow_distance;
+        Config.followRange = follow_range;
 
-        Config.findTargetType = findTargetType;
+        Config.findTargetType = find_target_type;
     }
 
     @Override

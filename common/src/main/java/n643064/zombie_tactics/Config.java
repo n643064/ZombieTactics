@@ -14,7 +14,8 @@ public class Config {
             attackInvisible = false,
             canFloat = false,
             hyperClimbing = false,
-            jumpBlock = true;
+            jumpBlock = true,
+            spawnUnderSun = false;
 
     public static double increment = 0.2,
             maxHardness = 4.5,
@@ -32,7 +33,7 @@ public class Config {
             maxThreshold = 384,
             blockCost = 5,
             climbLimitTicks = 120,
-            followRange = 42;
+            followRange = 40;
 
     public static FindTargetType findTargetType = FindTargetType.SIMPLE;
 }
