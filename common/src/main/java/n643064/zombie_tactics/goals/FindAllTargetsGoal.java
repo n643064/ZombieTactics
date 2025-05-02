@@ -59,8 +59,8 @@ public class FindAllTargetsGoal extends TargetGoal {
     public void tick() {
         if(task == Task.IDLE) {
             ++ delay;
-            if(Config.findTargetType == FindTargetType.SIMPLE && delay > 3) task = Task.SEARCH;
-            else if(delay > 5) task = Task.SEARCH;
+            if(Config.findTargetType == FindTargetType.SIMPLE && delay > 4) task = Task.SEARCH;
+            else if(delay > 6) task = Task.SEARCH;
         } else if(task == Task.SEARCH) {
             // simple target finding a target of the specific class per 1 tick
             if(Config.findTargetType == FindTargetType.SIMPLE) {
