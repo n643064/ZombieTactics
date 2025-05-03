@@ -28,7 +28,6 @@ public class FindAllTargetsGoal extends TargetGoal {
     private final List<LivingEntity> imposters = new ArrayList<>();
     private final int[] priorities;
     private TargetingConditions targetingConditions;
-    private AABB cache_boundary;
     private int delay;
     private int idx;
     private Task task;
@@ -178,8 +177,7 @@ public class FindAllTargetsGoal extends TargetGoal {
     }
 
     private AABB followBox() {
-        if(cache_boundary == null) cache_boundary = mob.getBoundingBox().inflate(getFollowDistance());
-        return cache_boundary;
+        return mob.getBoundingBox().inflate(getFollowDistance());
     }
 
     // brain rot
