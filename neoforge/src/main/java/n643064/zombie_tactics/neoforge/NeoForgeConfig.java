@@ -1,8 +1,8 @@
 package n643064.zombie_tactics.neoforge;
 
 import n643064.zombie_tactics.Config;
-
 import n643064.zombie_tactics.attachments.FindTargetType;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;

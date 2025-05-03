@@ -3,6 +3,7 @@ package n643064.zombie_tactics.mixin;
 import n643064.zombie_tactics.Config;
 import n643064.zombie_tactics.attachments.FindTargetType;
 import n643064.zombie_tactics.goals.FindAllTargetsGoal;
+
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;

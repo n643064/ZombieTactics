@@ -120,7 +120,16 @@ public abstract class ZombieMixin extends Monster implements Plane {
     }
 
     @Override
+    public boolean zombie_tactics$getBool(int id) {
+        if(id == 0) {
+            return zombie_tactics$mine_goal.mine.doMining;
+        }
+        return false;
+    }
+
+    @Override
     public double getAttributeValue(Holder<Attribute> attribute) {
+        // chanfe follow range
         if(attribute == Attributes.FOLLOW_RANGE) return Config.followRange;
         return super.getAttributeValue(attribute);
     }

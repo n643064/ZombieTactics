@@ -1,9 +1,9 @@
 package n643064.zombie_tactics.fabric;
 
 import n643064.zombie_tactics.Config;
+import n643064.zombie_tactics.attachments.FindTargetType;
 
 import eu.midnightdust.lib.config.MidnightConfig;
-import n643064.zombie_tactics.attachments.FindTargetType;
 
 
 // I think MidnightConfig is even better than cloth-config :(

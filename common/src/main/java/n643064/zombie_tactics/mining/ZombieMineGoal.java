@@ -5,7 +5,6 @@ import static n643064.zombie_tactics.util.Tactics.getRelativeRotation;
 import n643064.zombie_tactics.attachments.MiningData;
 import n643064.zombie_tactics.Config;
 
-import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,6 +17,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.EnumSet;
 
 
 public class ZombieMineGoal<T extends Monster> extends Goal {
@@ -34,6 +35,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         mine = new MiningData();
         this.zombie = zombie;
         level = zombie.level();
+        setFlags(EnumSet.of(Flag.LOOK));
     }
 
     @Override
@@ -112,7 +114,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         } else {
             level.destroyBlockProgress(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
             zombie.stopInPlace();
-            zombie.lookAt(EntityAnchorArgument.Anchor.EYES, mine.bp.getCenter());
+            zombie.getLookControl().setLookAt(mine.bp.getCenter());
             progress += Config.increment;
             zombie.swing(InteractionHand.MAIN_HAND);
         }

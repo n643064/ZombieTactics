@@ -1,6 +1,7 @@
 package n643064.zombie_tactics.mixin;
 
 import n643064.zombie_tactics.Config;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
