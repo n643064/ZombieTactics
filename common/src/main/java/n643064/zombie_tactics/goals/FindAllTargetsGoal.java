@@ -24,22 +24,20 @@ import java.util.Set;
 // the new improved target finding goal
 public class FindAllTargetsGoal extends TargetGoal {
     public static final List<Pair<LivingEntity, Path>> cache_path = new ArrayList<>();
-    private final List<Class<? extends LivingEntity>> list;
+    private final List<Pair<Class<? extends LivingEntity>, Integer>> list;
     private final List<LivingEntity> imposters = new ArrayList<>();
-    private final int[] priorities;
     private TargetingConditions targetingConditions;
     private int delay;
     private int idx;
     private Task task;
 
     /**
-     * @param priorities specify mobs' priority respectively. its length must be equal or larger than to the target list size.
+     * @param targets Pairs of class and priority
      */
-    public FindAllTargetsGoal(Set<Class<? extends LivingEntity>> targets, Mob mob, int[] priorities, boolean mustSee) {
+    public FindAllTargetsGoal(Set<Pair<Class<? extends LivingEntity>, Integer>> targets, Mob mob, boolean mustSee) {
         super(mob, mustSee);
         setFlags(EnumSet.of(Flag.TARGET));
         list = targets.stream().toList();
-        this.priorities = priorities;
         targetingConditions = TargetingConditions.forCombat().range(Config.followRange).selector(null);
         if(Config.attackInvisible) targetingConditions = targetingConditions.ignoreLineOfSight();
     }
@@ -51,6 +49,7 @@ public class FindAllTargetsGoal extends TargetGoal {
 
     @Override
     public void start() {
+        idx = 0;
         delay = 0;
         task = Task.IDLE;
     }
@@ -59,15 +58,15 @@ public class FindAllTargetsGoal extends TargetGoal {
     public void tick() {
         if(task == Task.IDLE) {
             ++ delay;
-            if(Config.findTargetType == FindTargetType.SIMPLE && delay > 4) task = Task.SEARCH;
+            if(Config.findTargetType == FindTargetType.SIMPLE && delay > 2) task = Task.SEARCH;
             else if(delay > 6) task = Task.SEARCH;
         } else if(task == Task.SEARCH) {
             // simple target finding a target of the specific class per 1 tick
             if(Config.findTargetType == FindTargetType.SIMPLE) {
                 LivingEntity target;
                 var clazz = list.get(idx);
-                if (clazz != Player.class && clazz != ServerPlayer.class) {
-                    target = mob.level().getNearestEntity(clazz, targetingConditions, mob, mob.getX(), mob.getEyeY(), mob.getZ(), followBox());
+                if (clazz.getA() != Player.class && clazz.getA() != ServerPlayer.class) {
+                    target = mob.level().getNearestEntity(clazz.getA(), targetingConditions, mob, mob.getX(), mob.getEyeY(), mob.getZ(), followBox());
                 } else {
                     target = mob.level().getNearestPlayer(targetingConditions, mob, mob.getX(), mob.getEyeY(), mob.getZ());
                 }
@@ -82,9 +81,9 @@ public class FindAllTargetsGoal extends TargetGoal {
                 // and fucking slow
                 for(var sus: list) {
                     List<? extends LivingEntity> imposter2;
-                    if(sus == Player.class || sus == ServerPlayer.class) {
+                    if(sus.getA() == Player.class || sus.getA() == ServerPlayer.class) {
                         imposter2 = mob.level().getNearbyPlayers(targetingConditions, mob, followBox()); // players
-                    } else imposter2 = mob.level().getNearbyEntities(sus, targetingConditions, mob, followBox()); // just mobs
+                    } else imposter2 = mob.level().getNearbyEntities(sus.getA(), targetingConditions, mob, followBox()); // just mobs
                     for(var imposter: imposter2) {
                         if(imposter != null) imposters.add(imposter);
                     }
@@ -144,11 +143,11 @@ public class FindAllTargetsGoal extends TargetGoal {
 
                 // apply priority
                 for(var p: list) {
-                    if(p.isAssignableFrom(amogus.getClass())) break;
+                    if(p.getA().isAssignableFrom(amogus.getClass())) break;
                     ++ idx;
                 }
                 // idx must match the target list unless priorities are invalid
-                score *= priorities[idx];
+                score *= list.get(idx).getB();
 
                 // getting insane
                 if(mob.hasLineOfSight(amogus)) score /= 2;
