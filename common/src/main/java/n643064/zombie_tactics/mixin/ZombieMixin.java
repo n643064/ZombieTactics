@@ -9,20 +9,20 @@ import n643064.zombie_tactics.mining.ZombieMineGoal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Turtle;
-import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
@@ -42,12 +42,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import org.jetbrains.annotations.NotNull;
+
 import oshi.util.tuples.Pair;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.HashSet;
 import java.util.Set;
-
 
 @Mixin(Zombie.class)
 public abstract class ZombieMixin extends Monster implements Plane {
@@ -63,8 +64,6 @@ public abstract class ZombieMixin extends Monster implements Plane {
     @Shadow private int inWaterTime;
     @Shadow public abstract boolean canBreakDoors(); // This just makes path finding
 
-    @Shadow public abstract void addAdditionalSaveData(CompoundTag compound);
-
     public ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
         super(entityType, level);
     }
@@ -78,6 +77,11 @@ public abstract class ZombieMixin extends Monster implements Plane {
             zombieTactics$climbedCount = 0;
         }
         super.checkFallDamage(y, onGround, state, pos);
+    }
+
+    @Override
+    protected float getFlyingSpeed() {
+        return (float)this.getAttributeValue(Attributes.FLYING_SPEED);
     }
 
     // Modifying Attack range
@@ -189,6 +193,12 @@ public abstract class ZombieMixin extends Monster implements Plane {
         return Config.spawnUnderSun? 0: super.getWalkTargetValue(pos, level);
     }
 
+    @Inject(method="createAttributes", at=@At("RETURN"), cancellable=true)
+    private static void createAttributes(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
+        // if a zombie cannot fly, it is just nothing
+        cir.setReturnValue(cir.getReturnValue().add(Attributes.FLYING_SPEED, Config.flySpeed));
+    }
+
     @Inject(method="hurt", at=@At("HEAD"))
     public void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         Entity who = source.getEntity();
@@ -206,11 +216,17 @@ public abstract class ZombieMixin extends Monster implements Plane {
             ++ zombie_tactics$threshold;
         } else zombie_tactics$persistence = false;
         if(zombie_tactics$persistence) this.setPersistenceRequired();
+        if(Config.canFly) {
+            this.moveControl = new FlyingMoveControl(this, 360, true);
+            this.navigation = new FlyingPathNavigation(this, level);
+            Objects.requireNonNull(this.getAttribute(Attributes.FLYING_SPEED)).setBaseValue(Config.flySpeed);
+        }
     }
 
     @Inject(method="tick", at=@At("TAIL"))
     public void tick(CallbackInfo ci) {
         if(!this.canPickUpLoot()) this.setCanPickUpLoot(true);
+        if(Config.canFly) this.fallDistance = 0;
     }
 
     // fixes that doing both mining and attacking
@@ -246,11 +262,12 @@ public abstract class ZombieMixin extends Monster implements Plane {
         if(Config.targetAnimals) zombie_tactics$target_set.add(new Pair<>(Animal.class, 5));
         if(Config.mineBlocks) this.goalSelector.addGoal(1, zombie_tactics$mine_goal = new ZombieMineGoal<>(this));
         if(Config.canFloat) this.goalSelector.addGoal(5, new SelectiveFloatGoal(this));
+        if(Config.canFly) this.goalSelector.addGoal(7, new WaterAvoidingRandomFlyingGoal(this, 1.0));
+        else this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
 
         this.targetSelector.addGoal(3, new FindAllTargetsGoal(zombie_tactics$target_set, this, false));
         this.goalSelector.addGoal(1, new ZombieGoal((Zombie)(Object)this, Config.aggressiveSpeed, true));
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0, false, 4, this::canBreakDoors));
-        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));
         this.goalSelector.addGoal(1, zombie_tactics$bdg = new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
     }

@@ -114,7 +114,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         } else {
             level.destroyBlockProgress(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
             zombie.stopInPlace();
-            zombie.getLookControl().setLookAt(mine.bp.getCenter());
+            zombie.getLookControl().setLookAt(mine.bp_vec3);
             progress += Config.increment;
             zombie.swing(InteractionHand.MAIN_HAND);
         }
@@ -133,15 +133,15 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         Vec3 ord = zombie.position();
         if(!ord.equals(where)) {
             where = ord;
-            return false;
+            // relaxed for flying zombies
+            if(!Config.canFly) return false;
         }
 
         // found path but a zombie stuck
         LivingEntity liv = zombie.getTarget();
         PathNavigation nav = zombie.getNavigation();
 
-        // I think that isStuck always return false
-        if(nav.isDone() && liv != null /*&& nav.isStuck()*/) {
+        if(nav.isDone() && liv != null && nav.getPath() != null && !nav.getPath().canReach()) {
             if(zombie.isWithinMeleeAttackRange(liv) && zombie.hasLineOfSight(liv)) return false;
 
             // why is the path null even though it can reach a target?
@@ -151,9 +151,8 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
             // Issue: moveTo sometimes return false while a zombie can go to the target.
             // It can solve by using the method `hasLineOfSight` but this causes a problem
             // about fences that have 1.5 meters tall.
-            boolean eval = nav.moveTo(liv, zombie.getSpeed());
-            if(eval) return false;
-            BlockPos[] set = getCandidate(liv);
+            if(nav.moveTo(liv, zombie.getSpeed())) return false;
+            final BlockPos[] set = getCandidate(liv);
             int airStack = 0;
 
             for(BlockPos pos: set) {

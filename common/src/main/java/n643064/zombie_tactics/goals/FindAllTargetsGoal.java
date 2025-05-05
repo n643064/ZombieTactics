@@ -70,7 +70,7 @@ public class FindAllTargetsGoal extends TargetGoal {
                 } else {
                     target = mob.level().getNearestPlayer(targetingConditions, mob, mob.getX(), mob.getEyeY(), mob.getZ());
                 }
-                if(target != null && mob.getTarget() != null && mob.distanceToSqr(target) < mob.distanceToSqr(mob.getTarget()) || mob.getTarget() == null) {
+                if(mob.getTarget() == null || target != null && mob.getTarget() != null && mob.distanceToSqr(target) < mob.distanceToSqr(mob.getTarget())) {
                     mob.setTarget(target);
                 }
                 ++ idx;
@@ -123,21 +123,23 @@ public class FindAllTargetsGoal extends TargetGoal {
                     }
                 } else if(Config.findTargetType == FindTargetType.LINEAR) {
                     // using linear function
+                    BlockPos.MutableBlockPos bp = mob.blockPosition().mutable();
                     double len = mob.distanceToSqr(amogus);
-                    int xx = mob.getBlockX();
-                    int yy = mob.getBlockY();
-                    int zz = mob.getBlockZ();
+
                     for(int i = 0; i <= len; ++ i) {
-                        if(!mob.level().getBlockState(new BlockPos((int)(xx + delta.getX() * i / len),
-                                (int)(yy + delta.getY() * i / len), (int)(zz + delta.getZ() * i / len))).isAir())
+                        double cache = i / len;
+                        if(!mob.level().getBlockState(bp.set(delta.getX() * cache,
+                        delta.getY() * cache, delta.getZ() * cache)).isAir())
                             score += Config.blockCost;
                         else ++ score;
                     }
                 } else if(Config.findTargetType == FindTargetType.OVERLOAD) { // no one can endure this overload
-                    Path path = mob.getNavigation().createPath(amogus, 0);
-                    if(path != null) {
-                        score += path.getNodeCount();
-                        if(!path.canReach()) score *= 128;
+                    if(mob.getNavigation().shouldRecomputePath(amogus.blockPosition())) {
+                        Path path = mob.getNavigation().createPath(amogus, 0);
+                        if(path != null) {
+                            score += path.getNodeCount();
+                            if(!path.canReach()) score *= 128;
+                        }
                     }
                 }
 

@@ -42,6 +42,10 @@ public class NeoForgeConfig {
     private static ModConfigSpec.IntValue FOLLOW_RANGE;
     private static ModConfigSpec.EnumValue<FindTargetType> TARGET_TYPE;
     private static ModConfigSpec.BooleanValue SPAWN_UNDER_SUN;
+    private static ModConfigSpec.BooleanValue CAN_FLY;
+    private static ModConfigSpec.DoubleValue FLY_SPEED;
+
+    private static ModConfigSpec.BooleanValue SHOW_NODES;
 
     static final ModConfigSpec SPEC = BUILDER.getRight();
 
@@ -75,6 +79,10 @@ public class NeoForgeConfig {
         Config.followRange = FOLLOW_RANGE.get();
         Config.findTargetType = TARGET_TYPE.get();
         Config.spawnUnderSun = SPAWN_UNDER_SUN.get();
+        Config.canFly = CAN_FLY.get();
+        Config.flySpeed = FLY_SPEED.get();
+
+        Config.showNodes = SHOW_NODES.get();
     }
 
     /*
@@ -114,6 +122,10 @@ public class NeoForgeConfig {
             FOLLOW_RANGE = b.translation(MOD_CFG + "follow_range").defineInRange("followRange", Config.followRange, 1, 128);
             TARGET_TYPE = b.translation(MOD_CFG + "find_target_type").defineEnum("findTargetType", Config.findTargetType);
             b.pop();
+            b.push("Flying");
+            CAN_FLY = b.translation(MOD_CFG + "can_fly").define("canFly", Config.canFly);
+            FLY_SPEED = b.translation(MOD_CFG + "fly_speed").defineInRange("flySpeed", Config.flySpeed, 0, 32);
+            b.pop();
             b.push("General");
             HEAL_AMOUNT = b.comment("The amount of heal when a zombie attacks somewhat").translation(MOD_CFG + "heal_amount").defineInRange("healAmount", Config.healAmount, 0, 1024);
             ATTACK_COOLDOWN = b.comment("Interval ticks to attack").translation(MOD_CFG + "attack_cooldown").defineInRange("attackCooldown", Config.attackCooldown, 1, 1000);
@@ -123,6 +135,9 @@ public class NeoForgeConfig {
             ATTACK_RANGE = b.comment("Zombie attack range").translation(MOD_CFG + "attack_range").defineInRange("", Config.attackRange, 0.25, 127.);
             ATTACK_INVISIBLE = b.comment("Does animal targeting require line of sight").translation(MOD_CFG + "attack_invisible").define("targetVisibilityCheck", Config.attackInvisible);
             CAN_FLOAT = b.translation(MOD_CFG + "can_float").define("canFloat", Config.canFloat);
+            b.pop();
+            b.push("Debug");
+            SHOW_NODES = b.define("showNodes", Config.showNodes);
             b.pop();
         }
     }

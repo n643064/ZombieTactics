@@ -5,6 +5,8 @@
     "zombie_tactics.configuration.General": "General",
     "zombie_tactics.configuration.Spawn": "Spawn",
     "zombie_tactics.configuration.Targeting": "Targeting",
+    "zombie_tactics.configuration.Flying": "Flying",
+    "zombie_tactics.configuration.Debug": "Debug",
 
 
 
@@ -86,5 +88,14 @@
     "zombie_tactics.midnightconfig.enum.FindTargetType.INTENSIVE": "Intensive",
     "zombie_tactics.midnightconfig.enum.FindTargetType.INTENSIVE.tooltip": "Intensive search but moderated for performance, so may be inaccurate",
     "zombie_tactics.midnightconfig.enum.FindTargetType.OVERLOAD": "Overload",
-    "zombie_tactics.midnightconfig.enum.FindTargetType.OVERLOAD.tooltip": "Full calculation without moderation, and it is not recommended"
+    "zombie_tactics.midnightconfig.enum.FindTargetType.OVERLOAD.tooltip": "Full calculation without moderation, and it is not recommended",
+
+    "zombie_tactics.midnightconfig.category.Flying": "Flying",
+    "zombie_tactics.midnightconfig.can_fly": "Can fly",
+    "zombie_tactics.midnightconfig.can_fly.tooltip": "Zombies can fly",
+    "zombie_tactics.midnightconfig.fly_speed": "Flying speed",
+    "zombie_tactics.midnightconfig.fly_speed.tooltip": "Flying speed of zombies",
+
+    "zombie_tactics.midnightconfig.category.Debug": "Debug",
+    "zombie_tactics.midnightconfig.category.Debug.tooltip": "Debug tab. It's not recommended to change if you are not a developer"
 }

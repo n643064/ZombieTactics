@@ -15,25 +15,30 @@ public class Config {
             canFloat = false,
             hyperClimbing = false,
             jumpBlock = true,
-            spawnUnderSun = false;
+            spawnUnderSun = false,
+            canFly = false;
 
     public static double increment = 0.2,
             maxHardness = 4.5,
             hardnessMultiplier = 5,
             climbingSpeed = 0.3,
             minDist = 0.2,
-            maxDist = 32,
+            maxDist = 8,
             healAmount = 0,
             aggressiveSpeed = 1,
             attackRange = Math.sqrt(2.04) - 0.6, // from BoundingBox code
             persistenceChance = 0,
-            jumpAcceleration = 0.3;
+            jumpAcceleration = 0.3,
+            flySpeed = 0.14;
 
     public static int attackCooldown = 20,
             maxThreshold = 384,
             blockCost = 5,
             climbLimitTicks = 120,
             followRange = 40;
+
+    // debugging
+    public static boolean showNodes = false;
 
     public static FindTargetType findTargetType = FindTargetType.SIMPLE;
 }

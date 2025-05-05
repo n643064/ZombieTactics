@@ -15,6 +15,8 @@ public class FabricConfig extends MidnightConfig {
     public static final String SPAWN = "Spawn";
     public static final String TARGETING = "Targeting";
     public static final String GENERAL = "General";
+    public static final String FLYING = "Flying";
+    public static final String DEBUG = "Debug";
 
     // category shuffled because I sorted it to the types
     // which is better?
@@ -29,6 +31,7 @@ public class FabricConfig extends MidnightConfig {
     @Entry(category=CLIMBING) public static boolean jump_block = Config.jumpBlock;
     @Entry(category=CLIMBING) public static boolean hyper_climbing = Config.hyperClimbing;
     @Entry(category=SPAWN) public static boolean spawn_under_sun = Config.spawnUnderSun;
+    @Entry(category=FLYING) public static boolean can_fly = Config.canFly;
 
     @Entry(category=MINING, min=0) public static double mining_speed = Config.increment;
     @Entry(category=MINING, min=0) public static double max_hardness = Config.maxHardness;
@@ -41,6 +44,7 @@ public class FabricConfig extends MidnightConfig {
     @Entry(category=GENERAL, min=0.25, max=127) public static double attack_range = Config.attackRange;
     @Entry(category=SPAWN, min=0, max=1) public static double persistence_chance = Config.persistenceChance;
     @Entry(category=GENERAL, min=0, max=128) public static double jump_acceleration = Config.jumpAcceleration;
+    @Entry(category=FLYING, min=0, max=32) public static double fly_speed = Config.flySpeed;
 
     @Entry(category=GENERAL, min=1, max=1000) public static int attack_cooldown = Config.attackCooldown;
     @Entry(category=SPAWN, min=0, max=Integer.MAX_VALUE) public static int max_threshold = Config.maxThreshold;
@@ -49,6 +53,10 @@ public class FabricConfig extends MidnightConfig {
     @Entry(category=TARGETING, min=1, max=128) public static int follow_range = Config.followRange;
 
     @Entry(category=TARGETING) public static FindTargetType find_target_type = Config.findTargetType;
+
+
+    // debugging
+    @Entry(category=DEBUG) public static boolean show_nodes = Config.showNodes;
 
     // fabric fields do nothing without the update of config
     public static void updateConfig() {
@@ -63,6 +71,7 @@ public class FabricConfig extends MidnightConfig {
         Config.hyperClimbing = hyper_climbing;
         Config.jumpBlock = jump_block;
         Config.spawnUnderSun = spawn_under_sun;
+        Config.canFly = can_fly;
 
         Config.increment = mining_speed;
         Config.maxHardness = max_hardness;
@@ -75,6 +84,7 @@ public class FabricConfig extends MidnightConfig {
         Config.attackRange = attack_range;
         Config.persistenceChance = persistence_chance;
         Config.jumpAcceleration = jump_acceleration;
+        Config.flySpeed = fly_speed;
 
         Config.attackCooldown = attack_cooldown;
         Config.maxThreshold = max_threshold;
@@ -83,6 +93,8 @@ public class FabricConfig extends MidnightConfig {
         Config.followRange = follow_range;
 
         Config.findTargetType = find_target_type;
+
+        Config.showNodes = show_nodes;
     }
 
     @Override
