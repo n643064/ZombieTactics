@@ -24,7 +24,7 @@ public class ZombieGoal extends ZombieAttackGoal {
 
     public ZombieGoal(Zombie zombie, double speedModifier, boolean followingTargetEvenIfNotSeen) {
         super(zombie, speedModifier, followingTargetEvenIfNotSeen);
-        this.setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
+        this.setFlags(EnumSet.of(Flag.MOVE));
         mob = zombie;
     }
 

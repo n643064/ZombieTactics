@@ -122,6 +122,9 @@ public class FindAllTargetsGoal extends TargetGoal {
                         if(!path.canReach()) score *= 128;
                     }
                 } else if(Config.findTargetType == FindTargetType.LINEAR) {
+                    // drop some targets
+                    if(mob.getRandom().nextInt(100) < 30) continue;
+
                     // using linear function
                     BlockPos.MutableBlockPos bp = mob.blockPosition().mutable();
                     double len = mob.distanceToSqr(amogus);
@@ -166,7 +169,7 @@ public class FindAllTargetsGoal extends TargetGoal {
             }
             //System.out.println(mob.getId() + ": " + mob.canPickUpLoot());
             // set target
-            mob.setTarget(target);
+            if(target != null) mob.setTarget(target);
             imposters.clear();
             task = Task.IDLE;
         }

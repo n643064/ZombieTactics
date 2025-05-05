@@ -129,6 +129,7 @@ public abstract class ZombieMixin extends Monster implements Plane {
     @Override
     public boolean zombie_tactics$getBool(int id) {
         if(id == 0) {
+            if(zombie_tactics$mine_goal == null) return false;
             return zombie_tactics$mine_goal.mine.doMining;
         }
         return false;
