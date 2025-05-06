@@ -237,7 +237,6 @@ public abstract class ZombieMixin extends Monster implements Plane {
     public void tick(CallbackInfo ci) {
         if(!this.canPickUpLoot()) this.setCanPickUpLoot(true);
         if(Config.canFly) this.fallDistance = 0;
-        this.setNoActionTime(0);
     }
 
     // fixes that doing both mining and attacking
