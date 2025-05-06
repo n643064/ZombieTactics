@@ -12,15 +12,15 @@ public class Config {
             sunSensitive = true,
             noMercy = false,
             attackInvisible = false,
-            canFloat = false,
+            canFloat = true,
             hyperClimbing = false,
             jumpBlock = true,
             spawnUnderSun = false,
-            canFly = false;
+            canFly = false; // overpowered
 
-    public static double increment = 0.2,
+    public static double break_speed = 0.2,
             maxHardness = 4.5,
-            hardnessMultiplier = 5,
+            hardnessMultiplier = 10,
             climbingSpeed = 0.3,
             minDist = 0.2,
             maxDist = 8,
@@ -29,13 +29,15 @@ public class Config {
             attackRange = Math.sqrt(2.04) - 0.6, // from BoundingBox code
             persistenceChance = 0,
             jumpAcceleration = 0.3,
-            flySpeed = 0.14;
+            flySpeed = 0.10;
 
     public static int attackCooldown = 20,
             maxThreshold = 384,
             blockCost = 5,
             climbLimitTicks = 120,
-            followRange = 40;
+            followRange = 40,
+            accuracy = 1,
+            pickupRange = 8;
 
     // debugging
     public static boolean showNodes = false;

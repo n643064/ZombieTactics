@@ -28,6 +28,7 @@ public class MiningRoutines {
             new BlockPos(-1, 1, 0),
             new BlockPos(1, 1, 0),
             new BlockPos(0, 1, -1),
+            new BlockPos(0, 1, 0),
 
             // Y = 2
             new BlockPos(0, 2, 0),
@@ -41,6 +42,7 @@ public class MiningRoutines {
             new BlockPos(-1, 0, 0),
             new BlockPos(1, 0, 0),
             new BlockPos(0, 0, -1),
+            new BlockPos(0, 0, 0),
 
             // Y = -1
             //new BlockPos(0, -1, 0),
@@ -52,12 +54,14 @@ public class MiningRoutines {
             new BlockPos(-1, 1, 0),
             new BlockPos(1, 1, 0),
             new BlockPos(0, 1, -1),
+            new BlockPos(0, 1, 0),
 
             // Y = 0
             new BlockPos(0, 0, 1),
             new BlockPos(-1, 0, 0),
             new BlockPos(1, 0, 0),
             new BlockPos(0, 0, -1),
+            new BlockPos(0, 0, 0),
 
             // Y = 2
             new BlockPos(0, 2, 0),
@@ -76,12 +80,14 @@ public class MiningRoutines {
             new BlockPos(-1, 1, 0),
             new BlockPos(1, 1, 0),
             new BlockPos(0, 1, -1),
+            new BlockPos(0, 1, 0),
 
             // Y = 0
             new BlockPos(0, 0, 1),
             new BlockPos(-1, 0, 0),
             new BlockPos(1, 0, 0),
             new BlockPos(0, 0, -1),
+            new BlockPos(0, 0, 0),
 
             // Y = 2
             new BlockPos(0, 2, 0),

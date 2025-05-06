@@ -1,6 +1,7 @@
 package n643064.zombie_tactics.mixin;
 
 import n643064.zombie_tactics.Config;
+import n643064.zombie_tactics.goals.GoToWantedItemGoal;
 import n643064.zombie_tactics.goals.ZombieGoal;
 import n643064.zombie_tactics.goals.FindAllTargetsGoal;
 import n643064.zombie_tactics.goals.SelectiveFloatGoal;
@@ -9,6 +10,7 @@ import n643064.zombie_tactics.mining.ZombieMineGoal;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -25,10 +27,7 @@ import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,14 +44,14 @@ import org.jetbrains.annotations.NotNull;
 
 import oshi.util.tuples.Pair;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
-import java.util.HashSet;
-import java.util.Set;
+
 
 @Mixin(Zombie.class)
 public abstract class ZombieMixin extends Monster implements Plane {
-    @Unique private static final Set<Pair<Class<? extends LivingEntity>, Integer>> zombie_tactics$target_set = new HashSet<>();
+    @Unique private static final List<Pair<Class<? extends LivingEntity>, Integer>> zombie_tactics$target_priority = new ArrayList<>();
+    @Unique private static final Set<Class<? extends LivingEntity>> zombie_tactics$target_class = new HashSet<>();
     @Unique private static int zombie_tactics$threshold = 0;
     @Unique private ZombieMineGoal<? extends Monster> zombie_tactics$mine_goal;
     @Unique private BreakDoorGoal zombie_tactics$bdg;
@@ -63,6 +62,7 @@ public abstract class ZombieMixin extends Monster implements Plane {
     @Final @Shadow private static Predicate<Difficulty> DOOR_BREAKING_PREDICATE;
     @Shadow private int inWaterTime;
     @Shadow public abstract boolean canBreakDoors(); // This just makes path finding
+    @Shadow public abstract void readAdditionalSaveData(CompoundTag compound);
 
     public ZombieMixin(EntityType<? extends Zombie> entityType, Level level) {
         super(entityType, level);
@@ -106,22 +106,15 @@ public abstract class ZombieMixin extends Monster implements Plane {
 
     @Override
     public int getMaxSpawnClusterSize() {
-        return 64; // I think, the bigger the number is the better
-    }
-
-    // not to despawn
-    @Override
-    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
-        if(zombie_tactics$persistence) return false;
-        else return super.removeWhenFarAway(distanceToClosestPlayer);
+        return 32; // I think, the bigger the number is the better
     }
 
     @Override
     public int zombie_tactics$getInt(int id) {
         // inWaterTime
-        if(id == 0) {
-            return inWaterTime;
-        }
+        if(id == 0) return inWaterTime;
+        if(id == 1) return zombieTactics$climbedCount;
+
         // nothing else
         return 0;
     }
@@ -145,14 +138,26 @@ public abstract class ZombieMixin extends Monster implements Plane {
     @Override
     public boolean wantsToPickUp(@NotNull ItemStack stack) {
         Item item = stack.getItem();
-        if(item instanceof SwordItem s) {
-            if(s.getTier().getAttackDamageBonus() > this.getMainHandItem().getDamageValue()) return true;
-        } else if(item instanceof ArmorItem armor) {
-            if(armor.getDefense() > this.getArmorValue()) return true;
+        // selecting a weapon
+        if(item instanceof TieredItem s) {
+            Item my = this.getMainHandItem().getItem();
+            if(my instanceof TieredItem my_weapon) {
+                return s.getTier().getAttackDamageBonus() > my_weapon.getTier().getAttackDamageBonus();
+            } else return this.getMainHandItem().is(Items.AIR); // if I don't have a weapon
+        } else if(item instanceof ArmorItem armor) { // selecting an armor
+            Item ii;
+            for(var x: this.getArmorSlots()) {
+                ii = x.getItem();
+                if(ii instanceof ArmorItem my_armor) {
+                    if(my_armor.getEquipmentSlot() == armor.getEquipmentSlot()) {
+                        if(my_armor.getDefense() < armor.getDefense()) return true;
+                        else break;
+                    }
+                } else if(x.is(Items.AIR)) return true; // if I don't have any armor
+            }
         }
-        return super.wantsToPickUp(stack);
+        return false;
     }
-
 
     @Override
     public boolean isPersistenceRequired() {
@@ -166,7 +171,9 @@ public abstract class ZombieMixin extends Monster implements Plane {
                 (horizontalCollision || Config.hyperClimbing) && !((Plane)zombie_tactics$bdg).zombie_tactics$getBool(0)) {
             if(zombieTactics$climbedCount < 120) {
                 final Vec3 v = getDeltaMovement();
-                setDeltaMovement(v.x, Config.climbingSpeed, v.z);
+                // climb with random error
+                setDeltaMovement(v.x + (this.getRandom().nextDouble() - 0.5) / 64,
+                        Config.climbingSpeed, v.z + (this.getRandom().nextDouble() - 0.5) / 64);
                 zombieTactics$isClimbing = true;
                 ++ zombieTactics$climbedCount;
             }
@@ -204,8 +211,9 @@ public abstract class ZombieMixin extends Monster implements Plane {
     public void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         Entity who = source.getEntity();
         // new blacklist
-        if(who instanceof PathfinderMob mob && !(who instanceof Monster)) {
-            zombie_tactics$target_set.add(new Pair<>(mob.getClass(), 3));
+        if(who instanceof PathfinderMob mob && !(who instanceof Monster) && !zombie_tactics$target_class.contains(who.getClass())) {
+            zombie_tactics$target_priority.add(new Pair<>(mob.getClass(), 3));
+            zombie_tactics$target_class.add(mob.getClass());
         }
     }
 
@@ -216,8 +224,9 @@ public abstract class ZombieMixin extends Monster implements Plane {
         if(zombie_tactics$persistence && zombie_tactics$threshold < Config.maxThreshold) {
             ++ zombie_tactics$threshold;
         } else zombie_tactics$persistence = false;
-        if(zombie_tactics$persistence) this.setPersistenceRequired();
-        if(Config.canFly) {
+
+        if(zombie_tactics$persistence) this.setPersistenceRequired(); // I'm persistent
+        if(Config.canFly) { // I can fly
             this.moveControl = new FlyingMoveControl(this, 360, true);
             this.navigation = new FlyingPathNavigation(this, level);
             Objects.requireNonNull(this.getAttribute(Attributes.FLYING_SPEED)).setBaseValue(Config.flySpeed);
@@ -228,6 +237,7 @@ public abstract class ZombieMixin extends Monster implements Plane {
     public void tick(CallbackInfo ci) {
         if(!this.canPickUpLoot()) this.setCanPickUpLoot(true);
         if(Config.canFly) this.fallDistance = 0;
+        this.setNoActionTime(0);
     }
 
     // fixes that doing both mining and attacking
@@ -260,23 +270,33 @@ public abstract class ZombieMixin extends Monster implements Plane {
      */
     @Overwrite
     public void addBehaviourGoals() {
-        if(Config.targetAnimals) zombie_tactics$target_set.add(new Pair<>(Animal.class, 5));
+        // inserting new instance of Pair in HashSet is not a good idea
+        if(Config.targetAnimals && !zombie_tactics$target_class.contains(Animal.class)) {
+            zombie_tactics$target_priority.add(new Pair<>(Animal.class, 5));
+            zombie_tactics$target_class.add(Animal.class);
+        }
         if(Config.mineBlocks) this.goalSelector.addGoal(1, zombie_tactics$mine_goal = new ZombieMineGoal<>(this));
         if(Config.canFloat) this.goalSelector.addGoal(5, new SelectiveFloatGoal(this));
         if(Config.canFly) this.goalSelector.addGoal(7, new WaterAvoidingRandomFlyingGoal(this, 1.0));
         else this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
 
-        this.targetSelector.addGoal(3, new FindAllTargetsGoal(zombie_tactics$target_set, this, false));
+        this.targetSelector.addGoal(3, new FindAllTargetsGoal(zombie_tactics$target_priority, this, false));
         this.goalSelector.addGoal(1, new ZombieGoal((Zombie)(Object)this, Config.aggressiveSpeed, true));
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0, false, 4, this::canBreakDoors));
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));
         this.goalSelector.addGoal(1, zombie_tactics$bdg = new BreakDoorGoal(this, DOOR_BREAKING_PREDICATE));
+        this.goalSelector.addGoal(6, new GoToWantedItemGoal(this, this::wantsToPickUp));
     }
 
     static {
-        zombie_tactics$target_set.add(new Pair<>(Player.class, 2));
-        zombie_tactics$target_set.add(new Pair<>(AbstractVillager.class, 3));
-        zombie_tactics$target_set.add(new Pair<>(IronGolem.class, 3));
-        zombie_tactics$target_set.add(new Pair<>(Turtle.class, 3));
+        zombie_tactics$target_priority.add(new Pair<>(Player.class, 2));
+        zombie_tactics$target_priority.add(new Pair<>(AbstractVillager.class, 3));
+        zombie_tactics$target_priority.add(new Pair<>(IronGolem.class, 3));
+        zombie_tactics$target_priority.add(new Pair<>(Turtle.class, 3));
+
+        zombie_tactics$target_class.add(Player.class);
+        zombie_tactics$target_class.add(AbstractVillager.class);
+        zombie_tactics$target_class.add(IronGolem.class);
+        zombie_tactics$target_class.add(Turtle.class);
     }
 }

@@ -44,6 +44,8 @@ public class NeoForgeConfig {
     private static ModConfigSpec.BooleanValue SPAWN_UNDER_SUN;
     private static ModConfigSpec.BooleanValue CAN_FLY;
     private static ModConfigSpec.DoubleValue FLY_SPEED;
+    private static ModConfigSpec.IntValue PATH_ACCURACY;
+    private static ModConfigSpec.IntValue PICKUP_RANGE;
 
     private static ModConfigSpec.BooleanValue SHOW_NODES;
 
@@ -57,7 +59,7 @@ public class NeoForgeConfig {
         Config.dropBlocks = DROP_BROKEN_BLOCKS.get();
         Config.targetAnimals = TARGET_ANIMALS.get();
         Config.attackInvisible = ATTACK_INVISIBLE.get();
-        Config.increment = MINING_SPEED.get();
+        Config.break_speed = MINING_SPEED.get();
         Config.maxHardness = MAX_HARDNESS.get();
         Config.hardnessMultiplier = HARDNESS_MULTIPLIER.get();
         Config.zombiesClimbing = ZOMBIE_CLIMBING.get();
@@ -81,8 +83,9 @@ public class NeoForgeConfig {
         Config.spawnUnderSun = SPAWN_UNDER_SUN.get();
         Config.canFly = CAN_FLY.get();
         Config.flySpeed = FLY_SPEED.get();
-
         Config.showNodes = SHOW_NODES.get();
+        Config.accuracy = PATH_ACCURACY.get();
+        Config.pickupRange = PICKUP_RANGE.get();
     }
 
     /*
@@ -92,16 +95,13 @@ public class NeoForgeConfig {
     public static class build {
         static final String MOD_CFG = Main.MOD_ID + ".midnightconfig.";
         public build(ModConfigSpec.Builder b) {
-            b.push("Animals");
-            TARGET_ANIMALS = b.comment("Should zombies target animals").translation(MOD_CFG + "do_hurt_animals").define("zombiesTargetAnimals", Config.targetAnimals);
-            b.pop();
             b.push("Mining");
             MINE_BLOCKS = b.comment("Should zombies attempt to break blocks in their way").translation(MOD_CFG + "do_mine").define("zombiesMineBlocks", Config.mineBlocks);
+            MINING_SPEED = b.comment("The amount of mining progress made per tick").translation(MOD_CFG + "mining_speed").defineInRange("miningSpeed", Config.break_speed, 0, Double.MAX_VALUE);
             MIN_DISTANCE = b.comment("Min distance for mining").translation(MOD_CFG + "min_mine_dist").defineInRange("minDistForMining", Config.minDist, 0, Double.MAX_VALUE);
             MAX_DISTANCE = b.comment("Max distance for mining").translation(MOD_CFG + "max_mine_dist").defineInRange("maxDistForMining", Config.maxDist, 0, Double.MAX_VALUE);
-            DROP_BROKEN_BLOCKS = b.comment("Should broken blocks be dropped").translation(MOD_CFG + "drop_blocks").define("dropBrokenBlocks", Config.dropBlocks);
-            MINING_SPEED = b.comment("The amount of mining progress made per tick").translation(MOD_CFG + "mining_speed").defineInRange("miningSpeed", Config.increment, 0, Double.MAX_VALUE);
             MAX_HARDNESS = b.comment("The maximum hardness of targeted blocks. For example, Iron block is 5").translation(MOD_CFG + "max_hardness").defineInRange("maxHardness", Config.maxHardness, 0, Double.MAX_VALUE);
+            DROP_BROKEN_BLOCKS = b.comment("Should broken blocks be dropped").translation(MOD_CFG + "drop_blocks").define("dropBrokenBlocks", Config.dropBlocks);
             HARDNESS_MULTIPLIER = b.comment("Target block hardness multiplier, and doesn't affect block selection. Mining progress = hardnessMultiplier * block hardness").translation(MOD_CFG + "hardness_multiplier").defineInRange("hardnessMultiplier", Config.hardnessMultiplier, 0, Double.MAX_VALUE);
             b.pop();
             b.push("Climbing");
@@ -116,11 +116,15 @@ public class NeoForgeConfig {
             SPAWN_UNDER_SUN = b.translation(MOD_CFG + "spawn_under_sun").define("spawnUnderSun", Config.spawnUnderSun);
             b.pop();
             b.push("Targeting");
-            JUMP_BLOCK = b.translation(MOD_CFG + "jump_block").define("jumpBlock", Config.jumpBlock);
+            TARGET_ANIMALS = b.comment("Should zombies target animals").translation(MOD_CFG + "do_hurt_animals").define("zombiesTargetAnimals", Config.targetAnimals);
             BLOCK_COST = b.translation(MOD_CFG + "block_cost").defineInRange("blockCost", Config.blockCost, 1, 65536);
-            JUMP_ACCELERATION = b.translation(MOD_CFG + "jump_acceleration").defineInRange("jumpAcceleration", Config.jumpAcceleration, 0, 128);
             FOLLOW_RANGE = b.translation(MOD_CFG + "follow_range").defineInRange("followRange", Config.followRange, 1, 128);
             TARGET_TYPE = b.translation(MOD_CFG + "find_target_type").defineEnum("findTargetType", Config.findTargetType);
+            ATTACK_RANGE = b.comment("Zombie attack range").translation(MOD_CFG + "attack_range").defineInRange("", Config.attackRange, 0.25, 127.);
+            ATTACK_INVISIBLE = b.comment("Does animal targeting require line of sight").translation(MOD_CFG + "attack_invisible").define("targetVisibilityCheck", Config.attackInvisible);
+            b.pop();
+            b.push("Optimize");
+            PATH_ACCURACY = b.translation(MOD_CFG + "accuracy").defineInRange("pathAccuracy", Config.accuracy, 0, 95);
             b.pop();
             b.push("Flying");
             CAN_FLY = b.translation(MOD_CFG + "can_fly").define("canFly", Config.canFly);
@@ -132,9 +136,10 @@ public class NeoForgeConfig {
             AGGRESSIVE_SPEED = b.comment("Walk speed when a zombie is mad").translation(MOD_CFG + "aggressive_speed").defineInRange("aggressiveSpeed", Config.aggressiveSpeed, 0.01, 128);
             SUN_SENSITIVE = b.comment("Zombie is sensitive to the sun").translation(MOD_CFG + "sun_sensitive").define("sunSensitive", Config.sunSensitive);
             NO_MERCY = b.comment("Target entity").translation(MOD_CFG + "no_mercy").define("noMercy", Config.noMercy);
-            ATTACK_RANGE = b.comment("Zombie attack range").translation(MOD_CFG + "attack_range").defineInRange("", Config.attackRange, 0.25, 127.);
-            ATTACK_INVISIBLE = b.comment("Does animal targeting require line of sight").translation(MOD_CFG + "attack_invisible").define("targetVisibilityCheck", Config.attackInvisible);
             CAN_FLOAT = b.translation(MOD_CFG + "can_float").define("canFloat", Config.canFloat);
+            JUMP_ACCELERATION = b.translation(MOD_CFG + "jump_acceleration").defineInRange("jumpAcceleration", Config.jumpAcceleration, 0, 128);
+            JUMP_BLOCK = b.translation(MOD_CFG + "jump_block").define("jumpBlock", Config.jumpBlock);
+            PICKUP_RANGE = b.translation(MOD_CFG + "pickup_range").defineInRange("pickupRange", Config.pickupRange, 0, 128);
             b.pop();
             b.push("Debug");
             SHOW_NODES = b.define("showNodes", Config.showNodes);

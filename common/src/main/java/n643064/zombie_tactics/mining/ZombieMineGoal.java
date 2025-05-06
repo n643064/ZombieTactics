@@ -14,7 +14,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -24,12 +23,8 @@ import java.util.EnumSet;
 public class ZombieMineGoal<T extends Monster> extends Goal {
     private final T zombie;
     private final Level level;
-    private double progress, hardness = Double.MAX_VALUE;
-
-    // These are constant unless a target is changed
-    private Vec3 where;
-
     public final MiningData mine;
+    private double progress, hardness = Double.MAX_VALUE;
 
     public ZombieMineGoal(T zombie) {
         mine = new MiningData();
@@ -73,7 +68,6 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
             mine.doMining = true;
             mine.bp = pos;
             mine.bp_vec3 = pos.getCenter();
-            where = pos.getCenter();
             return true;
         }
         return false;
@@ -115,14 +109,14 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
             level.destroyBlockProgress(zombie.getId(), mine.bp, (int) ((progress / hardness) * 10));
             zombie.stopInPlace();
             zombie.getLookControl().setLookAt(mine.bp_vec3);
-            progress += Config.increment;
+            progress += Config.break_speed;
             zombie.swing(InteractionHand.MAIN_HAND);
         }
     }
 
     @Override
     public boolean canContinueToUse() {
-        return mine.doMining && zombie.distanceToSqr(where) <= Config.maxDist;
+        return mine.doMining && zombie.distanceToSqr(mine.bp_vec3) <= Config.maxDist * Config.maxDist;
     }
 
     @Override
@@ -130,9 +124,7 @@ public class ZombieMineGoal<T extends Monster> extends Goal {
         if(zombie.isNoAi() || !zombie.isAlive()) return false;
         // a zombie should be stuck
         // check availability of the mining
-        Vec3 ord = zombie.position();
-        if(!ord.equals(where)) {
-            where = ord;
+        if(zombie.getDeltaMovement().length() < 0.05) {
             // relaxed for flying zombies
             if(!Config.canFly) return false;
         }

@@ -2,12 +2,14 @@ package n643064.zombie_tactics.goals;
 
 import static n643064.zombie_tactics.util.Tactics.*;
 import n643064.zombie_tactics.Config;
+import n643064.zombie_tactics.impl.Plane;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
@@ -54,7 +56,9 @@ public class ZombieGoal extends ZombieAttackGoal {
 
         // keeping delta movement when jumping except delta y(gravity)
         if(mob.onGround()) jumping = false;
-        if(jumping) mob.setDeltaMovement(delta.x, mob.getDeltaMovement().y, delta.z);
+        // when I'm jumping and not climbing
+        if(jumping && ((Plane)mob).zombie_tactics$getInt(1) == 0)
+            mob.setDeltaMovement(delta.x, mob.getDeltaMovement().y, delta.z);
 
         // jump a block
         if(Config.jumpBlock && !mob.isWithinMeleeAttackRange(mob.getTarget()) && mob.getNavigation().isDone()) {
@@ -70,10 +74,11 @@ public class ZombieGoal extends ZombieAttackGoal {
                     |    |____|    |
                  */
                 for(int i = 0; i < 5; ++ i) {
-                    if(!mob.level().isEmptyBlock(pos)) {
+                    // also it jumps over lava
+                    if(!mob.level().isEmptyBlock(pos) && !mob.level().getBlockState(pos).is(Blocks.LAVA)) {
                         airs = false;
                         break;
-                    }
+                    } else if(mob.level().getBlockState(pos).is(Blocks.LAVA)) break;
                     if(i != 4) pos = pos.below();
                 }
                 // this algorithm should be improved

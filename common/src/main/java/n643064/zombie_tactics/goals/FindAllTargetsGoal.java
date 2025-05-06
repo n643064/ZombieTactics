@@ -18,7 +18,6 @@ import oshi.util.tuples.Pair;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 
 // the new improved target finding goal
@@ -34,10 +33,10 @@ public class FindAllTargetsGoal extends TargetGoal {
     /**
      * @param targets Pairs of class and priority
      */
-    public FindAllTargetsGoal(Set<Pair<Class<? extends LivingEntity>, Integer>> targets, Mob mob, boolean mustSee) {
+    public FindAllTargetsGoal(List<Pair<Class<? extends LivingEntity>, Integer>> targets, Mob mob, boolean mustSee) {
         super(mob, mustSee);
         setFlags(EnumSet.of(Flag.TARGET));
-        list = targets.stream().toList();
+        list = targets;
         targetingConditions = TargetingConditions.forCombat().range(Config.followRange).selector(null);
         if(Config.attackInvisible) targetingConditions = targetingConditions.ignoreLineOfSight();
     }
@@ -58,7 +57,7 @@ public class FindAllTargetsGoal extends TargetGoal {
     public void tick() {
         if(task == Task.IDLE) {
             ++ delay;
-            if(Config.findTargetType == FindTargetType.SIMPLE && delay > 2) task = Task.SEARCH;
+            if(Config.findTargetType == FindTargetType.SIMPLE && delay > 4) task = Task.SEARCH;
             else if(delay > 6) task = Task.SEARCH;
         } else if(task == Task.SEARCH) {
             // simple target finding a target of the specific class per 1 tick
@@ -114,7 +113,7 @@ public class FindAllTargetsGoal extends TargetGoal {
                     }
                     if(!found) {
                         // use cache to prevent overloading
-                        path = mob.getNavigation().createPath(amogus, 0);
+                        path = mob.getNavigation().createPath(amogus, Config.accuracy);
                         cache_path.add(new Pair<>(amogus, path));
                     }
                     if(path != null) {
@@ -122,23 +121,19 @@ public class FindAllTargetsGoal extends TargetGoal {
                         if(!path.canReach()) score *= 128;
                     }
                 } else if(Config.findTargetType == FindTargetType.LINEAR) {
-                    // drop some targets
-                    if(mob.getRandom().nextInt(100) < 30) continue;
-
                     // using linear function
                     BlockPos.MutableBlockPos bp = mob.blockPosition().mutable();
-                    double len = mob.distanceToSqr(amogus);
+                    double len = mob.distanceTo(amogus);
 
                     for(int i = 0; i <= len; ++ i) {
                         double cache = i / len;
-                        if(!mob.level().getBlockState(bp.set(delta.getX() * cache,
-                        delta.getY() * cache, delta.getZ() * cache)).isAir())
+                        if(!mob.level().getBlockState(bp.set(delta.getX() * cache, delta.getY() * cache, delta.getZ() * cache)).isAir())
                             score += Config.blockCost;
                         else ++ score;
                     }
                 } else if(Config.findTargetType == FindTargetType.OVERLOAD) { // no one can endure this overload
                     if(mob.getNavigation().shouldRecomputePath(amogus.blockPosition())) {
-                        Path path = mob.getNavigation().createPath(amogus, 0);
+                        Path path = mob.getNavigation().createPath(amogus, Config.accuracy);
                         if(path != null) {
                             score += path.getNodeCount();
                             if(!path.canReach()) score *= 128;
@@ -156,7 +151,7 @@ public class FindAllTargetsGoal extends TargetGoal {
 
                 // getting insane
                 if(mob.hasLineOfSight(amogus)) score /= 2;
-                if(delta.getY() >= -2) score /= 2;
+                if(delta.getY() >= - 2) score /= 2;
 
                 // for debug
                 //amogus.setCustomName(Component.literal("" + score));

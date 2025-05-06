@@ -1,6 +1,6 @@
 # Zombie Tactics Mod for Minecraft
 ## Information
-- Version: 1.3.0
+- Version: 2.0.0
 ## Requirements
 - Minecraft 1.21.1
 - Architectury API
