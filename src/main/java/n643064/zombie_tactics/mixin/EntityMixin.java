@@ -1,6 +1,5 @@
 package n643064.zombie_tactics.mixin;
 
-import n643064.zombie_tactics.Config;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.phys.Vec3;
