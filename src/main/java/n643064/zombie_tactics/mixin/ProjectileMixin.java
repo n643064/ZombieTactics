@@ -1,6 +1,5 @@
 package n643064.zombie_tactics.mixin;
 
-import n643064.zombie_tactics.Config;
 import n643064.zombie_tactics.MarkerEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -11,6 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static n643064.zombie_tactics.Config.CONFIG;
 
 @Mixin(Projectile.class)
 public abstract class ProjectileMixin extends Entity
@@ -23,7 +24,7 @@ public abstract class ProjectileMixin extends Entity
     @Inject(method = "onHit", at = @At("TAIL"))
     private void onHit(HitResult result, CallbackInfo ci)
     {
-        if (Config.enableMarkers && Config.markersFromProjectiles && random.nextDouble() <= Config.markerSpawnChance)
+        if (result.getType() != HitResult.Type.MISS && CONFIG.enableMarkers() && CONFIG.markersSpawnOnProjectileHit() && random.nextDouble() <= CONFIG.markerSpawnChance())
         {
             final MarkerEntity m = new MarkerEntity(level());
             m.setPos(result.getLocation());

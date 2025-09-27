@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static n643064.zombie_tactics.Config.CONFIG;
+
 @Mixin(Entity.class)
 public abstract class EntityMixin
 {
@@ -21,10 +23,10 @@ public abstract class EntityMixin
     @Inject(method = "push(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
     private void pushAwayFrom(Entity entity, CallbackInfo ci)
     {
-        if (Config.zombiesClimbing && entity instanceof Zombie && getClass().isAssignableFrom(Zombie.class) && entity.onGround() && horizontalCollision)
+        if (CONFIG.zombieClimbing() && entity instanceof Zombie && getClass().isAssignableFrom(Zombie.class) && entity.onGround() && horizontalCollision)
         {
             final Vec3 v = getDeltaMovement();
-            setDeltaMovement(v.x, Config.climbingSpeed, v.z);
+            setDeltaMovement(v.x, CONFIG.climbingSpeed(), v.z);
         }
     }
 }

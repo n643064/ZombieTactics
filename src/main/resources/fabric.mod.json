@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "zombie_tactics",
+  "version": "${version}",
+  "name": "Zombie Tactics",
+  "description": "gib brain",
+  "authors": [],
+  "contact": {},
+  "license": "GPL-3.0",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "n643064.zombie_tactics.Client"
+    ],
+    "main": [
+      "n643064.zombie_tactics.Main"
+    ]
+  },
+  "mixins": [
+    "zombie_tactics.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

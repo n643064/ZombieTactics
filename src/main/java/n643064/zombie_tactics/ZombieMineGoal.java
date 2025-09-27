@@ -9,6 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
+import static n643064.zombie_tactics.Config.CONFIG;
+
 public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
 {
     final T zombie;
@@ -47,7 +49,7 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
     public void start()
     {
         progress = 0;
-        hardness = level.getBlockState(target).getBlock().defaultDestroyTime() * Config.hardnessMult;
+        hardness = level.getBlockState(target).getBlock().defaultDestroyTime() * CONFIG.hardnessMultiplier();
     }
 
     boolean scanColumn(BlockPos bp)
@@ -67,7 +69,7 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
         final Block b = state.getBlock();
         //System.out.println("check " + pos);
         final float dt = b.defaultDestroyTime();
-        if (!b.isPossibleToRespawnInThis(state) && dt >= 0 && dt <= Config.maxHardness)
+        if (!b.isPossibleToRespawnInThis(state) && dt >= 0 && dt <= CONFIG.maxHardness())
         {
             target = pos;
             return true;
@@ -105,14 +107,14 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
             return;
         }
 
-        if (level.getBlockState(target).isAir() || d <= Config.minDist || d > Config.maxDist)
+        if (level.getBlockState(target).isAir() || d <= CONFIG.miningMinDistance() || d > CONFIG.miningMaxDistance())
         {
             target = null;
             return;
         }
         if (progress >= hardness)
         {
-            level.destroyBlock(target, Config.dropBlocks, zombie);
+            level.destroyBlock(target, CONFIG.dropBrokenBlocks(), zombie);
             zombie.level().destroyBlockProgress(zombie.getId(), target, -1);
             target = null;
         } else
@@ -120,7 +122,7 @@ public class ZombieMineGoal<T extends Zombie & IMarkerFollower> extends Goal
             level.destroyBlockProgress(zombie.getId(), target, (int) ((progress / hardness) * 10));
             zombie.stopInPlace();
             zombie.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
-            progress += Config.increment;
+            progress += CONFIG.miningIncrement();
             zombie.swing(InteractionHand.MAIN_HAND);
         }
     }

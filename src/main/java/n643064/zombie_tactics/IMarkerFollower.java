@@ -1,6 +1,7 @@
 package n643064.zombie_tactics;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 
 public interface IMarkerFollower
 {

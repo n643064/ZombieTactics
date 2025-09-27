@@ -6,7 +6,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import static n643064.zombie_tactics.Config.CONFIG;
+
 
 public class MarkerEntity extends Entity
 {
@@ -14,18 +15,17 @@ public class MarkerEntity extends Entity
     public MarkerEntity(EntityType<?> entityType, Level level)
     {
         super(entityType, level);
-        timeToLive = Config.markerLifeTime * 20;
+        timeToLive = CONFIG.markerLifetime() * 20;
 
-        for (Entity e : level.getEntities(this, this.getBoundingBox().inflate(10 * Config.markerRange), e -> (e instanceof IMarkerFollower)))
+        for (Entity e : level.getEntities(this, this.getBoundingBox().inflate(10 * CONFIG.markerRange()), e -> (e instanceof IMarkerFollower)))
         {
-            //System.out.println(e);
             ((IMarkerFollower) (e)).zombieTactics$setTargetMarker(this);
         }
     }
 
     public MarkerEntity(Level level)
     {
-        this(Main.MARKER.get(), level);
+        this(Main.MARKER, level);
     }
 
 
@@ -37,19 +37,19 @@ public class MarkerEntity extends Entity
             this.remove(RemovalReason.DISCARDED);
     }
 
-    @Override @ParametersAreNonnullByDefault
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder)
     {
 
     }
 
-    @Override @ParametersAreNonnullByDefault
+    @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag)
     {
 
     }
 
-    @Override @ParametersAreNonnullByDefault
+    @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag)
     {
 

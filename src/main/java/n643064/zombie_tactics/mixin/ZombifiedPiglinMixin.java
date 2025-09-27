@@ -16,6 +16,8 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
+import static n643064.zombie_tactics.Config.CONFIG;
+
 @Mixin(ZombifiedPiglin.class)
 public abstract class ZombifiedPiglinMixin extends Zombie implements NeutralMob
 {
@@ -26,19 +28,19 @@ public abstract class ZombifiedPiglinMixin extends Zombie implements NeutralMob
      * @reason no :3
      */
     @Overwrite
-    protected void addBehaviourGoals()
+    public void addBehaviourGoals()
     {
-        if (Config.affectPiglins)
+        if (CONFIG.affectPiglins())
         {
             this.goalSelector.addGoal(1, new ZombieAttackGoal(this, 1.0, true));
-            if (Config.targetAnimals)
-                this.targetSelector.addGoal(Config.targetAnimalsPriority, new NearestAttackableTargetGoal<>(this, Animal.class, Config.targetAnimalsVisibility));
-            if (Config.mineBlocks)
-                this.goalSelector.addGoal(Config.miningPriority, new ZombieMineGoal<>((Zombie & IMarkerFollower) this));
-            if (Config.enableMarkers)
+            if (CONFIG.targetAnimals())
+                this.targetSelector.addGoal(CONFIG.targetAnimalsPriority(), new NearestAttackableTargetGoal<>(this, Animal.class, CONFIG.targetAnimalsVisibilityCheck()));
+            if (CONFIG.mineBlocks())
+                this.goalSelector.addGoal(CONFIG.miningPriority(), new ZombieMineGoal<>((Zombie & IMarkerFollower) this));
+            if (CONFIG.enableMarkers())
             {
                 this.goalSelector.addGoal(2, new RemoveMarkerGoal<>((Zombie & IMarkerFollower) this));
-                this.goalSelector.addGoal(Config.markerPathingPriority, new MoveTowardsMarkerGoal<>((Zombie & IMarkerFollower) this));
+                this.goalSelector.addGoal(CONFIG.markerNavigationPriority(), new MoveTowardsMarkerGoal<>((Zombie & IMarkerFollower) this));
             }
         } else
             this.goalSelector.addGoal(2, new ZombieAttackGoal(this, 1.0, false));
